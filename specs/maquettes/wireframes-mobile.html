@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>my-body · Wireframes mobile</title>
+<style>
+  body { margin:0; padding:32px 40px 60px; background:#f5f5f7; color:#1a1a1a; font-family:system-ui,-apple-system,sans-serif; }
+  h2 { font-size:24px; margin:0 0 6px; }
+  h3 { font-size:16px; margin:0 0 6px; }
+  .subtitle { color:#666; font-size:14px; margin:0 0 16px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
+  .card { background:#fff; border:1px solid #e5e5e5; border-radius:14px; overflow:hidden; }
+  .card-image { background:#fafafa; padding:12px; }
+  .card-body { padding:14px 16px; font-size:13.5px; line-height:1.5; }
+  .card-body p { margin:4px 0 0; }
+  .section { margin-top:16px; }
+  .note { font-size:12px; color:#888; margin-bottom:18px; }
+</style>
+<script>function toggleSelect(){}</script>
+</head>
+<body>
+<p class="note">Maquette de cadrage (brainstorming du 29/09/2026). Voir <code>specs/</code> pour les exigences. Les maquettes illustrent la structure et le style, les specs font foi.</p>
+<h2>Wireframes : à quoi pourrait ressembler l'app</h2>
+<p class="subtitle">Mobile d'abord (la pesée du matin se fait sur téléphone), puis la version desktop. Clique sur les écrans qui te plaisent et commente dans le terminal.</p>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <path id="m-half" d="M100,62 L110,62 Q111,72 112,76 Q140,80 150,94 Q157,108 158,130 L162,170 Q165,200 166,222 Q170,238 164,248 Q156,250 156,236 L152,205 Q148,175 146,150 L140,122 Q136,150 132,172 Q128,190 131,208 Q136,225 134,245 L130,300 Q127,320 128,335 L124,395 L123,412 Q130,420 128,426 L106,426 L107,412 L106,390 L106,335 Q104,300 103,270 Q101,252 100,250"/>
+    <g id="male">
+      <circle cx="100" cy="40" r="22"/>
+      <use href="#m-half"/>
+      <use href="#m-half" transform="translate(200,0) scale(-1,1)"/>
+    </g>
+    <g id="trend-chart">
+      <line x1="0" y1="97.8" x2="250" y2="97.8" stroke="#16a34a" stroke-width="1" stroke-dasharray="4 3"/>
+      <g fill="#b6bccb"><circle cx="0.0" cy="16.7" r="1.6"/><circle cx="4.4" cy="17.0" r="1.6"/><circle cx="8.8" cy="12.8" r="1.6"/><circle cx="13.2" cy="20.8" r="1.6"/><circle cx="17.6" cy="26.7" r="1.6"/><circle cx="22.0" cy="22.8" r="1.6"/><circle cx="26.3" cy="12.5" r="1.6"/><circle cx="30.7" cy="12.2" r="1.6"/><circle cx="35.1" cy="12.6" r="1.6"/><circle cx="39.5" cy="25.1" r="1.6"/><circle cx="43.9" cy="24.3" r="1.6"/><circle cx="48.3" cy="31.5" r="1.6"/><circle cx="52.7" cy="32.7" r="1.6"/><circle cx="57.1" cy="31.4" r="1.6"/><circle cx="61.5" cy="28.5" r="1.6"/><circle cx="65.9" cy="18.6" r="1.6"/><circle cx="70.2" cy="24.8" r="1.6"/><circle cx="74.6" cy="28.7" r="1.6"/><circle cx="79.0" cy="29.2" r="1.6"/><circle cx="83.4" cy="37.3" r="1.6"/><circle cx="87.8" cy="33.6" r="1.6"/><circle cx="92.2" cy="29.5" r="1.6"/><circle cx="96.6" cy="31.9" r="1.6"/><circle cx="101.0" cy="33.9" r="1.6"/><circle cx="105.4" cy="34.8" r="1.6"/><circle cx="109.8" cy="46.6" r="1.6"/><circle cx="114.1" cy="35.5" r="1.6"/><circle cx="118.5" cy="34.8" r="1.6"/><circle cx="122.9" cy="41.2" r="1.6"/><circle cx="127.3" cy="51.3" r="1.6"/><circle cx="131.7" cy="48.5" r="1.6"/><circle cx="136.1" cy="54.0" r="1.6"/><circle cx="140.5" cy="37.1" r="1.6"/><circle cx="144.9" cy="37.7" r="1.6"/><circle cx="149.3" cy="46.0" r="1.6"/><circle cx="153.7" cy="54.8" r="1.6"/><circle cx="158.0" cy="47.5" r="1.6"/><circle cx="162.4" cy="53.1" r="1.6"/><circle cx="166.8" cy="45.4" r="1.6"/><circle cx="171.2" cy="44.6" r="1.6"/><circle cx="175.6" cy="52.3" r="1.6"/><circle cx="180.0" cy="58.3" r="1.6"/></g>
+      <polyline fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linejoin="round" points="0.0,16.7 4.4,16.8 8.8,15.8 13.2,17.1 17.6,19.5 22.0,20.3 26.3,18.4 30.7,16.8 35.1,15.8 39.5,18.1 43.9,19.7 48.3,22.6 52.7,25.1 57.1,26.7 61.5,27.1 65.9,25.0 70.2,25.0 74.6,25.9 79.0,26.7 83.4,29.4 87.8,30.4 92.2,30.2 96.6,30.6 101.0,31.5 105.4,32.3 109.8,35.9 114.1,35.8 118.5,35.5 122.9,36.9 127.3,40.5 131.7,42.5 136.1,45.4 140.5,43.3 144.9,41.9 149.3,42.9 153.7,45.9 158.0,46.3 162.4,48.0 166.8,47.3 171.2,46.6 175.6,48.1 180.0,50.6"/>
+      <line x1="180" y1="50.6" x2="250" y2="82" stroke="#4f46e5" stroke-width="2" stroke-dasharray="2 4" stroke-linecap="round"/>
+      <circle cx="180" cy="50.6" r="4" fill="#4f46e5" stroke="#fff" stroke-width="1.5"/>
+    </g>
+  </defs>
+</svg>
+
+<style>
+  .wf-grid { display:flex; flex-wrap:wrap; gap:28px; justify-content:center; margin-top:10px; }
+  .wf { width:300px; cursor:pointer; }
+  .wf-cap { font:600 13px system-ui,sans-serif; margin:10px 2px 2px; }
+  .wf-sub { font:12px system-ui,sans-serif; opacity:.75; margin:0 2px; line-height:1.4; }
+  .wf.selected .phone, .wf.selected .desk { outline:3px solid #4f46e5; outline-offset:3px; }
+  .phone { position:relative; width:300px; height:600px; background:#f6f7f9; color:#1f2430; border:8px solid #1f2430; border-radius:34px; overflow:hidden; font:13px system-ui,sans-serif; display:flex; flex-direction:column; }
+  .notch { height:22px; display:flex; justify-content:center; align-items:flex-end; }
+  .notch i { width:90px; height:6px; background:#1f2430; border-radius:6px; }
+  .scr { flex:1; overflow:hidden; padding:10px 14px; display:flex; flex-direction:column; gap:10px; }
+  .top { display:flex; justify-content:space-between; align-items:center; }
+  .top h4 { margin:0; font-size:17px; }
+  .muted { color:#6b7280; font-size:11px; }
+  .card { background:#fff; border:1px solid #e3e6ec; border-radius:14px; padding:11px 12px; }
+  .lbl { font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:#6b7280; font-weight:600; }
+  .big { font-size:30px; font-weight:750; letter-spacing:-.02em; }
+  .pill { display:inline-block; font-size:10.5px; font-weight:600; padding:3px 8px; border-radius:99px; }
+  .ok { background:#dcfce7; color:#166534; } .warn { background:#ffedd5; color:#9a3412; } .info { background:#e0e7ff; color:#3730a3; }
+  .bar { height:8px; background:#e3e6ec; border-radius:8px; overflow:hidden; margin:6px 0 4px; } .bar b { display:block; height:100%; background:#4f46e5; border-radius:8px; }
+  .row { display:flex; justify-content:space-between; align-items:center; }
+  .dn { color:#16a34a; font-weight:700; } .up { color:#2563eb; font-weight:700; } .eq { color:#6b7280; font-weight:700; }
+  .tabs { display:flex; justify-content:space-around; align-items:center; background:#fff; border-top:1px solid #e3e6ec; padding:8px 4px 12px; font-size:10px; color:#6b7280; }
+  .tabs span { display:flex; flex-direction:column; align-items:center; gap:2px; } .tabs .on { color:#4f46e5; font-weight:700; }
+  .tabs .ico { width:18px; height:18px; border-radius:5px; background:currentColor; opacity:.35; } .tabs .on .ico { opacity:1; }
+  .fab { width:46px; height:46px; border-radius:50%; background:#4f46e5; color:#fff; font-size:26px; display:flex; align-items:center; justify-content:center; margin-top:-26px; box-shadow:0 4px 12px rgba(79,70,229,.4); }
+  .btn { background:#4f46e5; color:#fff; text-align:center; border-radius:12px; padding:11px; font-weight:650; }
+  .btn2 { background:#fff; border:1px solid #d6dae2; text-align:center; border-radius:12px; padding:10px; font-weight:600; }
+  .seg { display:flex; background:#e9ebf0; border-radius:10px; padding:3px; font-size:11px; }
+  .seg span { flex:1; text-align:center; padding:5px 0; border-radius:8px; } .seg .on { background:#fff; font-weight:700; box-shadow:0 1px 2px rgba(0,0,0,.08); }
+  .chips { display:flex; gap:6px; flex-wrap:wrap; } .chip { font-size:11px; padding:5px 10px; border-radius:99px; background:#fff; border:1px solid #d6dae2; } .chip.on { background:#4f46e5; color:#fff; border-color:#4f46e5; font-weight:600; }
+  .field { background:#fff; border:1px solid #d6dae2; border-radius:10px; padding:9px 11px; display:flex; justify-content:space-between; }
+  .sheet { position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:22px 22px 0 0; box-shadow:0 -8px 30px rgba(0,0,0,.18); padding:10px 16px 18px; display:flex; flex-direction:column; gap:10px; }
+  .grab { width:40px; height:5px; background:#d6dae2; border-radius:5px; margin:0 auto 4px; }
+  .dim { position:absolute; inset:0; background:rgba(15,20,30,.35); }
+  .stepper { display:flex; align-items:center; justify-content:center; gap:18px; }
+  .stepper .c { width:40px; height:40px; border-radius:50%; border:1px solid #d6dae2; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .tip { background:#eef2ff; border-radius:10px; padding:8px 10px; font-size:11px; color:#3730a3; line-height:1.4; }
+  .list div { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid #eef0f3; font-size:12px; }
+  .desk { width:920px; max-width:100%; background:#f6f7f9; color:#1f2430; border:1px solid #cfd4dd; border-radius:12px; overflow:hidden; font:13px system-ui,sans-serif; cursor:pointer; }
+  .desk-bar { background:#e9ebf0; padding:7px 12px; display:flex; gap:6px; } .desk-bar i { width:10px; height:10px; border-radius:50%; background:#c4c9d3; }
+  .desk-in { display:flex; min-height:420px; }
+  .side { width:170px; background:#fff; border-right:1px solid #e3e6ec; padding:16px 12px; display:flex; flex-direction:column; gap:4px; font-size:13px; }
+  .side .logo { font-weight:800; font-size:16px; margin-bottom:14px; }
+  .side span { padding:8px 10px; border-radius:8px; color:#4b5563; } .side .on { background:#eef2ff; color:#4f46e5; font-weight:700; }
+  .main { flex:1; padding:18px; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:14px; align-content:start; }
+</style>
+
+<div class="wf-grid">
+
+  <!-- 1. ACCUEIL -->
+  <div class="wf" data-choice="accueil" onclick="toggleSelect(this)">
+    <div class="phone"><div class="notch"><i></i></div>
+      <div class="scr">
+        <div class="top"><div><div class="muted">Mardi 29 septembre</div><h4>Bonjour 👋</h4></div><div style="width:32px;height:32px;border-radius:50%;background:#dfe3ea"></div></div>
+        <div class="card">
+          <div class="row"><span class="lbl">Poids · tendance</span><span class="pill ok">−0,4 kg/sem</span></div>
+          <div class="row" style="align-items:flex-end"><span class="big">78,4 <small style="font-size:14px">kg</small></span><span class="muted" style="text-align:right">Pesée du jour<br><b style="color:#1f2430">78,9 kg</b></span></div>
+          <svg viewBox="0 0 250 110" style="width:100%;height:62px;margin-top:4px"><use href="#trend-chart"/></svg>
+        </div>
+        <div class="card">
+          <div class="row"><span class="lbl">Objectif · perte</span><span class="pill ok">✓ Dans le rythme</span></div>
+          <div class="bar"><b style="width:60%"></b></div>
+          <div class="row muted"><span>82,0 → <b style="color:#1f2430">75,0 kg</b></span><span>−3,6 / −7,0 kg</span></div>
+          <div class="muted" style="margin-top:4px">Atteinte estimée : <b style="color:#1f2430">~ 15 novembre</b></div>
+        </div>
+        <div class="card">
+          <div class="row"><span class="lbl">Mensurations</span><span class="muted">il y a 6 j</span></div>
+          <div class="list" style="margin-top:4px">
+            <div><span>Taille</span><span>84 cm <span class="dn">▼ 3,5</span></span></div>
+            <div><span>Hanches</span><span>98 cm <span class="dn">▼ 2</span></span></div>
+            <div style="border:0"><span>Bras</span><span>38 cm <span class="up">▲ 0,5</span></span></div>
+          </div>
+          <div class="pill info" style="margin-top:4px">📏 Prochaine mesure : dimanche</div>
+        </div>
+      </div>
+      <div class="tabs"><span class="on"><i class="ico"></i>Accueil</span><span><i class="ico"></i>Progrès</span><div class="fab">+</div><span><i class="ico"></i>Corps</span><span><i class="ico"></i>Objectif</span></div>
+    </div>
+    <div class="wf-cap">1. Accueil</div>
+    <p class="wf-sub">Le chiffre mis en avant est la <b>tendance lissée</b>, pas la pesée du jour (qui fluctue de ±1 kg). Statut de l'objectif en un coup d'œil.</p>
+  </div>
+
+  <!-- 2. SAISIE POIDS -->
+  <div class="wf" data-choice="saisie-poids" onclick="toggleSelect(this)">
+    <div class="phone"><div class="notch"><i></i></div>
+      <div class="scr" style="filter:blur(1px)">
+        <div class="top"><h4>Bonjour 👋</h4></div>
+        <div class="card" style="height:150px"></div><div class="card" style="height:110px"></div>
+      </div>
+      <div class="dim"></div>
+      <div class="sheet">
+        <div class="grab"></div>
+        <div class="row"><b style="font-size:16px">Nouvelle pesée</b><span class="muted">Aujourd'hui · 07:32 ✎</span></div>
+        <div class="stepper"><span class="c">−</span><span class="big" style="font-size:44px">78,9<small style="font-size:16px"> kg</small></span><span class="c">+</span></div>
+        <div class="muted" style="text-align:center">Pré-rempli avec ta dernière pesée · pas de 0,1</div>
+        <div class="field"><span class="muted">% masse grasse <i>(optionnel)</i></span><span>—</span></div>
+        <div class="field"><span class="muted">Note (sel, règles, soirée…)</span><span></span></div>
+        <div class="tip">💡 Pèse-toi le matin, après les toilettes, avant de boire ou manger. Même balance, même endroit.</div>
+        <div class="btn">Enregistrer</div>
+      </div>
+    </div>
+    <div class="wf-cap">2. Saisie de pesée (bouton +)</div>
+    <p class="wf-sub">Moins de 5 secondes : la valeur est pré-remplie et ajustée avec − / +. Le % de masse grasse et la note sont optionnels.</p>
+  </div>
+
+  <!-- 3. CORPS -->
+  <div class="wf" data-choice="corps" onclick="toggleSelect(this)">
+    <div class="phone"><div class="notch"><i></i></div>
+      <div class="scr">
+        <div class="top"><h4>Mon corps</h4><span class="muted">vs 30 j ▾</span></div>
+        <div class="seg"><span>7 j</span><span class="on">30 j</span><span>90 j</span><span>Début</span></div>
+        <svg viewBox="-70 0 340 440" style="width:100%;height:340px">
+          <use href="#male" fill="#b6bccb"/>
+          <g font-family="system-ui" font-size="12" font-weight="600" fill="#1f2430">
+            <line x1="100" y1="70" x2="20" y2="70" stroke="#4f46e5"/><circle cx="100" cy="70" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/>
+            <text x="15" y="68" text-anchor="end">Cou 39</text><text x="15" y="81" text-anchor="end" fill="#6b7280">= 0</text>
+            <line x1="100" y1="130" x2="20" y2="130" stroke="#4f46e5"/><circle cx="100" cy="130" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/>
+            <text x="15" y="128" text-anchor="end">Poitrine 104</text><text x="15" y="141" text-anchor="end" fill="#2563eb">▲ 1</text>
+            <line x1="100" y1="180" x2="20" y2="180" stroke="#4f46e5"/><circle cx="100" cy="180" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/>
+            <text x="15" y="178" text-anchor="end">Taille 84</text><text x="15" y="191" text-anchor="end" fill="#16a34a">▼ 3,5</text>
+            <line x1="100" y1="220" x2="20" y2="220" stroke="#4f46e5"/><circle cx="100" cy="220" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/>
+            <text x="15" y="218" text-anchor="end">Hanches 98</text><text x="15" y="231" text-anchor="end" fill="#16a34a">▼ 2</text>
+            <line x1="145" y1="90" x2="185" y2="90" stroke="#4f46e5"/><circle cx="145" cy="90" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/>
+            <text x="190" y="88">Épaules 118</text><text x="190" y="101" fill="#2563eb">▲ 0,5</text>
+            <line x1="153" y1="140" x2="185" y2="140" stroke="#4f46e5"/><circle cx="153" cy="140" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/>
+            <text x="190" y="138">Bras 38</text><text x="190" y="151" fill="#2563eb">▲ 0,5</text>
+            <line x1="118" y1="280" x2="185" y2="280" stroke="#4f46e5"/><circle cx="118" cy="280" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/>
+            <text x="190" y="278">Cuisse 58</text><text x="190" y="291" fill="#2563eb">▲ 1</text>
+            <line x1="116" y1="360" x2="185" y2="360" stroke="#4f46e5"/><circle cx="116" cy="360" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/>
+            <text x="190" y="358">Mollet 38</text><text x="190" y="371" fill="#6b7280">= 0</text>
+          </g>
+        </svg>
+        <div class="btn">📏 Nouvelle séance de mesure</div>
+      </div>
+      <div class="tabs"><span><i class="ico"></i>Accueil</span><span><i class="ico"></i>Progrès</span><div class="fab">+</div><span class="on"><i class="ico"></i>Corps</span><span><i class="ico"></i>Objectif</span></div>
+    </div>
+    <div class="wf-cap">3. Corps : silhouette annotée</div>
+    <p class="wf-sub">Dernière valeur et écart pour chaque zone, sur une période au choix. Toucher un point ouvre la saisie de cette zone. La séance de mesure enchaîne toutes les zones.</p>
+  </div>
+
+  <!-- 4. SAISIE MENSURATION -->
+  <div class="wf" data-choice="saisie-mensuration" onclick="toggleSelect(this)">
+    <div class="phone"><div class="notch"><i></i></div>
+      <div class="scr">
+        <div class="top"><span class="muted">✕ Quitter</span><b>Séance de mesure</b><span class="muted">3 / 8</span></div>
+        <div class="bar" style="margin:0"><b style="width:37%"></b></div>
+        <svg viewBox="0 0 200 440" style="width:100%;height:190px">
+          <use href="#male" fill="#d6dae2"/>
+          <rect x="60" y="172" width="80" height="16" rx="8" fill="#4f46e5" opacity=".85"/>
+        </svg>
+      </div>
+      <div class="sheet">
+        <div class="grab"></div>
+        <div class="row"><b style="font-size:18px">Taille</b><span class="muted">Précédente : 84,5 cm · il y a 7 j</span></div>
+        <div class="stepper"><span class="c">−</span><span class="big" style="font-size:40px">84,0<small style="font-size:15px"> cm</small></span><span class="c">+</span></div>
+        <div class="tip"><b>Comment mesurer</b><br>Au niveau du nombril, ventre relâché, en fin d'expiration normale. Ruban horizontal, au contact de la peau, sans serrer.</div>
+        <div class="row" style="gap:8px"><div class="btn2" style="flex:1">← Poitrine</div><div class="btn" style="flex:1.4">Hanches →</div></div>
+        <div class="muted" style="text-align:center">Passer cette zone</div>
+      </div>
+    </div>
+    <div class="wf-cap">4. Séance de mesure guidée</div>
+    <p class="wf-sub">Les zones s'enchaînent dans un ordre fixe, zone surlignée, avec un <b>guide de mesure</b> pour garder un protocole constant. Chaque zone peut être passée.</p>
+  </div>
+
+  <!-- 5. PROGRÈS -->
+  <div class="wf" data-choice="progres" onclick="toggleSelect(this)">
+    <div class="phone"><div class="notch"><i></i></div>
+      <div class="scr">
+        <div class="top"><h4>Progrès</h4></div>
+        <div class="chips"><span class="chip on">Poids</span><span class="chip">Taille</span><span class="chip">Hanches</span><span class="chip">Bras</span><span class="chip">+4</span></div>
+        <div class="seg"><span>1S</span><span>1M</span><span class="on">3M</span><span>1A</span><span>Tout</span></div>
+        <div class="card" style="padding:10px 8px 6px">
+          <svg viewBox="-24 -6 280 128" style="width:100%;height:150px">
+            <g font-family="system-ui" font-size="8" fill="#6b7280"><text x="-22" y="4">83</text><text x="-22" y="52">79</text><text x="-22" y="100">75</text></g>
+            <use href="#trend-chart"/>
+            <text x="200" y="92" font-family="system-ui" font-size="8" fill="#16a34a">cible 75</text>
+          </svg>
+          <div class="row muted" style="font-size:10px;padding:0 4px"><span>● pesées</span><span style="color:#4f46e5">━ tendance</span><span>┈ projection</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+          <div class="card" style="padding:8px"><div class="lbl">Variation</div><b class="dn">−3,6 kg</b></div>
+          <div class="card" style="padding:8px"><div class="lbl">Rythme</div><b>−0,4/sem</b></div>
+          <div class="card" style="padding:8px"><div class="lbl">Pesées</div><b>42</b></div>
+        </div>
+        <div class="lbl">Historique</div>
+        <div class="list">
+          <div><span>Mar. 29 sept.</span><span>78,9 kg ›</span></div>
+          <div><span>Lun. 28 sept.</span><span>78,2 kg ›</span></div>
+          <div><span>Dim. 27 sept.  <span class="pill warn">📝 resto</span></span><span>79,6 kg ›</span></div>
+        </div>
+      </div>
+      <div class="tabs"><span><i class="ico"></i>Accueil</span><span class="on"><i class="ico"></i>Progrès</span><div class="fab">+</div><span><i class="ico"></i>Corps</span><span><i class="ico"></i>Objectif</span></div>
+    </div>
+    <div class="wf-cap">5. Progrès : courbes et historique</div>
+    <p class="wf-sub">Pesées brutes en points, tendance lissée, ligne cible et projection. Les puces font passer du poids à n'importe quelle mensuration. L'historique est modifiable.</p>
+  </div>
+
+  <!-- 6. OBJECTIF -->
+  <div class="wf" data-choice="objectif" onclick="toggleSelect(this)">
+    <div class="phone"><div class="notch"><i></i></div>
+      <div class="scr">
+        <div class="top"><h4>Mon objectif</h4></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div class="chip on" style="text-align:center;padding:9px;border-radius:10px">⬇ Perte</div>
+          <div class="chip" style="text-align:center;padding:9px;border-radius:10px">⬆ Prise</div>
+          <div class="chip" style="text-align:center;padding:9px;border-radius:10px">⇄ Recompo</div>
+          <div class="chip" style="text-align:center;padding:9px;border-radius:10px">＝ Maintien</div>
+        </div>
+        <div class="row" style="gap:8px">
+          <div class="field" style="flex:1;flex-direction:column"><span class="muted">Actuel (tendance)</span><b>78,4 kg</b></div>
+          <div class="field" style="flex:1;flex-direction:column;border-color:#4f46e5"><span class="muted">Cible</span><b>75,0 kg</b></div>
+        </div>
+        <div class="card">
+          <div class="row"><span class="lbl">Rythme visé</span><b>0,5 % / sem</b></div>
+          <div style="position:relative;height:26px;margin-top:8px">
+            <div style="position:absolute;top:9px;left:0;right:0;height:8px;border-radius:8px;background:linear-gradient(90deg,#e3e6ec 0 20%,#86efac 20% 70%,#fdba74 70% 100%)"></div>
+            <div style="position:absolute;top:3px;left:40%;width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid #4f46e5"></div>
+          </div>
+          <div class="row muted" style="font-size:10px"><span>0,25 %</span><span>recommandé</span><span>1 %+</span></div>
+          <div style="margin-top:8px;font-size:12px">≈ <b>0,39 kg/sem</b> · atteinte vers le <b>15 nov.</b></div>
+        </div>
+        <div class="card">
+          <div class="lbl">Suivi</div>
+          <div class="row" style="margin-top:6px"><span>Rythme réel (4 sem.)</span><b>0,4 kg/sem</b></div>
+          <div class="pill ok" style="margin-top:6px">✓ Dans le rythme</div>
+          <div class="muted" style="margin-top:6px;line-height:1.4">Au-delà de 1 %/sem : « Trop rapide, risque de perte musculaire ». Sous le rythme pendant 3 sem. : « Plateau, ajuste ».</div>
+        </div>
+      </div>
+      <div class="tabs"><span><i class="ico"></i>Accueil</span><span><i class="ico"></i>Progrès</span><div class="fab">+</div><span><i class="ico"></i>Corps</span><span class="on"><i class="ico"></i>Objectif</span></div>
+    </div>
+    <div class="wf-cap">6. Objectif</div>
+    <p class="wf-sub">Type, cible, rythme en % du poids par semaine avec une zone recommandée qui dépend du type (prise : 0,25 à 0,5 %). L'app compare en continu le rythme réel au rythme visé.</p>
+  </div>
+
+</div>
+
+<h3 style="margin-top:40px">Version desktop (même contenu, tout sur un écran)</h3>
+<div class="wf-grid">
+  <div class="wf" style="width:auto" data-choice="desktop" onclick="toggleSelect(this)">
+    <div class="desk">
+      <div class="desk-bar"><i></i><i></i><i></i></div>
+      <div class="desk-in">
+        <div class="side"><div class="logo">my‑body</div><span class="on">Accueil</span><span>Progrès</span><span>Corps</span><span>Objectif</span><span style="margin-top:auto">Profil</span></div>
+        <div class="main">
+          <div class="card" style="grid-column:span 2">
+            <div class="row"><span class="lbl">Poids · tendance</span><div class="seg" style="width:200px"><span>1M</span><span class="on">3M</span><span>1A</span><span>Tout</span></div></div>
+            <div class="row" style="margin-top:4px"><span class="big">78,4 kg</span><span class="pill ok">−0,4 kg/sem · dans le rythme</span></div>
+            <svg viewBox="0 -4 250 115" style="width:100%;height:190px"><use href="#trend-chart"/></svg>
+          </div>
+          <div class="card" style="grid-row:span 2">
+            <div class="row"><span class="lbl">Corps · vs 30 j</span><span class="muted">il y a 6 j</span></div>
+            <svg viewBox="-70 0 340 440" style="width:100%;height:330px">
+              <use href="#male" fill="#b6bccb"/>
+              <g font-family="system-ui" font-size="13" font-weight="600" fill="#1f2430">
+                <circle cx="100" cy="130" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/><line x1="94" y1="130" x2="20" y2="130" stroke="#4f46e5"/><text x="15" y="134" text-anchor="end">104 <tspan fill="#2563eb">▲1</tspan></text>
+                <circle cx="100" cy="180" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/><line x1="94" y1="180" x2="20" y2="180" stroke="#4f46e5"/><text x="15" y="184" text-anchor="end">84 <tspan fill="#16a34a">▼3,5</tspan></text>
+                <circle cx="100" cy="220" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/><line x1="94" y1="220" x2="20" y2="220" stroke="#4f46e5"/><text x="15" y="224" text-anchor="end">98 <tspan fill="#16a34a">▼2</tspan></text>
+                <circle cx="153" cy="140" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/><line x1="159" y1="140" x2="185" y2="140" stroke="#4f46e5"/><text x="190" y="144">38 <tspan fill="#2563eb">▲0,5</tspan></text>
+                <circle cx="118" cy="280" r="6" fill="#fff" stroke="#4f46e5" stroke-width="3"/><line x1="124" y1="280" x2="185" y2="280" stroke="#4f46e5"/><text x="190" y="284">58 <tspan fill="#2563eb">▲1</tspan></text>
+              </g>
+            </svg>
+            <div class="btn">📏 Nouvelle séance</div>
+          </div>
+          <div class="card">
+            <div class="row"><span class="lbl">Objectif · perte</span><span class="pill ok">✓</span></div>
+            <div class="bar"><b style="width:60%"></b></div>
+            <div class="muted">82,0 → <b style="color:#1f2430">75,0 kg</b> · ~ 15 nov.</div>
+          </div>
+          <div class="card">
+            <div class="row"><span class="lbl">Saisie rapide</span></div>
+            <div class="row" style="gap:6px;margin-top:6px"><div class="field" style="flex:1"><b>78,9</b><span class="muted">kg</span></div><div class="btn" style="padding:9px 14px">+</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wf-cap">7. Tableau de bord desktop</div>
+    <p class="wf-sub">Même navigation, en barre latérale. Graphique, silhouette et objectif visibles d'un coup, avec une saisie rapide intégrée.</p>
+  </div>
+</div>
+
+<div class="section" style="margin-top:28px">
+  <p class="subtitle">Non montré : l'onboarding (sexe → taille → poids actuel → objectif → première séance de mesure) et le profil (unités kg/lb et cm/in, rappels, export CSV, suppression du compte).</p>
+</div>
+
+</body>
+</html>

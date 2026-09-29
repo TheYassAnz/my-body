@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>my-body · Directions visuelles</title>
+<style>
+  body { margin:0; padding:32px 40px 60px; background:#f5f5f7; color:#1a1a1a; font-family:system-ui,-apple-system,sans-serif; }
+  h2 { font-size:24px; margin:0 0 6px; }
+  h3 { font-size:16px; margin:0 0 6px; }
+  .subtitle { color:#666; font-size:14px; margin:0 0 16px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
+  .card { background:#fff; border:1px solid #e5e5e5; border-radius:14px; overflow:hidden; }
+  .card-image { background:#fafafa; padding:12px; }
+  .card-body { padding:14px 16px; font-size:13.5px; line-height:1.5; }
+  .card-body p { margin:4px 0 0; }
+  .section { margin-top:16px; }
+  .note { font-size:12px; color:#888; margin-bottom:18px; }
+</style>
+<script>function toggleSelect(){}</script>
+</head>
+<body>
+<p class="note">Maquette de cadrage (brainstorming du 29/09/2026). Voir <code>specs/</code> pour les exigences. Les maquettes illustrent la structure et le style, les specs font foi.</p>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+
+<h2>Direction visuelle : plus moderne et épurée</h2>
+<p class="subtitle">Trois directions appliquées aux mêmes écrans (Accueil et Corps). Même contenu, seule l'esthétique change. Choisis-en une, ou dis-moi quoi mélanger.</p>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <path id="h" d="M100,62 L110,62 Q111,72 112,76 Q140,80 150,94 Q157,108 158,130 L162,170 Q165,200 166,222 Q170,238 164,248 Q156,250 156,236 L152,205 Q148,175 146,150 L140,122 Q136,150 132,172 Q128,190 131,208 Q136,225 134,245 L130,300 Q127,320 128,335 L124,395 L123,412 Q130,420 128,426 L106,426 L107,412 L106,390 L106,335 Q104,300 103,270 Q101,252 100,250"/>
+    <g id="body"><circle cx="100" cy="40" r="22"/><use href="#h"/><use href="#h" transform="translate(200,0) scale(-1,1)"/></g>
+    <polyline id="tl" points="0.0,16.7 4.4,16.8 8.8,15.8 13.2,17.1 17.6,19.5 22.0,20.3 26.3,18.4 30.7,16.8 35.1,15.8 39.5,18.1 43.9,19.7 48.3,22.6 52.7,25.1 57.1,26.7 61.5,27.1 65.9,25.0 70.2,25.0 74.6,25.9 79.0,26.7 83.4,29.4 87.8,30.4 92.2,30.2 96.6,30.6 101.0,31.5 105.4,32.3 109.8,35.9 114.1,35.8 118.5,35.5 122.9,36.9 127.3,40.5 131.7,42.5 136.1,45.4 140.5,43.3 144.9,41.9 149.3,42.9 153.7,45.9 158.0,46.3 162.4,48.0 166.8,47.3 171.2,46.6 175.6,48.1 180.0,50.6"/>
+    <polygon id="ta" points="0.0,16.7 4.4,16.8 8.8,15.8 13.2,17.1 17.6,19.5 22.0,20.3 26.3,18.4 30.7,16.8 35.1,15.8 39.5,18.1 43.9,19.7 48.3,22.6 52.7,25.1 57.1,26.7 61.5,27.1 65.9,25.0 70.2,25.0 74.6,25.9 79.0,26.7 83.4,29.4 87.8,30.4 92.2,30.2 96.6,30.6 101.0,31.5 105.4,32.3 109.8,35.9 114.1,35.8 118.5,35.5 122.9,36.9 127.3,40.5 131.7,42.5 136.1,45.4 140.5,43.3 144.9,41.9 149.3,42.9 153.7,45.9 158.0,46.3 162.4,48.0 166.8,47.3 171.2,46.6 175.6,48.1 180.0,50.6 180,110 0,110"/>
+    <g id="dots"><circle cx="0.0" cy="16.7" r="1.4"/><circle cx="8.8" cy="12.8" r="1.4"/><circle cx="17.6" cy="26.7" r="1.4"/><circle cx="26.3" cy="12.5" r="1.4"/><circle cx="35.1" cy="12.6" r="1.4"/><circle cx="43.9" cy="24.3" r="1.4"/><circle cx="52.7" cy="32.7" r="1.4"/><circle cx="61.5" cy="28.5" r="1.4"/><circle cx="70.2" cy="24.8" r="1.4"/><circle cx="79.0" cy="29.2" r="1.4"/><circle cx="87.8" cy="33.6" r="1.4"/><circle cx="96.6" cy="31.9" r="1.4"/><circle cx="105.4" cy="34.8" r="1.4"/><circle cx="114.1" cy="35.5" r="1.4"/><circle cx="122.9" cy="41.2" r="1.4"/><circle cx="131.7" cy="48.5" r="1.4"/><circle cx="140.5" cy="37.1" r="1.4"/><circle cx="149.3" cy="46.0" r="1.4"/><circle cx="158.0" cy="47.5" r="1.4"/><circle cx="166.8" cy="45.4" r="1.4"/><circle cx="175.6" cy="52.3" r="1.4"/></g>
+    <linearGradient id="gB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c6f432" stop-opacity=".35"/><stop offset="1" stop-color="#c6f432" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f8f7a" stop-opacity=".25"/><stop offset="1" stop-color="#6f8f7a" stop-opacity="0"/></linearGradient>
+    <g id="i-home"><path d="M3 10 L12 3 L21 10 V20 H3 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></g>
+    <g id="i-chart"><path d="M3 20 L9 13 L13 16 L21 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g id="i-body"><circle cx="12" cy="5" r="2.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 10 H18 M12 10 V15 M12 15 L8 21 M12 15 L16 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></g>
+    <g id="i-target"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></g>
+  </defs>
+</svg>
+
+<style>
+  .dir { margin: 26px 0 8px; }
+  .dir-head { display:flex; align-items:baseline; gap:12px; margin-bottom:12px; }
+  .dir-head h3 { margin:0; }
+  .dir-row { display:flex; gap:22px; flex-wrap:wrap; justify-content:center; cursor:pointer; padding:14px; border-radius:18px; }
+  .dir.selected .dir-row { outline:3px solid #4f46e5; outline-offset:2px; }
+  .ph { position:relative; width:290px; height:590px; border-radius:40px; overflow:hidden; display:flex; flex-direction:column; font-family:'Geist',system-ui,sans-serif; box-shadow:0 0 0 7px #111, 0 20px 40px rgba(0,0,0,.18); }
+  .ph .sc { flex:1; padding:34px 22px 10px; display:flex; flex-direction:column; overflow:hidden; }
+  .ph svg.ic { width:22px; height:22px; }
+  .nav { display:flex; justify-content:space-around; align-items:center; padding:12px 18px 20px; }
+  .num { font-variant-numeric: tabular-nums; }
+  .body-svg { width:100%; height:330px; }
+
+  /* ===== A. Clarté ===== */
+  .A { background:#fff; color:#0a0a0a; }
+  .A .date { font-size:12px; color:#9a9a9a; font-weight:500; }
+  .A .hello { font-size:24px; font-weight:600; letter-spacing:-.03em; margin:2px 0 26px; }
+  .A .k { font-size:11px; color:#9a9a9a; font-weight:500; }
+  .A .big { font-size:64px; font-weight:600; letter-spacing:-.05em; line-height:1; margin-top:6px; }
+  .A .big small { font-size:18px; color:#9a9a9a; font-weight:500; letter-spacing:0; margin-left:4px; }
+  .A .delta { font-size:13px; font-weight:500; color:#1a7f37; margin-top:6px; }
+  .A .hr { height:1px; background:#efefef; margin:18px 0; }
+  .A .line { display:flex; justify-content:space-between; font-size:13px; padding:5px 0; }
+  .A .line span:first-child { color:#6a6a6a; }
+  .A .prog { height:3px; background:#efefef; border-radius:3px; margin:10px 0 6px; } .A .prog b { display:block; width:60%; height:100%; background:#0a0a0a; border-radius:3px; }
+  .A .nav { color:#c4c4c4; border-top:1px solid #f2f2f2; } .A .nav .on { color:#0a0a0a; }
+  .A .plus { width:44px; height:44px; border-radius:50%; background:#0a0a0a; color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:300; }
+  .A .seg { display:flex; gap:16px; font-size:12px; color:#b0b0b0; margin:8px 0 4px; } .A .seg .on { color:#0a0a0a; font-weight:600; border-bottom:1.5px solid #0a0a0a; padding-bottom:3px; }
+  .A .cta { margin-top:auto; border:1px solid #0a0a0a; border-radius:99px; text-align:center; padding:11px; font-size:13px; font-weight:600; }
+
+  /* ===== B. Nuit ===== */
+  .B { background:#0b0b0c; color:#f4f4f5; }
+  .B .date { font-size:12px; color:#6b6b73; }
+  .B .hello { font-size:22px; font-weight:600; letter-spacing:-.02em; margin:2px 0 18px; }
+  .B .tile { background:#161618; border-radius:22px; padding:16px; margin-bottom:10px; }
+  .B .k { font-size:11px; color:#8b8b93; font-weight:500; display:flex; justify-content:space-between; }
+  .B .big { font-size:52px; font-weight:600; letter-spacing:-.04em; line-height:1.05; margin-top:4px; }
+  .B .big small { font-size:16px; color:#6b6b73; margin-left:3px; letter-spacing:0; }
+  .B .badge { background:rgba(198,244,50,.12); color:#c6f432; font-size:11px; font-weight:600; padding:4px 9px; border-radius:99px; }
+  .B .ring { display:flex; gap:14px; align-items:center; }
+  .B .mini { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .B .mini div { background:#161618; border-radius:18px; padding:12px 10px; font-size:11px; color:#8b8b93; }
+  .B .mini b { display:block; color:#f4f4f5; font-size:17px; font-weight:600; margin-top:3px; }
+  .B .mini i { font-style:normal; color:#c6f432; font-size:11px; }
+  .B .nav { color:#55555c; } .B .nav .on { color:#c6f432; }
+  .B .plus { width:46px; height:46px; border-radius:16px; background:#c6f432; color:#0b0b0c; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:500; }
+  .B .seg { display:flex; background:#161618; border-radius:12px; padding:3px; font-size:11px; color:#8b8b93; margin:6px 0; } .B .seg span { flex:1; text-align:center; padding:6px 0; border-radius:10px; } .B .seg .on { background:#2a2a2e; color:#fff; font-weight:600; }
+  .B .cta { margin-top:auto; background:#c6f432; color:#0b0b0c; border-radius:16px; text-align:center; padding:13px; font-size:13px; font-weight:700; }
+
+  /* ===== C. Doux ===== */
+  .C { background:#f3efe9; color:#2b2825; }
+  .C .date { font-size:12px; color:#9a938a; }
+  .C .hello { font-family:'Instrument Serif',serif; font-size:32px; font-weight:400; margin:0 0 16px; line-height:1.05; }
+  .C .tile { background:#fbf9f6; border-radius:26px; padding:16px 18px; margin-bottom:10px; box-shadow:0 1px 2px rgba(60,50,40,.04), 0 8px 24px rgba(60,50,40,.05); }
+  .C .k { font-size:11px; color:#9a938a; font-weight:500; display:flex; justify-content:space-between; }
+  .C .big { font-family:'Instrument Serif',serif; font-size:60px; line-height:1; margin-top:4px; }
+  .C .big small { font-family:'Geist'; font-size:15px; color:#9a938a; margin-left:4px; }
+  .C .soft { background:#e6ede7; color:#44654f; font-size:11px; font-weight:600; padding:4px 10px; border-radius:99px; }
+  .C .prog { height:6px; background:#ece6de; border-radius:6px; margin:10px 0 6px; } .C .prog b { display:block; width:60%; height:100%; background:#6f8f7a; border-radius:6px; }
+  .C .line { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; } .C .line span:first-child { color:#8a8279; }
+  .C .nav { color:#b9b1a6; } .C .nav .on { color:#2b2825; }
+  .C .plus { width:48px; height:48px; border-radius:50%; background:#2b2825; color:#f3efe9; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:300; }
+  .C .seg { display:flex; gap:6px; font-size:12px; margin:6px 0; } .C .seg span { padding:6px 12px; border-radius:99px; color:#8a8279; } .C .seg .on { background:#2b2825; color:#f3efe9; }
+  .C .cta { margin-top:auto; background:#2b2825; color:#f3efe9; border-radius:99px; text-align:center; padding:13px; font-size:13px; font-weight:600; }
+</style>
+
+<!-- ================= A ================= -->
+<div class="dir" data-choice="A-clarte" onclick="toggleSelect(this)">
+  <div class="dir-head"><h3>A. Clarté</h3><span class="subtitle" style="margin:0">Minimal blanc, typographie comme seul décor, monochrome noir. Esprit Apple Santé, Linear, Things.</span></div>
+  <div class="dir-row">
+    <div class="ph A">
+      <div class="sc">
+        <div class="date">Mardi 29 septembre</div>
+        <div class="hello">Bonjour</div>
+        <div class="k">Poids · tendance</div>
+        <div class="big num">78,4<small>kg</small></div>
+        <div class="delta">↓ 0,4 kg / semaine</div>
+        <svg viewBox="0 0 250 110" style="width:100%;height:90px;margin-top:14px">
+          <g fill="#d9d9d9"><use href="#dots"/></g>
+          <use href="#tl" fill="none" stroke="#0a0a0a" stroke-width="1.8" stroke-linejoin="round"/>
+          <line x1="180" y1="50.6" x2="250" y2="82" stroke="#0a0a0a" stroke-width="1.5" stroke-dasharray="1 4" stroke-linecap="round"/>
+          <line x1="0" y1="97.8" x2="250" y2="97.8" stroke="#e5e5e5" stroke-width="1"/>
+        </svg>
+        <div class="hr"></div>
+        <div class="line"><span>Objectif</span><span class="num"><b>75,0 kg</b> · 15 nov.</span></div>
+        <div class="prog"><b></b></div>
+        <div class="line" style="font-size:11px"><span>Dans le rythme</span><span class="num" style="color:#9a9a9a">3,6 / 7,0 kg</span></div>
+        <div class="hr"></div>
+        <div class="line"><span>Taille</span><span class="num">84 cm <span style="color:#1a7f37">−3,5</span></span></div>
+        <div class="line"><span>Hanches</span><span class="num">98 cm <span style="color:#1a7f37">−2</span></span></div>
+      </div>
+      <div class="nav"><svg class="ic on" viewBox="0 0 24 24"><use href="#i-home"/></svg><svg class="ic" viewBox="0 0 24 24"><use href="#i-chart"/></svg><div class="plus">+</div><svg class="ic" viewBox="0 0 24 24"><use href="#i-body"/></svg><svg class="ic" viewBox="0 0 24 24"><use href="#i-target"/></svg></div>
+    </div>
+
+    <div class="ph A">
+      <div class="sc">
+        <div class="hello" style="margin-bottom:6px">Corps</div>
+        <div class="seg"><span>7 j</span><span class="on">30 j</span><span>90 j</span><span>Début</span></div>
+        <svg class="body-svg" viewBox="-72 0 344 440">
+          <use href="#body" fill="none" stroke="#0a0a0a" stroke-width="1.3"/>
+          <g font-family="Geist" font-size="12.5" fill="#0a0a0a">
+            <g stroke="#d4d4d4" stroke-width="1"><line x1="100" y1="130" x2="18" y2="130"/><line x1="100" y1="180" x2="18" y2="180"/><line x1="100" y1="220" x2="18" y2="220"/><line x1="153" y1="140" x2="186" y2="140"/><line x1="118" y1="280" x2="186" y2="280"/><line x1="145" y1="90" x2="186" y2="90"/></g>
+            <g fill="#0a0a0a"><circle cx="100" cy="130" r="3.5"/><circle cx="100" cy="180" r="3.5"/><circle cx="100" cy="220" r="3.5"/><circle cx="153" cy="140" r="3.5"/><circle cx="118" cy="280" r="3.5"/><circle cx="145" cy="90" r="3.5"/></g>
+            <text x="14" y="126" text-anchor="end" fill="#9a9a9a" font-size="10">Poitrine</text><text x="14" y="140" text-anchor="end" font-weight="600">104 <tspan fill="#9a9a9a" font-weight="400">+1</tspan></text>
+            <text x="14" y="176" text-anchor="end" fill="#9a9a9a" font-size="10">Taille</text><text x="14" y="190" text-anchor="end" font-weight="600">84 <tspan fill="#1a7f37" font-weight="400">−3,5</tspan></text>
+            <text x="14" y="216" text-anchor="end" fill="#9a9a9a" font-size="10">Hanches</text><text x="14" y="230" text-anchor="end" font-weight="600">98 <tspan fill="#1a7f37" font-weight="400">−2</tspan></text>
+            <text x="190" y="86" fill="#9a9a9a" font-size="10">Épaules</text><text x="190" y="100" font-weight="600">118 <tspan fill="#9a9a9a" font-weight="400">+0,5</tspan></text>
+            <text x="190" y="136" fill="#9a9a9a" font-size="10">Bras</text><text x="190" y="150" font-weight="600">38 <tspan fill="#9a9a9a" font-weight="400">+0,5</tspan></text>
+            <text x="190" y="276" fill="#9a9a9a" font-size="10">Cuisse</text><text x="190" y="290" font-weight="600">58 <tspan fill="#9a9a9a" font-weight="400">+1</tspan></text>
+          </g>
+        </svg>
+        <div class="cta">Nouvelle séance de mesure</div>
+      </div>
+      <div class="nav"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"/></svg><svg class="ic" viewBox="0 0 24 24"><use href="#i-chart"/></svg><div class="plus">+</div><svg class="ic on" viewBox="0 0 24 24"><use href="#i-body"/></svg><svg class="ic" viewBox="0 0 24 24"><use href="#i-target"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= B ================= -->
+<div class="dir" data-choice="B-nuit" onclick="toggleSelect(this)">
+  <div class="dir-head"><h3>B. Nuit</h3><span class="subtitle" style="margin:0">Sombre premium, un seul accent vert acide, tuiles arrondies. Esprit Whoop, Oura, Strava nuit. Très « sport ».</span></div>
+  <div class="dir-row">
+    <div class="ph B">
+      <div class="sc">
+        <div class="date">Mardi 29 septembre</div>
+        <div class="hello">Bonjour</div>
+        <div class="tile">
+          <div class="k"><span>Poids · tendance</span><span class="badge">↓ 0,4 / sem</span></div>
+          <div class="big num">78,4<small>kg</small></div>
+          <svg viewBox="0 0 250 110" style="width:100%;height:80px;margin-top:8px">
+            <use href="#ta" fill="url(#gB)"/>
+            <use href="#tl" fill="none" stroke="#c6f432" stroke-width="2.2" stroke-linejoin="round"/>
+            <line x1="180" y1="50.6" x2="250" y2="82" stroke="#c6f432" stroke-width="2" stroke-dasharray="1 5" stroke-linecap="round" opacity=".6"/>
+            <circle cx="180" cy="50.6" r="4.5" fill="#c6f432"/><circle cx="180" cy="50.6" r="10" fill="#c6f432" opacity=".15"/>
+          </svg>
+        </div>
+        <div class="tile ring">
+          <svg viewBox="0 0 44 44" style="width:58px;height:58px;flex:none"><circle cx="22" cy="22" r="18" fill="none" stroke="#2a2a2e" stroke-width="5"/><circle cx="22" cy="22" r="18" fill="none" stroke="#c6f432" stroke-width="5" stroke-dasharray="68 113" stroke-linecap="round" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle" font-size="10" font-weight="700" fill="#f4f4f5" font-family="Geist">60%</text></svg>
+          <div><div class="k">Objectif · 75,0 kg</div><div style="font-size:15px;font-weight:600;margin-top:3px">Dans le rythme</div><div style="font-size:11px;color:#8b8b93;margin-top:2px">Atteinte ≈ 15 nov.</div></div>
+        </div>
+        <div class="mini">
+          <div>Taille<b class="num">84</b><i>−3,5</i></div>
+          <div>Hanches<b class="num">98</b><i>−2</i></div>
+          <div>Bras<b class="num">38</b><i style="color:#8b8b93">+0,5</i></div>
+        </div>
+      </div>
+      <div class="nav"><svg class="ic on" viewBox="0 0 24 24"><use href="#i-home"/></svg><svg class="ic" viewBox="0 0 24 24"><use href="#i-chart"/></svg><div class="plus">+</div><svg class="ic" viewBox="0 0 24 24"><use href="#i-body"/></svg><svg class="ic" viewBox="0 0 24 24"><use href="#i-target"/></svg></div>
+    </div>
+
+    <div class="ph B">
+      <div class="sc">
+        <div class="hello" style="margin-bottom:4px">Corps</div>
+        <div class="seg"><span>7 j</span><span class="on">30 j</span><span>90 j</span><span>Début</span></div>
+        <svg class="body-svg" viewBox="-72 0 344 440">
+          <use href="#body" fill="#161618" stroke="#3a3a40" stroke-width="1.3"/>
+          <g font-family="Geist" font-size="12.5" fill="#f4f4f5">
+            <g stroke="#3a3a40" stroke-width="1"><line x1="100" y1="130" x2="18" y2="130"/><line x1="100" y1="180" x2="18" y2="180"/><line x1="100" y1="220" x2="18" y2="220"/><line x1="153" y1="140" x2="186" y2="140"/><line x1="118" y1="280" x2="186" y2="280"/><line x1="145" y1="90" x2="186" y2="90"/></g>
+            <g fill="#c6f432"><circle cx="100" cy="180" r="9" opacity=".18"/><circle cx="100" cy="220" r="9" opacity=".18"/><circle cx="100" cy="130" r="4"/><circle cx="100" cy="180" r="4"/><circle cx="100" cy="220" r="4"/><circle cx="153" cy="140" r="4"/><circle cx="118" cy="280" r="4"/><circle cx="145" cy="90" r="4"/></g>
+            <text x="14" y="126" text-anchor="end" fill="#6b6b73" font-size="10">Poitrine</text><text x="14" y="140" text-anchor="end" font-weight="600">104 <tspan fill="#8b8b93" font-weight="400">+1</tspan></text>
+            <text x="14" y="176" text-anchor="end" fill="#6b6b73" font-size="10">Taille</text><text x="14" y="190" text-anchor="end" font-weight="600">84 <tspan fill="#c6f432" font-weight="400">−3,5</tspan></text>
+            <text x="14" y="216" text-anchor="end" fill="#6b6b73" font-size="10">Hanches</text><text x="14" y="230" text-anchor="end" font-weight="600">98 <tspan fill="#c6f432" font-weight="400">−2</tspan></text>
+            <text x="190" y="86" fill="#6b6b73" font-size="10">Épaules</text><text x="190" y="100" font-weight="600">118 <tspan fill="#8b8b93" font-weight="400">+0,5</tspan></text>
+            <text x="190" y="136" fill="#6b6b73" font-size="10">Bras</text><text x="190" y="150" font-weight="600">38 <tspan fill="#8b8b93" font-weight="400">+0,5</tspan></text>
+            <text x="190" y="276" fill="#6b6b73" font-size="10">Cuisse</text><text x="190" y="290" font-weight="600">58 <tspan fill="#8b8b93" font-weight="400">+1</tspan></text>
+          </g>
+        </svg>
+        <div class="cta">Nouvelle séance de mesure</div>
+      </div>
+      <div class="nav"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"/></svg><svg class="ic" viewBox="0 0 24 24"><use href="#i-chart"/></svg><div class="plus">+</div><svg class="ic on" viewBox="0 0 24 24"><use href="#i-body"/></svg><svg class="ic" viewBox="0 0 24 24"><use href="#i-target"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= C ================= -->
+<div class="dir" data-choice="C-doux" onclick="toggleSelect(this)">
+  <div class="dir-head"><h3>C. Doux</h3><span class="subtitle" style="margin:0">Tons chauds sable, chiffres en serif élégant, accent vert sauge. Esprit bien-être, éditorial, apaisant. Moins « salle de sport ».</span></div>
+  <div class="dir-row">
+    <div class="ph C">
+      <div class="sc">
+        <div class="date">Mardi 29 septembre</div>
+        <div class="hello">Bonjour.</div>
+        <div class="tile">
+          <div class="k"><span>Poids · tendance</span><span class="soft">↓ 0,4 / sem</span></div>
+          <div class="big num">78,4<small>kg</small></div>
+          <svg viewBox="0 0 250 110" style="width:100%;height:78px;margin-top:6px">
+            <use href="#ta" fill="url(#gC)"/>
+            <g fill="#cfc6ba"><use href="#dots"/></g>
+            <use href="#tl" fill="none" stroke="#6f8f7a" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+            <line x1="180" y1="50.6" x2="250" y2="82" stroke="#6f8f7a" stroke-width="2" stroke-dasharray="1 5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="tile">
+          <div class="k"><span>Objectif</span><span>≈ 15 nov.</span></div>
+          <div style="font-family:'Instrument Serif';font-size:26px;margin-top:2px">75,0 kg</div>
+          <div class="prog"><b></b></div>
+          <div class="line" style="font-size:11px"><span>Dans le rythme</span><span class="num">3,6 / 7,0 kg</span></div>
+        </div>
+        <div class="tile" style="padding:12px 18px">
+          <div class="line"><span>Taille</span><span class="num">84 cm <span style="color:#44654f">−3,5</span></span></div>
+          <div class="line"><span>Hanches</span><span class="num">98 cm <span style="color:#44654f">−2</span></span></div>
+        </div>
+      </div>
+      <div class="nav"><svg class="ic on" viewBox="0 0 24 24"><use href="#i-home"/></svg><svg class="ic" viewBox="0 0 24 24"><use href="#i-chart"/></svg><div class="plus">+</div><svg class="ic" viewBox="0 0 24 24"><use href="#i-body"/></svg><svg class="ic" viewBox="0 0 24 24"><use href="#i-target"/></svg></div>
+    </div>
+
+    <div class="ph C">
+      <div class="sc">
+        <div class="hello" style="margin-bottom:4px">Corps</div>
+        <div class="seg"><span>7 j</span><span class="on">30 j</span><span>90 j</span><span>Début</span></div>
+        <svg class="body-svg" viewBox="-72 0 344 440">
+          <use href="#body" fill="#e7dfd4"/>
+          <g font-family="Geist" font-size="12.5" fill="#2b2825">
+            <g stroke="#d6cdc1" stroke-width="1"><line x1="100" y1="130" x2="18" y2="130"/><line x1="100" y1="180" x2="18" y2="180"/><line x1="100" y1="220" x2="18" y2="220"/><line x1="153" y1="140" x2="186" y2="140"/><line x1="118" y1="280" x2="186" y2="280"/><line x1="145" y1="90" x2="186" y2="90"/></g>
+            <g fill="#fbf9f6" stroke="#6f8f7a" stroke-width="2.5"><circle cx="100" cy="130" r="5"/><circle cx="100" cy="180" r="5"/><circle cx="100" cy="220" r="5"/><circle cx="153" cy="140" r="5"/><circle cx="118" cy="280" r="5"/><circle cx="145" cy="90" r="5"/></g>
+            <text x="14" y="126" text-anchor="end" fill="#9a938a" font-size="10">Poitrine</text><text x="14" y="141" text-anchor="end" font-family="Instrument Serif" font-size="17">104 <tspan font-family="Geist" font-size="11" fill="#9a938a">+1</tspan></text>
+            <text x="14" y="176" text-anchor="end" fill="#9a938a" font-size="10">Taille</text><text x="14" y="191" text-anchor="end" font-family="Instrument Serif" font-size="17">84 <tspan font-family="Geist" font-size="11" fill="#44654f">−3,5</tspan></text>
+            <text x="14" y="216" text-anchor="end" fill="#9a938a" font-size="10">Hanches</text><text x="14" y="231" text-anchor="end" font-family="Instrument Serif" font-size="17">98 <tspan font-family="Geist" font-size="11" fill="#44654f">−2</tspan></text>
+            <text x="190" y="86" fill="#9a938a" font-size="10">Épaules</text><text x="190" y="101" font-family="Instrument Serif" font-size="17">118 <tspan font-family="Geist" font-size="11" fill="#9a938a">+0,5</tspan></text>
+            <text x="190" y="136" fill="#9a938a" font-size="10">Bras</text><text x="190" y="151" font-family="Instrument Serif" font-size="17">38 <tspan font-family="Geist" font-size="11" fill="#9a938a">+0,5</tspan></text>
+            <text x="190" y="276" fill="#9a938a" font-size="10">Cuisse</text><text x="190" y="291" font-family="Instrument Serif" font-size="17">58 <tspan font-family="Geist" font-size="11" fill="#9a938a">+1</tspan></text>
+          </g>
+        </svg>
+        <div class="cta">Nouvelle séance de mesure</div>
+      </div>
+      <div class="nav"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"/></svg><svg class="ic" viewBox="0 0 24 24"><use href="#i-chart"/></svg><div class="plus">+</div><svg class="ic on" viewBox="0 0 24 24"><use href="#i-body"/></svg><svg class="ic" viewBox="0 0 24 24"><use href="#i-target"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px">
+  <p class="subtitle">Points communs aux trois : une seule couleur d'accent, beaucoup d'espace, chiffres en chiffres tabulaires, icônes au trait, silhouette plus légère. Un mode clair/sombre pourra s'ajouter quelle que soit la direction.</p>
+</div>
+
+</body>
+</html>

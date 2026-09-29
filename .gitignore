@@ -1,0 +1,15 @@
+# Brainstorming companion
+.superpowers/
+
+# Dependencies & build
+node_modules/
+.next/
+out/
+coverage/
+
+# Env
+.env
+.env*.local
+
+# OS
+.DS_Store

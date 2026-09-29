@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>my-body · Concepts de silhouette</title>
+<style>
+  body { margin:0; padding:32px 40px 60px; background:#f5f5f7; color:#1a1a1a; font-family:system-ui,-apple-system,sans-serif; }
+  h2 { font-size:24px; margin:0 0 6px; }
+  h3 { font-size:16px; margin:0 0 6px; }
+  .subtitle { color:#666; font-size:14px; margin:0 0 16px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
+  .card { background:#fff; border:1px solid #e5e5e5; border-radius:14px; overflow:hidden; }
+  .card-image { background:#fafafa; padding:12px; }
+  .card-body { padding:14px 16px; font-size:13.5px; line-height:1.5; }
+  .card-body p { margin:4px 0 0; }
+  .section { margin-top:16px; }
+  .note { font-size:12px; color:#888; margin-bottom:18px; }
+</style>
+<script>function toggleSelect(){}</script>
+</head>
+<body>
+<p class="note">Maquette de cadrage (brainstorming du 29/09/2026). Voir <code>specs/</code> pour les exigences. Les maquettes illustrent la structure et le style, les specs font foi.</p>
+<h2>Comment la silhouette doit-elle fonctionner ?</h2>
+<p class="subtitle">Trois façons d'utiliser le corps comme interface. Elles se combinent : tu peux en sélectionner plusieurs.</p>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <path id="m-half" d="M100,62 L110,62 Q111,72 112,76 Q140,80 150,94 Q157,108 158,130 L162,170 Q165,200 166,222 Q170,238 164,248 Q156,250 156,236 L152,205 Q148,175 146,150 L140,122 Q136,150 132,172 Q128,190 131,208 Q136,225 134,245 L130,300 Q127,320 128,335 L124,395 L123,412 Q130,420 128,426 L106,426 L107,412 L106,390 L106,335 Q104,300 103,270 Q101,252 100,250"/>
+    <path id="f-half" d="M100,62 L108,62 Q109,72 110,76 Q132,80 140,94 Q146,108 147,130 L151,170 Q154,200 155,222 Q159,238 153,248 Q146,250 146,236 L142,205 Q138,175 136,150 L132,124 Q134,145 130,160 Q124,176 124,188 Q127,210 137,230 Q140,245 136,262 L130,305 Q127,322 128,337 L122,395 L121,412 Q127,420 125,426 L105,426 L106,412 L105,390 L105,337 Q103,300 102,275 Q101,262 100,260"/>
+    <g id="male">
+      <circle cx="100" cy="40" r="22"/>
+      <use href="#m-half"/>
+      <use href="#m-half" transform="translate(200,0) scale(-1,1)"/>
+    </g>
+    <g id="female">
+      <ellipse cx="100" cy="40" rx="20" ry="23"/>
+      <use href="#f-half"/>
+      <use href="#f-half" transform="translate(200,0) scale(-1,1)"/>
+    </g>
+    <clipPath id="clip-f"><ellipse cx="100" cy="40" rx="20" ry="23"/><use href="#f-half"/><use href="#f-half" transform="translate(200,0) scale(-1,1)"/></clipPath>
+  </defs>
+</svg>
+
+<style>
+  .sil { fill: #9aa3b5; }
+  .pt { fill: #fff; stroke: #4f46e5; stroke-width: 2.5; }
+  .ln { stroke: #4f46e5; stroke-width: 1; }
+  .lb { font: 600 11px system-ui, sans-serif; fill: currentColor; }
+  .dv { font: 700 10px system-ui, sans-serif; }
+  .down { fill: #16a34a; } .up { fill: #2563eb; } .eq { fill: #6b7280; } .warn { fill: #ea580c; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:12px; margin-top:6px; }
+  .legend span::before { content:""; display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px; background:var(--c); }
+  .card-image svg { width:100%; height:360px; display:block; }
+</style>
+
+<div class="cards" data-multiselect>
+
+  <div class="card" data-choice="a-annotee" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <svg viewBox="-70 0 340 440">
+        <use href="#male" class="sil"/>
+        <!-- gauche -->
+        <line class="ln" x1="100" y1="70" x2="20" y2="70"/><circle class="pt" cx="100" cy="70" r="5"/>
+        <text class="lb" x="15" y="68" text-anchor="end">Cou 39</text><text class="dv eq" x="15" y="80" text-anchor="end">= 0</text>
+        <line class="ln" x1="100" y1="130" x2="20" y2="130"/><circle class="pt" cx="100" cy="130" r="5"/>
+        <text class="lb" x="15" y="128" text-anchor="end">Poitrine 104</text><text class="dv up" x="15" y="140" text-anchor="end">▲ +1</text>
+        <line class="ln" x1="100" y1="180" x2="20" y2="180"/><circle class="pt" cx="100" cy="180" r="5"/>
+        <text class="lb" x="15" y="178" text-anchor="end">Taille 84</text><text class="dv down" x="15" y="190" text-anchor="end">▼ −3,5</text>
+        <line class="ln" x1="100" y1="220" x2="20" y2="220"/><circle class="pt" cx="100" cy="220" r="5"/>
+        <text class="lb" x="15" y="218" text-anchor="end">Hanches 98</text><text class="dv down" x="15" y="230" text-anchor="end">▼ −2</text>
+        <!-- droite -->
+        <line class="ln" x1="145" y1="90" x2="185" y2="90"/><circle class="pt" cx="145" cy="90" r="5"/>
+        <text class="lb" x="190" y="88">Épaules 118</text><text class="dv up" x="190" y="100">▲ +0,5</text>
+        <line class="ln" x1="153" y1="140" x2="185" y2="140"/><circle class="pt" cx="153" cy="140" r="5"/>
+        <text class="lb" x="190" y="138">Bras 38</text><text class="dv up" x="190" y="150">▲ +0,5</text>
+        <line class="ln" x1="118" y1="280" x2="185" y2="280"/><circle class="pt" cx="118" cy="280" r="5"/>
+        <text class="lb" x="190" y="278">Cuisse 58</text><text class="dv up" x="190" y="290">▲ +1</text>
+        <line class="ln" x1="116" y1="360" x2="185" y2="360"/><circle class="pt" cx="116" cy="360" r="5"/>
+        <text class="lb" x="190" y="358">Mollet 38</text><text class="dv eq" x="190" y="370">= 0</text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>A. Silhouette annotée (saisie + lecture)</h3>
+      <p>Tu cliques sur un point, un champ s'ouvre et tu saisis la valeur en cm. Chaque zone affiche la dernière mesure et l'écart sur la période choisie. C'est l'écran de <b>saisie</b>.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b-heatmap" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <svg viewBox="-70 0 340 440">
+        <use href="#female" class="sil"/>
+        <g clip-path="url(#clip-f)" opacity=".85">
+          <rect x="0" y="118" width="200" height="30" fill="#94a3b8"/>
+          <rect x="0" y="168" width="200" height="28" fill="#16a34a"/>
+          <rect x="0" y="206" width="200" height="40" fill="#4ade80"/>
+          <rect x="0" y="258" width="200" height="45" fill="#86efac"/>
+          <rect x="0" y="340" width="200" height="30" fill="#94a3b8"/>
+          <rect x="130" y="100" width="30" height="45" fill="#f97316"/>
+          <rect x="40" y="100" width="30" height="45" fill="#f97316"/>
+        </g>
+        <text class="lb" x="-60" y="186">Taille −3</text>
+        <text class="lb" x="-60" y="230">Hanches −1,5</text>
+        <text class="lb" x="-60" y="284">Cuisses −1</text>
+        <text class="lb warn" x="175" y="118">Bras −1</text>
+        <text class="dv warn" x="175" y="131">⚠ muscle ?</text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>B. Carte de chaleur selon l'objectif</h3>
+      <p>Chaque zone est colorée selon son évolution sur 30 jours, <b>interprétée par rapport à l'objectif</b>. En perte de poids, une taille qui baisse est verte. Des bras qui baissent sont orange : perte de muscle possible, vérifie tes protéines.</p>
+      <div class="legend">
+        <span style="--c:#16a34a">Dans le bon sens</span>
+        <span style="--c:#94a3b8">Stable</span>
+        <span style="--c:#f97316">À surveiller</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c-avant-apres" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <svg viewBox="-70 0 340 440">
+        <g transform="translate(100,0) scale(1.1,1) translate(-100,0)" fill="none" stroke="#9aa3b5" stroke-width="1.5" stroke-dasharray="4 3">
+          <circle cx="100" cy="40" r="22"/>
+          <use href="#m-half"/>
+          <use href="#m-half" transform="translate(200,0) scale(-1,1)"/>
+        </g>
+        <use href="#male" fill="#4f46e5" opacity=".8"/>
+        <text class="lb" x="-62" y="30">— — Il y a 12 sem.</text>
+        <text class="lb" x="-62" y="46" fill="#4f46e5">█ Aujourd'hui</text>
+        <text class="dv down" x="-62" y="184">Taille −4 cm</text>
+        <text class="dv down" x="-62" y="224">Hanches −3 cm</text>
+        <text class="dv down" x="180" y="300">Poids −3,2 kg</text>
+        <text class="dv eq" x="180" y="314">MG 18 → 15 %</text>
+        <!-- mini timeline -->
+        <line x1="-50" y1="438" x2="250" y2="438" stroke="#9aa3b5" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="250" cy="438" r="6" fill="#4f46e5"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>C. Avant / maintenant superposés</h3>
+      <p>La silhouette se <b>déforme</b> selon tes vraies mensurations. Le contour en pointillés montre ton point de départ ou une date choisie. Une frise permet de rejouer l'évolution. C'est la vue la plus motivante, le « wow ».</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:18px">
+  <p class="subtitle">Silhouettes volontairement schématiques pour la maquette. Chaque vue existe en homme et en femme, choisis au profil.</p>
+</div>
+
+</body>
+</html>
