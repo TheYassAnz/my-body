@@ -9,7 +9,9 @@ Les paramètres ci-dessous sont regroupés dans `src/lib/metrics/config.ts` pour
 | Paramètre | Valeur |
 |---|---|
 | `TREND_ALPHA` | 0,1 |
+| `TREND_SEED_ENTRIES` | 3 |
 | `RATE_WINDOW_DAYS` | 28 |
+| `RATE_MIN_ENTRIES` | 5 |
 | `CALIBRATION_MIN_ENTRIES` | 7 |
 | `CALIBRATION_MIN_SPAN_DAYS` | 10 |
 | `PLATEAU_WINDOW_DAYS` | 21 |
@@ -23,25 +25,30 @@ Les paramètres ci-dessous sont regroupés dans `src/lib/metrics/config.ts` pour
 
 ## 1. Tendance lissée
 
-Moyenne mobile exponentielle adaptée aux jours manquants (méthode du *Hacker's Diet*).
+Moyenne mobile exponentielle adaptée aux jours manquants (méthode du *Hacker's Diet*), avec un **démarrage sur une moyenne** pour ne pas dépendre d'une première pesée isolée.
 
 Pour des pesées triées par date `(d₀, w₀), (d₁, w₁), …` :
 
 ```
-T₀ = w₀
-Δᵢ = dᵢ − dᵢ₋₁                  (en jours, ≥ 1)
-αᵢ = 1 − (1 − α)^Δᵢ              α = TREND_ALPHA
-Tᵢ = Tᵢ₋₁ + αᵢ × (wᵢ − Tᵢ₋₁)
+Amorçage (i < TREND_SEED_ENTRIES) :
+  Tᵢ = moyenne(w₀ … wᵢ)
+
+Ensuite (i ≥ TREND_SEED_ENTRIES) :
+  Δᵢ = dᵢ − dᵢ₋₁                  (en jours, ≥ 1)
+  αᵢ = 1 − (1 − α)^Δᵢ              α = TREND_ALPHA
+  Tᵢ = Tᵢ₋₁ + αᵢ × (wᵢ − Tᵢ₋₁)
 ```
 
 - La **tendance du jour** est `Tₙ` de la dernière pesée. Elle n'est pas extrapolée aux jours sans pesée.
-- **Série de tendance journalière** (pour les graphiques et le rythme) : les jours sans pesée reprennent la dernière valeur `T` connue.
+- **Série de tendance journalière** (pour les graphiques) : les jours sans pesée reprennent la dernière valeur `T` connue.
 - Arrondi à l'affichage seulement (1 décimale). Les calculs internes se font en précision complète.
+- **Rôle de la tendance** : c'est le chiffre affiché (chiffre héros, courbe) et la référence pour la cible, la bande de maintien et « objectif atteint ». Elle a un **retard volontaire** d'environ 9 jours, qui gomme les fluctuations. C'est pourquoi le **rythme** n'est pas calculé à partir d'elle, mais à partir des pesées brutes (§3).
 
-**Exemple :** pesées 80,0 (J0), 79,0 (J1), 79,6 (J4).
-- T₀ = 80,0
-- J1 : α = 0,1 → T = 80,0 + 0,1 × (79,0 − 80,0) = **79,90**
-- J4 : Δ = 3 → α = 1 − 0,9³ = 0,271 → T = 79,90 + 0,271 × (79,6 − 79,90) = **79,82**
+**Exemple :** pesées 80,0 (J0), 79,0 (J1), 79,6 (J2), 79,2 (J5).
+- J0 : T = 80,0 (amorçage)
+- J1 : T = moyenne(80,0 ; 79,0) = **79,50** (amorçage)
+- J2 : T = moyenne(80,0 ; 79,0 ; 79,6) = **79,53** (amorçage)
+- J5 : Δ = 3 → α = 1 − 0,9³ = 0,271 → T = 79,533 + 0,271 × (79,2 − 79,533) = **79,44**
 
 ## 2. Calibrage
 
@@ -55,10 +62,14 @@ Pendant le calibrage :
 
 ## 3. Rythme réel
 
-1. Prendre la série de tendance journalière sur les `RATE_WINDOW_DAYS` derniers jours (ou depuis la première pesée si l'historique est plus court).
-2. Faire une **régression linéaire des moindres carrés** tendance ~ jour. On obtient une pente `p` en kg/jour.
+Le rythme est calculé sur les **pesées brutes**, et non sur la tendance. Une régression sur des données brutes donne une pente sans retard : pour une perte régulière, elle mesure le vrai rythme dès que la fenêtre est remplie.
+
+1. Prendre les **pesées brutes** des `RATE_WINDOW_DAYS` derniers jours. S'il y en a moins de `RATE_MIN_ENTRIES`, étendre la fenêtre vers le passé jusqu'à contenir les `RATE_MIN_ENTRIES` dernières pesées.
+2. Faire une **régression linéaire des moindres carrés** poids ~ jour (x = numéro du jour, y = poids). On obtient une pente `p` en kg/jour.
 3. `rythme_kg_sem = p × 7`
 4. `rythme_pct_sem = rythme_kg_sem / tendance_actuelle × 100`
+
+Le plateau (§5.1) utilise le même calcul sur une fenêtre de `PLATEAU_WINDOW_DAYS`.
 
 Convention de signe : **négatif = baisse**. Pour l'affichage et la comparaison avec le rythme visé, on utilise la valeur « dans le sens de l'objectif » `v` :
 - perte : `v = −rythme_pct_sem` (une perte donne un v positif) ;
@@ -91,11 +102,13 @@ Convention de signe : **négatif = baisse**. Pour l'affichage et la comparaison 
 | 2 | Perte : tendance ≤ cible ; prise : tendance ≥ cible | `achieved` | « Objectif atteint ! » |
 | 3 | \|rythme_pct_sem\| sur `PLATEAU_WINDOW_DAYS` < `PLATEAU_THRESHOLD_PCT` | `plateau` | « Plateau depuis 3 semaines. C'est normal de temps en temps. Si ça dure, ajuste ton alimentation ou ton activité. » |
 | 4 | v < 0 | `wrong_direction` | Perte : « Ta tendance remonte. » Prise : « Ta tendance baisse. » |
-| 5 | v > 1,5 × r, **ou** perte avec v > 1,0, **ou** prise avec v > 0,5 | `too_fast` | Perte : « Trop rapide : risque de perte musculaire. » Prise : « Trop rapide : prise de gras probable. » |
+| 5 | v > 1,5 × r | `too_fast` | Perte : « Trop rapide : risque de perte musculaire. » Prise : « Trop rapide : prise de gras probable. » |
 | 6 | v < 0,5 × r | `too_slow` | « Plus lent que prévu. » |
 | 7 | sinon | `on_track` | « Dans le rythme. » |
 
 Pour le plateau (ligne 3), on refait le calcul du §3 sur une fenêtre de 21 jours. Il faut au moins 21 jours d'historique.
+
+Le statut « trop rapide » est **relatif au rythme choisi**, sans plafond absolu. Choisir un rythme agressif (perte > 1,0 %, prise > 0,5 %) est permis. L'avertissement est donné **au moment du choix** par la zone d'alerte du curseur (§4), et pas répété en permanence ensuite.
 
 ### 5.2 Maintien
 
@@ -193,7 +206,7 @@ Pour une zone `z` et une période `P` (7 j, 30 j, 90 j, Début) :
 
 | Champ | Règle |
 |---|---|
-| Date de pesée ou de mesure | ≤ aujourd'hui (fuseau de l'utilisateur, envoyé par le client et borné à ±14 h de l'UTC) ; ≥ 1900-01-01 |
+| Date de pesée ou de mesure | ≤ aujourd'hui, calculé dans le fuseau `profile.timezone` ; ≥ 1900-01-01 |
 | Poids | 20 à 400 kg |
 | % MG | 2 à 70 %, optionnel |
 | Note | ≤ 140 caractères, espaces retirés en début et fin, vide → null |

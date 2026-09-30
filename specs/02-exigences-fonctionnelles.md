@@ -11,7 +11,9 @@ Les règles de calcul citées sont détaillées dans [03](03-regles-metier-et-ca
 - CA1 : L'email doit être valide et unique (insensible à la casse). Sinon : « Un compte existe déjà avec cet email. »
 - CA2 : Le mot de passe fait au moins 10 caractères. Le serveur applique la même règle que le client.
 - CA3 : Le consentement au traitement des données de santé et l'acceptation des CGU sont obligatoires. La date et la version du texte accepté sont enregistrées.
-- CA4 : Un email de vérification est envoyé. Tant que l'email n'est pas vérifié, la connexion redirige vers `/verifier-email`.
+- CA4 : Un email de vérification est envoyé. L'utilisateur accède **immédiatement** à l'onboarding puis à l'app, sans attendre la vérification.
+- CA5 : Tant que l'email n'est pas vérifié, un bandeau discret s'affiche en haut de l'app : « Confirme ton email pour pouvoir récupérer ton compte. » avec un bouton « Renvoyer » (60 s minimum entre deux envois) et une fermeture pour la session en cours.
+- CA6 : Le lien de vérification mène à `/verifier-email?token=…`, qui confirme l'adresse puis redirige vers `/accueil` avec un toast « Email confirmé ».
 
 **EF-AUTH-02 · M · Connexion et inscription avec Google**
 - CA1 : Si l'email Google correspond à un compte existant, les deux sont liés automatiquement.
@@ -25,6 +27,7 @@ Les règles de calcul citées sont détaillées dans [03](03-regles-metier-et-ca
 **EF-AUTH-04 · M · Mot de passe oublié**
 - CA1 : Un lien de réinitialisation à usage unique, valable 1 heure, est envoyé. Le message affiché est identique que l'email existe ou non.
 - CA2 : Après réinitialisation, toutes les autres sessions sont révoquées.
+- CA3 : Le lien n'est envoyé **que si l'email est vérifié**. Pour un email non vérifié, rien n'est envoyé, mais le message affiché reste identique (on ne révèle pas l'état du compte). Cela évite qu'un tiers qui possède une adresse mal tapée prenne le contrôle du compte.
 
 **EF-AUTH-05 · M · Déconnexion**
 - CA1 : La session serveur est révoquée et l'utilisateur est redirigé vers `/connexion`.
@@ -109,7 +112,7 @@ Les règles de calcul citées sont détaillées dans [03](03-regles-metier-et-ca
 ## GOAL : objectifs
 
 **EF-GOAL-01 · M · Créer un objectif**
-- CA1 : Types : perte, prise, recompo, maintien.
+- CA1 : Types : perte, prise, recompo, maintien. À l'onboarding, une 5e option « Juste suivre mon poids » crée directement un objectif **maintien**, sans autre question.
 - CA2 : Perte et prise : cible obligatoire, strictement inférieure (perte) ou supérieure (prise) à la tendance actuelle. Rythme obligatoire, dans les bornes du type.
 - CA3 : Maintien et recompo : pas de cible ni de rythme. Le poids de référence est la tendance actuelle.
 - CA4 : `startWeightKg` est la tendance à la création (ou la dernière pesée pendant le calibrage). `startDate` est aujourd'hui.

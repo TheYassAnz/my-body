@@ -10,7 +10,7 @@ Maquettes de référence : [`maquettes/wireframes-mobile.html`](maquettes/wirefr
 | `/inscription` | Inscription | Public |
 | `/connexion` | Connexion | Public |
 | `/mot-de-passe-oublie`, `/reinitialiser` | Réinitialisation du mot de passe | Public |
-| `/verifier-email` | Attente et confirmation de vérification | Public |
+| `/verifier-email` | Confirmation de l'email (cible du lien reçu par email) | Public |
 | `/onboarding` | Onboarding en 5 étapes | Connecté, onboarding non terminé |
 | `/accueil` | Tableau de bord | Connecté |
 | `/progres` | Courbes et historique | Connecté |
@@ -43,8 +43,8 @@ Assistant plein écran, une question par étape, avec une barre de progression f
 |---|---|---|
 | 1. Sexe | « Pour afficher la bonne silhouette » : deux grands choix illustrés, Homme / Femme. | Obligatoire |
 | 2. Toi | Taille (en cm ; bascule cm/in qui fixe aussi l'unité de longueur du profil), date de naissance. | Taille entre 100 et 250 cm ; âge ≥ 16 ans |
-| 3. Poids actuel | Grand champ numérique avec stepper ± 0,1, date du jour. Petit texte d'aide sur le protocole de pesée. | 20 à 400 kg. Crée la première pesée. |
-| 4. Objectif | Choix du type (4 cartes avec une phrase d'explication), puis cible et rythme selon le type ([03 §4](03-regles-metier-et-calculs.md)). Aperçu : « ≈ 0,39 kg/sem · atteinte vers le 15 nov. ». | Voir EF-GOAL |
+| 3. Poids actuel | Grand champ numérique avec stepper ± 0,1, bascule kg/lb (qui fixe l'unité de poids du profil), date du jour. Petit texte d'aide sur le protocole de pesée. | 20 à 400 kg. Crée la première pesée. |
+| 4. Objectif | Choix du type (4 cartes avec une phrase d'explication), puis cible et rythme selon le type ([03 §4](03-regles-metier-et-calculs.md)). Aperçu : « ≈ 0,39 kg/sem · atteinte vers le 15 nov. ». Sous les cartes, un lien discret **« Juste suivre mon poids »** crée un objectif maintien et passe à l'étape suivante. | Voir EF-GOAL |
 | 5. Première séance | « Mesure-toi maintenant pour voir ta progression plus tard ». Deux boutons : « Commencer (3 min) » ouvre la séance guidée, « Plus tard » mène à l'accueil. | Optionnel |
 
 ### 3.2 Accueil (`/accueil`)
@@ -140,7 +140,7 @@ Sections :
 
 - Écrans minimalistes centrés : logo, titre, formulaire, bouton « Continuer avec Google » et séparateur « ou ».
 - **Inscription** : email, mot de passe (au moins 10 caractères, indicateur de force), **case de consentement obligatoire** pour les données de santé ([07](07-securite-et-rgpd.md)), acceptation des CGU.
-- Après inscription par email : écran « Vérifie ta boîte mail » avec bouton de renvoi (délai de 60 s entre deux envois).
+- Après inscription par email : passage **direct à l'onboarding**. Un email de vérification part en arrière-plan. Tant qu'il n'est pas confirmé, un bandeau discret en haut de l'app invite à le faire (EF-AUTH-01 CA5).
 - **Connexion** : email et mot de passe, lien « Mot de passe oublié ? ».
 - Pour une inscription via Google, la case de consentement est présentée juste après le retour de Google, avant l'onboarding.
 

@@ -15,7 +15,8 @@ Développement en **TDD** pour `lib/metrics` et les Server Actions : on écrit l
 
 ### Tendance (`trend.ts`)
 - Une seule pesée : la tendance est égale à cette pesée.
-- Pesées quotidiennes : la formule avec α = 0,1 est respectée (exemple chiffré de [03 §1](03-regles-metier-et-calculs.md)).
+- Amorçage : pour les 3 premières pesées, la tendance est la moyenne des pesées déjà connues.
+- À partir de la 4e pesée : la formule avec α = 0,1 est respectée (exemple chiffré de [03 §1](03-regles-metier-et-calculs.md)).
 - Jour manquant : α_eff = 1 − 0,9^Δ (Δ = 3 → 0,271).
 - Pesées fournies dans le désordre : elles sont triées avant le calcul.
 - Série journalière : les jours sans pesée reprennent la dernière tendance.
@@ -24,15 +25,17 @@ Développement en **TDD** pour `lib/metrics` et les Server Actions : on écrit l
 - 6 pesées sur 20 jours : calibrage, 1 pesée manquante.
 - 7 pesées sur 8 jours : calibrage (durée insuffisante).
 - 7 pesées sur 10 jours : calibrage terminé.
-- Tendance parfaitement linéaire (−0,1 kg/jour) : rythme = −0,7 kg/sem exactement.
+- Pesées brutes parfaitement linéaires (−0,1 kg/jour) : rythme = −0,7 kg/sem exactement, **sans retard**, même juste après un changement de rythme une fois la fenêtre renouvelée.
+- La régression porte sur les pesées brutes, pas sur la tendance (un test compare les deux sur une série avec rupture de pente).
 - Historique < 28 jours : régression sur l'historique disponible.
+- Moins de 5 pesées dans les 28 derniers jours : la fenêtre s'étend jusqu'aux 5 dernières pesées.
 - Conversion en %/sem par rapport à la tendance actuelle.
 
 ### Statut (`goal-status.ts`)
 Une table de cas couvre **chaque ligne** des tableaux de [03 §5](03-regles-metier-et-calculs.md), et en particulier :
 - l'ordre de priorité : atteint > plateau > sens inverse > trop rapide > trop lent > dans le rythme ;
 - les bornes exactes : v = 0,5 × r (dans le rythme), v = 1,5 × r (dans le rythme), v = 1,5 × r + ε (trop rapide) ;
-- les plafonds absolus : perte avec r = 1,2 et v = 1,1 → trop rapide ; prise avec v = 0,55 → trop rapide ;
+- l'absence de plafond absolu : perte avec r = 1,2 et v = 1,3 → dans le rythme ; prise avec r = 0,7 et v = 0,9 → dans le rythme ;
 - le plateau : exige au moins 21 jours d'historique ;
 - le maintien : bande de ±1,5 % (bornes incluses) ;
 - la recompo : les trois états de l'indicateur de taille, combinés avec stable et hors bande.
@@ -70,7 +73,7 @@ Chaque test crée une base PGlite neuve, applique les migrations et crée deux u
 
 | # | Parcours | Viewports |
 |---|---|---|
-| E2E-1 | Inscription email (lien de vérification lu depuis une boîte de test ou un point d'entrée de test) → consentement → onboarding complet → accueil en calibrage | mobile |
+| E2E-1 | Inscription email → consentement → onboarding complet → accueil en calibrage avec bandeau « Confirme ton email » → ouverture du lien de vérification (lu depuis une boîte de test ou un point d'entrée de test) → bandeau disparu | mobile |
 | E2E-2 | Connexion du compte de démo → pesée via `+` → la tendance de l'accueil change | mobile, desktop |
 | E2E-3 | Séance de mesure guidée : 3 zones saisies, 1 passée, abandon, reprise → la silhouette affiche les valeurs | mobile |
 | E2E-4 | Toucher la zone Taille sur la silhouette → saisie → écart mis à jour | mobile, desktop |

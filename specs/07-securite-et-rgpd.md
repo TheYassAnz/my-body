@@ -8,7 +8,12 @@ Le poids, le % de masse grasse, les mensurations, la taille, l'âge et l'objecti
 
 Conséquences :
 - **Base légale** : consentement **explicite** de la personne (art. 9.2.a), recueilli à l'inscription, séparé de l'acceptation des CGU, et traçable (table `consent`, [04](04-modele-de-donnees.md)).
-- **Minimisation** : on ne collecte que le nécessaire. Ni nom, ni adresse, ni téléphone. La date de naissance sert à la vérification d'âge et au contexte.
+- **Minimisation** : on ne collecte que le nécessaire. Ni nom, ni adresse, ni téléphone. Chaque donnée de profil a une finalité, indiquée dans la politique de confidentialité :
+  - **sexe** : choix de la silhouette affichée ;
+  - **date de naissance** : vérification de l'âge minimum, et contexte pour de futurs indicateurs ;
+  - **taille** : profil corporel, prévue pour de futurs indicateurs (estimation de masse grasse, [11](11-backlog-v2.md)).
+
+  Collecter la taille et la date de naissance avant de s'en servir dans un calcul est un choix produit assumé. **[À valider juridiquement : suffisance de ces finalités au regard du principe de minimisation]**
 - **Retrait du consentement** : il équivaut à supprimer le compte, puisque le service ne peut pas fonctionner sans ces données. Ce point est expliqué dans la politique de confidentialité.
 - **Âge minimum** : 16 ans.
 - **Hébergement de données de santé (HDS)** : l'application est un outil de bien-être où la personne saisit elle-même ses données, hors de toute prise en charge sanitaire. La certification HDS n'est a priori **pas** requise. **[À valider juridiquement]**
@@ -51,7 +56,7 @@ Les deux cases sont **non pré-cochées** et obligatoires. La version des textes
 |---|---|
 | Mots de passe | Hachés par Better Auth (scrypt par défaut). 10 caractères minimum. Refus des 10 000 mots de passe les plus courants (C). |
 | Sessions | Cookie `HttpOnly`, `Secure`, `SameSite=Lax`, durée de 30 jours glissante. Révocation à la déconnexion, à la réinitialisation et au changement de mot de passe. |
-| Vérification d'email | Obligatoire pour les comptes email avant l'accès à l'app. |
+| Vérification d'email | **Non bloquante** : accès immédiat à l'app, avec un bandeau de rappel. La réinitialisation du mot de passe n'est possible que pour un email vérifié (protection contre la prise de contrôle via une adresse mal tapée). |
 | Limitation de débit | Limiteur intégré de Better Auth : connexion 5/min par IP et par email, inscription 3/min par IP, envoi d'email 3/h par adresse. |
 | Réinitialisation | Jeton à usage unique, 1 h, message identique que l'email existe ou non. |
 | OAuth Google | Portées `openid email profile` uniquement. Liaison automatique si l'email est vérifié chez Google. |
