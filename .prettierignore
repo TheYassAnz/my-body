@@ -1,0 +1,7 @@
+specs
+drizzle
+pnpm-lock.yaml
+.next
+coverage
+playwright-report
+test-results

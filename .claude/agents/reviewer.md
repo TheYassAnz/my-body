@@ -26,6 +26,7 @@ Skip pure style nits unless they hide a bug.
 ## Output
 
 A list of findings, most severe first. For each:
+
 - `path:line` — severity (**blocking** / **should fix** / **minor**)
 - the problem, the concrete failing scenario, and the spec reference
 - the suggested fix in one or two lines
