@@ -45,8 +45,12 @@ describe("auth", () => {
 
   it("rejects passwords shorter than 10 characters", async () => {
     await expect(
-      auth.api.signUpEmail({ body: { name: "julie", email: EMAIL, password: "short-12" } }),
+      auth.api.signUpEmail({ body: { name: "julie", email: EMAIL, password: "short-123" } }),
     ).rejects.toThrow();
+    const ok = await auth.api.signUpEmail({
+      body: { name: "paul", email: "paul@example.com", password: "exactly-10" },
+    });
+    expect(ok.user.email).toBe("paul@example.com");
   });
 
   it("does not send a reset link to an unverified email", async () => {

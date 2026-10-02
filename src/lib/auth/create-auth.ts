@@ -35,7 +35,9 @@ export function createAuth(deps: AuthDeps) {
       sendResetPassword: async ({ user, url }) => {
         // EF-AUTH-04 CA3: only verified emails can recover the account.
         if (!user.emailVerified) return;
-        void deps.sendEmail({ to: user.email, ...resetPasswordEmail(url) });
+        void deps
+          .sendEmail({ to: user.email, ...resetPasswordEmail(url) })
+          .catch(() => console.error("email_send_failed"));
       },
     },
     emailVerification: {
@@ -43,11 +45,14 @@ export function createAuth(deps: AuthDeps) {
       autoSignInAfterVerification: true,
       sendVerificationEmail: async ({ user, url }) => {
         // Not awaited: avoids timing attacks (Better Auth recommendation).
-        void deps.sendEmail({ to: user.email, ...verificationEmail(url) });
+        void deps
+          .sendEmail({ to: user.email, ...verificationEmail(url) })
+          .catch(() => console.error("email_send_failed"));
       },
     },
     socialProviders: deps.google ? { google: deps.google } : {},
-    account: { accountLinking: { enabled: true, trustedProviders: ["google"] } },
+    // No trustedProviders: link only when the provider reports a verified email.
+    account: { accountLinking: { enabled: true } },
     session: { expiresIn: 30 * DAY, updateAge: DAY },
     rateLimit: {
       enabled: deps.rateLimitEnabled ?? true,

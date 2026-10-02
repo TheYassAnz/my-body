@@ -10,9 +10,13 @@ export function createEmailSender(): SendEmail {
     if (process.env.NODE_ENV === "production" && !process.env.CI) {
       throw new Error("RESEND_API_KEY is required in production");
     }
-    return async (m) => {
-      console.info(`[dev-email] ${m.subject}\n${m.text}`);
-    };
+    if (process.env.NODE_ENV === "development") {
+      return async (m) => {
+        console.info(`[dev-email] ${m.subject}\n${m.text}`);
+      };
+    }
+    // CI/test without key: silent, the text contains token links.
+    return async () => {};
   }
 
   const resend = new Resend(apiKey);
