@@ -13,7 +13,7 @@ Les règles de calcul citées sont détaillées dans [03](03-regles-metier-et-ca
 - CA3 : Le consentement au traitement des données de santé et l'acceptation des CGU sont obligatoires. La date et la version du texte accepté sont enregistrées.
 - CA4 : Un email de vérification est envoyé. L'utilisateur accède **immédiatement** à l'onboarding puis à l'app, sans attendre la vérification.
 - CA5 : Tant que l'email n'est pas vérifié, un bandeau discret s'affiche en haut de l'app : « Confirme ton email pour pouvoir récupérer ton compte. » avec un bouton « Renvoyer » (60 s minimum entre deux envois) et une fermeture pour la session en cours.
-- CA6 : Le lien de vérification mène à `/verifier-email?token=…`, qui confirme l'adresse puis redirige vers `/accueil` avec un toast « Email confirmé ».
+- CA6 : Le lien de vérification (`/api/auth/verify-email?token=…`) confirme l'adresse puis redirige vers `/accueil?email=verifie`, qui affiche « Email confirmé ».
 
 **EF-AUTH-02 · M · Connexion et inscription avec Google**
 - CA1 : Si l'email Google correspond à un compte existant, les deux sont liés automatiquement.

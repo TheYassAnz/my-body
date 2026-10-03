@@ -10,7 +10,8 @@ Maquettes de référence : [`maquettes/wireframes-mobile.html`](maquettes/wirefr
 | `/inscription` | Inscription | Public |
 | `/connexion` | Connexion | Public |
 | `/mot-de-passe-oublie`, `/reinitialiser` | Réinitialisation du mot de passe | Public |
-| `/verifier-email` | Confirmation de l'email (cible du lien reçu par email) | Public |
+| `/api/auth/verify-email` | Lien de confirmation d'email (Better Auth), redirige vers `/accueil?email=verifie` | Public |
+| `/consentement` | Consentement (comptes Google) | Connecté sans consentement |
 | `/onboarding` | Onboarding en 5 étapes | Connecté, onboarding non terminé |
 | `/accueil` | Tableau de bord | Connecté |
 | `/progres` | Courbes et historique | Connecté |
@@ -143,6 +144,7 @@ Sections :
 - Après inscription par email : passage **direct à l'onboarding**. Un email de vérification part en arrière-plan. Tant qu'il n'est pas confirmé, un bandeau discret en haut de l'app invite à le faire (EF-AUTH-01 CA5).
 - **Connexion** : email et mot de passe, lien « Mot de passe oublié ? ».
 - Pour une inscription via Google, la case de consentement est présentée juste après le retour de Google, avant l'onboarding.
+- L'inscription, la connexion et la réinitialisation passent par le client navigateur Better Auth ; les consentements sont enregistrés par une Server Action juste après l'inscription, et la garde de `/consentement` rattrape un enregistrement manqué (voir [05](05-architecture-technique.md) §3).
 
 ## 4. Responsive
 

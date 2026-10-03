@@ -13,7 +13,7 @@
 | Base de données | **PostgreSQL** chez **Neon** (région UE, via la marketplace Vercel) | |
 | ORM | **Drizzle ORM** + `drizzle-kit` | Schéma typé, migrations SQL versionnées |
 | Auth | **Better Auth** (adaptateur Drizzle) | Email + mot de passe, Google OAuth, vérification d'email, réinitialisation, limitation de débit |
-| Emails | **Resend** + **React Email** | Vérification, réinitialisation, confirmation de suppression |
+| Emails | **Resend** ; gabarits texte/HTML (React Email optionnel plus tard) | Vérification, réinitialisation, confirmation de suppression |
 | Hébergement | **Vercel**, fonctions en région **fra1** (Francfort) | Déploiements de prévisualisation sur chaque PR |
 | Gestionnaire de paquets | **pnpm** | |
 | Qualité | ESLint, Prettier, `tsc --noEmit` | |
@@ -28,8 +28,8 @@
 └───────────────┬────────────────────────────────────────────────▲───────────────────────┘
                 │ Server Actions (mutations)                     │ HTML RSC
 ┌───────────────▼────────────────── Next.js sur Vercel (fra1) ───┴───────────────────────┐
-│  middleware.ts : présence d'un cookie de session, sinon /connexion                     │
-│  app/(app)/layout.tsx : session serveur + onboarding terminé, sinon /onboarding        │
+│  src/proxy.ts (Next.js 16) : cookie de session présent, sinon /connexion               │
+│  groupes (app), (settings), onboarding, consentement : requireUser(area)                │
 │                                                                                        │
 │  features/<domaine>/                                                                   │
 │     actions.ts   (écritures) ─┐                                                        │
@@ -49,7 +49,7 @@ my-body/
 ├─ src/
 │  ├─ app/
 │  │  ├─ (public)/              page d'accueil /, pages légales
-│  │  ├─ (auth)/                connexion, inscription, mot-de-passe-oublie, reinitialiser, verifier-email
+│  │  ├─ (auth)/                connexion, inscription, mot-de-passe-oublie, reinitialiser
 │  │  ├─ (app)/
 │  │  │  ├─ layout.tsx          garde de session et d'onboarding, navigation (barre du bas / latérale)
 │  │  │  ├─ accueil/page.tsx
@@ -66,16 +66,17 @@ my-body/
 │  │  ├─ measurements/  actions.ts · queries.ts · schemas.ts · components/ (Silhouette, ZoneSheet, MeasureSession)
 │  │  ├─ goals/         actions.ts · queries.ts · schemas.ts · components/ (GoalForm, RateSlider, GoalStatus)
 │  │  ├─ dashboard/     queries.ts (agrégation pour l'Accueil) · components/
+│  │  ├─ auth/          actions.ts · client-actions.ts · schemas.ts · components/
+│  │  ├─ consent/       queries.ts
 │  │  ├─ profile/       actions.ts · queries.ts · schemas.ts · components/
 │  │  └─ account/       actions.ts (suppression) · export.ts (CSV)
 │  ├─ lib/
 │  │  ├─ metrics/       config.ts · trend.ts · rate.ts · goal-status.ts · projection.ts · deltas.ts · index.ts
 │  │  ├─ units.ts       conversions et formatage (Intl.NumberFormat)
 │  │  ├─ dates.ts       « aujourd'hui » dans le fuseau de l'utilisateur, calculs en jours
-│  │  ├─ db/            schema.ts · client.ts · migrations/ · seed.ts
-│  │  ├─ auth.ts        configuration serveur Better Auth
-│  │  ├─ auth-client.ts client Better Auth
-│  │  ├─ session.ts     requireUser() : renvoie { userId, profile } ou redirige
+│  │  ├─ db/            schema/ (auth.ts · app.ts) · client.ts (node-postgres) · seed.ts ; migrations dans drizzle/
+│  │  ├─ auth/          create-auth.ts · index.ts (serveur Better Auth) · client.ts (client navigateur)
+│  │  ├─ session.ts     requireUser(area) : renvoie { userId, profile } ou redirige
 │  │  └─ email/         templates React Email + envoi
 │  └─ components/ui/    Button, Input, NumberStepper, Segmented, Sheet, Dialog, Toast, Slider, Pill…
 ├─ tests/
@@ -89,6 +90,9 @@ my-body/
 **Règles de dépendance :**
 - `lib/metrics` ne dépend de **rien** (ni base, ni Next, ni horloge).
 - `features/*` dépendent de `lib/*` et de `components/ui`. Un domaine peut lire les `queries` d'un autre domaine, jamais ses `actions`.
+- Contrôle d'accès par groupes de routes via `requireUser(area)` : `(app)` exige l'onboarding terminé, `(settings)` ne l'exige pas, `onboarding` exige qu'il ne soit pas terminé, `consentement` gère les comptes sans consentement.
+- Authentification : l'inscription, la connexion et la réinitialisation passent par le client navigateur (`authClient`), car le limiteur de débit de Better Auth ne s'applique qu'aux requêtes HTTP `/api/auth/*`, pas aux appels serveur `auth.api`. Les consentements sont enregistrés par une Server Action juste après l'inscription (la garde de `/consentement` rattrape un oubli). Le renvoi de vérification passe par `getAuth().handler(Request)` pour la même raison.
+- Onboarding côté serveur : taille 100–250 cm après conversion depuis les pouces (saisie brute bornée), âge minimum 16 ans calculé sur la date du fuseau du profil.
 - `app/*` n'appelle que `features/*` et `components/ui`. **Aucune requête Drizzle directe dans `app/`.**
 
 ## 4. Patterns

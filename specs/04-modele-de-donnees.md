@@ -27,8 +27,8 @@ Toutes les clés étrangères vers `user` sont en `ON DELETE CASCADE` : supprime
 |---|---|---|---|
 | `user_id` | text | PK, FK → user.id, cascade | |
 | `sex` | enum `sex` ('male', 'female') | not null | Choisit la silhouette |
-| `height_cm` | numeric(4,1) | not null, 100–250 | |
-| `birth_date` | date | not null | Âge ≥ 16 ans (validé côté applicatif) |
+| `height_cm` | numeric(4,1) | null jusqu'à l'étape 2 de l'onboarding, 100–250 si non null | |
+| `birth_date` | date | null jusqu'à l'étape 2 de l'onboarding | Âge ≥ 16 ans (validé côté applicatif) |
 | `weight_unit` | enum ('kg', 'lb') | not null, défaut 'kg' | Unité d'affichage |
 | `length_unit` | enum ('cm', 'in') | not null, défaut 'cm' | Unité d'affichage |
 | `timezone` | text | not null, défaut 'Europe/Paris' | Fuseau IANA détecté à l'inscription, sert à calculer « aujourd'hui » |
