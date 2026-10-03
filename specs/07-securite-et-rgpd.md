@@ -57,7 +57,7 @@ Les deux cases sont **non pré-cochées** et obligatoires. La version des textes
 | Mots de passe | Hachés par Better Auth (scrypt par défaut). 10 caractères minimum. Refus des 10 000 mots de passe les plus courants (C). |
 | Sessions | Cookie `HttpOnly`, `Secure`, `SameSite=Lax`, durée de 30 jours glissante. Révocation à la déconnexion, à la réinitialisation et au changement de mot de passe. |
 | Vérification d'email | **Non bloquante** : accès immédiat à l'app, avec un bandeau de rappel. La réinitialisation du mot de passe n'est possible que pour un email vérifié (protection contre la prise de contrôle via une adresse mal tapée). |
-| Limitation de débit | Limiteur intégré de Better Auth, par IP et par route (limite par email : backlog). |
+| Limitation de débit | Limiteur intégré de Better Auth, par IP et par route (connexion 5/min, inscription 3/min, réinitialisation et renvoi de vérification 3/h) ; limite par email : backlog. |
 | Réinitialisation | Jeton à usage unique, 1 h, message identique que l'email existe ou non. |
 | OAuth Google | Portées `openid email profile` uniquement. Liaison automatique si l'email est vérifié chez Google. |
 

@@ -36,7 +36,7 @@
 │     queries.ts   (lectures) ──┼──► lib/db (Drizzle) ──► PostgreSQL (Neon, UE)          │
 │     schemas.ts   (Zod)        │                                                        │
 │                               └──► lib/metrics (calculs purs)                          │
-│  lib/auth.ts (Better Auth) ──► /api/auth/[...all]                                      │
+│  lib/auth/ (Better Auth) ──► /api/auth/[...all]                                        │
 │  lib/email ──► Resend                                                                  │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -48,16 +48,20 @@ my-body/
 ├─ specs/                       ← ce cahier des charges
 ├─ src/
 │  ├─ app/
-│  │  ├─ (public)/              page d'accueil /, pages légales
-│  │  ├─ (auth)/                connexion, inscription, mot-de-passe-oublie, reinitialiser
+│  │  ├─ page.tsx               page d'accueil publique /
+│  │  ├─ mentions-legales/, cgu/, confidentialite/   pages légales
+│  │  ├─ (auth)/                layout centré ; connexion, inscription, mot-de-passe-oublie, reinitialiser
 │  │  ├─ (app)/
 │  │  │  ├─ layout.tsx          garde de session et d'onboarding, navigation (barre du bas / latérale)
 │  │  │  ├─ accueil/page.tsx
 │  │  │  ├─ progres/page.tsx
 │  │  │  ├─ corps/page.tsx
 │  │  │  ├─ corps/seance/page.tsx
-│  │  │  ├─ objectif/page.tsx
+│  │  │  └─ objectif/page.tsx
+│  │  ├─ (settings)/
+│  │  │  ├─ layout.tsx          garde de session sans exigence d'onboarding
 │  │  │  └─ reglages/page.tsx
+│  │  ├─ consentement/page.tsx  consentement des comptes Google
 │  │  ├─ onboarding/page.tsx
 │  │  ├─ api/auth/[...all]/route.ts     handler Better Auth
 │  │  └─ api/export/[kind]/route.ts     export CSV (pesees | mensurations)
@@ -77,7 +81,7 @@ my-body/
 │  │  ├─ db/            schema/ (auth.ts · app.ts) · client.ts (node-postgres) · seed.ts ; migrations dans drizzle/
 │  │  ├─ auth/          create-auth.ts · index.ts (serveur Better Auth) · client.ts (client navigateur)
 │  │  ├─ session.ts     requireUser(area) : renvoie { userId, profile } ou redirige
-│  │  └─ email/         templates React Email + envoi
+│  │  └─ email/         gabarits texte/HTML + envoi
 │  └─ components/ui/    Button, Input, NumberStepper, Segmented, Sheet, Dialog, Toast, Slider, Pill…
 ├─ tests/
 │  ├─ e2e/              Playwright
