@@ -10,7 +10,12 @@ export const sexStepSchema = z.object({
 export function bodyStepSchema(todayDate: LocalDate) {
   return z
     .object({
-      height: z.coerce.number({ error: "Taille invalide" }),
+      // Raw bound keeps round1 away from exponent notation (NaN for >= 1e21 or < 1e-6).
+      height: z.coerce
+        .number({ error: "Taille invalide" })
+        .refine((h) => Number.isFinite(h) && h >= 1 && h <= 1000, {
+          error: "Taille entre 100 et 250 cm",
+        }),
       lengthUnit: z.enum(["cm", "in"]),
       birthDate: z.iso.date({ error: "Date invalide" }),
     })
@@ -20,7 +25,7 @@ export function bodyStepSchema(todayDate: LocalDate) {
       birthDate: v.birthDate,
     }))
     .superRefine((v, ctx) => {
-      if (v.heightCm < 100 || v.heightCm > 250) {
+      if (!Number.isFinite(v.heightCm) || v.heightCm < 100 || v.heightCm > 250) {
         ctx.addIssue({ code: "custom", path: ["height"], message: "Taille entre 100 et 250 cm" });
       }
       const age = ageOn(v.birthDate, todayDate);

@@ -31,6 +31,18 @@ describe("bodyStepSchema", () => {
     expect(body({ height: "abc" }).success).toBe(false);
   });
 
+  it("rejects absurd or non-finite heights with a field error, in both units", () => {
+    for (const lengthUnit of ["cm", "in"]) {
+      for (const height of ["1e30", "1e-7", "Infinity", "-Infinity", "NaN", "1e21", "0"]) {
+        const r = body({ height, lengthUnit });
+        expect(r.success).toBe(false);
+        expect(!r.success && r.error.issues.some((i) => i.path[0] === "height")).toBe(true);
+      }
+    }
+    const r = body({ height: "1e30" });
+    expect(!r.success && r.error.issues[0].message).toBe("Taille entre 100 et 250 cm");
+  });
+
   it("refuses users younger than 16", () => {
     expect(body({ birthDate: "2010-10-02" }).success).toBe(false);
     expect(body({ birthDate: "2010-10-01" }).success).toBe(true);
