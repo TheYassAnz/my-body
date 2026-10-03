@@ -56,4 +56,14 @@ describe("safeNext", () => {
       expect(safeNext(bad)).toBe("/accueil");
     }
   });
+
+  it("rejects control characters that browsers strip from URLs", () => {
+    for (const bad of ["/\t/evil.example", "/\n/evil.example", "/\r/evil.example", "/a\u0000b"]) {
+      expect(safeNext(bad)).toBe("/accueil");
+    }
+  });
+
+  it("keeps percent-encoded slashes (harmless, stays on the same origin)", () => {
+    expect(safeNext("/%2F/evil")).toBe("/%2F/evil");
+  });
 });

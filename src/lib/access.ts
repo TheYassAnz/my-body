@@ -16,15 +16,22 @@ export function accessRedirect(area: Area, s: AccessState): string | null {
   return null;
 }
 
-/** Only same-origin paths are allowed as post-login destinations (specs/07 §7). */
+const FORBIDDEN_CHARS = /[\\\u0000-\u001f\u007f]/;
+
+/**
+ * Only same-origin paths are allowed as post-login destinations (specs/07 §7).
+ * Backslashes and control characters are rejected: browsers strip tab/CR/LF
+ * and treat "\\" as "/", so "/\t/evil.example" would become "//evil.example".
+ */
 export function safeNext(next: unknown): string {
-  if (
-    typeof next !== "string" ||
-    !next.startsWith("/") ||
-    next.startsWith("//") ||
-    next.startsWith("/\\")
-  ) {
+  if (typeof next !== "string" || !next.startsWith("/") || FORBIDDEN_CHARS.test(next)) {
     return "/accueil";
   }
-  return next;
+  try {
+    const url = new URL(next, "http://x");
+    if (url.origin !== "http://x") return "/accueil";
+    return url.pathname + url.search;
+  } catch {
+    return "/accueil";
+  }
 }
