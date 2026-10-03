@@ -31,6 +31,24 @@ describe("bodyStepSchema", () => {
     expect(body({ height: "abc" }).success).toBe(false);
   });
 
+  it("accepts 100 and 250 cm and refuses 99 and 251 cm", () => {
+    expect(body({ height: "100" }).success).toBe(true);
+    expect(body({ height: "250" }).success).toBe(true);
+    expect(body({ height: "99" }).success).toBe(false);
+    expect(body({ height: "251" }).success).toBe(false);
+  });
+
+  it("applies the range after inch conversion (rounded to 0.1 cm)", () => {
+    // 39.4 in = 100.1 cm, 39.3 in = 99.8 cm, 98.4 in = 249.9 cm, 98.5 in = 250.2 cm
+    const inch = (height: string) => body({ height, lengthUnit: "in" });
+    const ok39 = inch("39.4");
+    expect(ok39.success && ok39.data.heightCm).toBe(100.1);
+    expect(inch("39.3").success).toBe(false);
+    const ok98 = inch("98.4");
+    expect(ok98.success && ok98.data.heightCm).toBe(249.9);
+    expect(inch("98.5").success).toBe(false);
+  });
+
   it("rejects absurd or non-finite heights with a field error, in both units", () => {
     for (const lengthUnit of ["cm", "in"]) {
       for (const height of ["1e30", "1e-7", "Infinity", "-Infinity", "NaN", "1e21", "0"]) {

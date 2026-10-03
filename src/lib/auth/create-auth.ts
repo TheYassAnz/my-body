@@ -23,6 +23,7 @@ export type AuthDeps = {
 
 export function createAuth(deps: AuthDeps) {
   return betterAuth({
+    logger: { level: "warn" }, // never log emails (info-level duplicate-email message)
     baseURL: deps.baseURL,
     secret: deps.secret,
     database: drizzleAdapter(deps.db, { provider: "pg", schema: authSchema }),

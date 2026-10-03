@@ -56,11 +56,18 @@ describe("consent and profile", () => {
   });
 
   it("never touches another user's profile", async () => {
+    await saveSex(db, "bob", "male", "Europe/Paris");
+    await saveBodyInfo(db, "bob", { heightCm: 180, birthDate: "1985-01-02", lengthUnit: "in" });
+    await markOnboardingCompleted(db, "bob");
+    const bobBefore = await getProfile(db, "bob");
+    expect(bobBefore?.onboardingCompletedAt).toBeInstanceOf(Date);
+
     await saveSex(db, "alice", "female", "Europe/Paris");
+    await saveSex(db, "alice", "male", "Europe/Paris");
     await saveBodyInfo(db, "alice", { heightCm: 168.5, birthDate: "1990-04-12", lengthUnit: "cm" });
     await markOnboardingCompleted(db, "alice");
 
-    expect(await getProfile(db, "bob")).toBeNull();
+    expect(await getProfile(db, "bob")).toEqual(bobBefore);
     expect((await getProfile(db, "alice"))?.onboardingCompletedAt).toBeInstanceOf(Date);
   });
 

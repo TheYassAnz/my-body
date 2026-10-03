@@ -30,7 +30,9 @@ export function safeNext(next: unknown): string {
   try {
     const url = new URL(next, "http://x");
     if (url.origin !== "http://x") return "/accueil";
-    return url.pathname + url.search;
+    // Dot-segments can resolve to a second leading slash ("/..//x" -> "//x").
+    const path = url.pathname + url.search;
+    return path.startsWith("//") ? "/accueil" : path;
   } catch {
     return "/accueil";
   }

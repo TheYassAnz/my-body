@@ -15,7 +15,7 @@ export async function saveSex(db: Db, userId: string, sex: Sex, timezone: string
   await db
     .insert(profile)
     .values({ userId, sex, timezone })
-    .onConflictDoUpdate({ target: profile.userId, set: { sex } });
+    .onConflictDoUpdate({ target: profile.userId, set: { sex, updatedAt: new Date() } });
 }
 
 export async function saveBodyInfo(

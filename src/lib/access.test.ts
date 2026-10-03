@@ -66,4 +66,41 @@ describe("safeNext", () => {
   it("keeps percent-encoded slashes (harmless, stays on the same origin)", () => {
     expect(safeNext("/%2F/evil")).toBe("/%2F/evil");
   });
+
+  it("never returns a protocol-relative URL once dot-segments are resolved", () => {
+    for (const bad of [
+      "/..//evil.example",
+      "/.//evil.example",
+      "/a/..//evil.example",
+      "/%2e%2e//evil.example",
+    ]) {
+      expect(safeNext(bad)).toBe("/accueil");
+    }
+  });
+
+  it("is safe and idempotent over tricky inputs", () => {
+    const inputs = [
+      "/..//evil.example",
+      "/.//evil.example",
+      "/a/..//evil.example",
+      "/%2e%2e//evil.example",
+      "/a/b/../../..//x",
+      "/%2E/%2E//x",
+      "//evil.example",
+      "/?next=//x",
+      "/a?b=//c",
+      "/%2F/evil",
+      "/progres",
+      "/",
+      "/./",
+      "/..",
+      "/a/../b",
+    ];
+    for (const x of inputs) {
+      const r = safeNext(x);
+      expect(r.startsWith("//")).toBe(false);
+      expect(r.startsWith("/")).toBe(true);
+      expect(safeNext(r)).toBe(r);
+    }
+  });
 });
