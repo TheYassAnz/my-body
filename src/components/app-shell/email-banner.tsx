@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { resendVerificationAction } from "@/features/auth/actions";
 
 export function EmailBanner() {
@@ -8,6 +8,8 @@ export function EmailBanner() {
   const [message, setMessage] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(false);
   const [pending, startTransition] = useTransition();
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
   if (hidden) return null;
 
   const resend = () =>
@@ -15,7 +17,8 @@ export function EmailBanner() {
       const result = await resendVerificationAction();
       setMessage(result.ok ? "Email renvoyé." : (result.formError ?? null));
       setCooldown(true);
-      setTimeout(() => setCooldown(false), 60_000); // EF-AUTH-01 CA5: 60 s between sends
+      clearTimeout(timer.current);
+      timer.current = setTimeout(() => setCooldown(false), 60_000); // EF-AUTH-01 CA5: 60 s between sends
     });
 
   return (
@@ -30,7 +33,7 @@ export function EmailBanner() {
         type="button"
         onClick={resend}
         disabled={pending || cooldown}
-        className="font-semibold text-fg underline disabled:opacity-50"
+        className="min-h-11 px-2 font-semibold text-fg underline disabled:opacity-50"
       >
         Renvoyer
       </button>
@@ -38,7 +41,7 @@ export function EmailBanner() {
         type="button"
         onClick={() => setHidden(true)}
         aria-label="Masquer"
-        className="text-fg"
+        className="min-h-11 min-w-11 text-fg"
       >
         ✕
       </button>
