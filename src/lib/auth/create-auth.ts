@@ -5,8 +5,9 @@ import * as authSchema from "@/lib/db/schema/auth";
 import type { Db } from "@/lib/db/types";
 import { resetPasswordEmail, verificationEmail } from "@/lib/email/templates";
 import type { SendEmail } from "@/lib/email/types";
+import { PASSWORD_MIN_LENGTH } from "./constants";
 
-export const PASSWORD_MIN_LENGTH = 10;
+export { PASSWORD_MIN_LENGTH };
 const DAY = 60 * 60 * 24;
 
 export type AuthDeps = {

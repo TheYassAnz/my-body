@@ -16,7 +16,9 @@ export type CurrentUser = {
 
 /** Server-side guard: the only source of userId for queries and actions. */
 export async function requireUser(area: Area): Promise<CurrentUser> {
-  const session = await getAuth().api.getSession({ headers: await headers() });
+  // headers() first: it opts the route out of prerendering before getAuth() reads env vars.
+  const requestHeaders = await headers();
+  const session = await getAuth().api.getSession({ headers: requestHeaders });
   if (!session) redirect("/connexion");
 
   const db = getDb();

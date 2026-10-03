@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { consent } from "@/lib/db/schema";
 import type { Db } from "@/lib/db/types";
 
@@ -12,11 +12,20 @@ export async function recordConsents(db: Db, userId: string, now: Date = new Dat
   ]);
 }
 
-export async function hasRequiredConsents(db: Db, userId: string): Promise<boolean> {
+/** Pass `version` to require consents given for that version of the texts only. */
+export async function hasRequiredConsents(
+  db: Db,
+  userId: string,
+  version?: string,
+): Promise<boolean> {
   const rows = await db
     .select({ kind: consent.kind })
     .from(consent)
-    .where(eq(consent.userId, userId));
+    .where(
+      version
+        ? and(eq(consent.userId, userId), eq(consent.version, version))
+        : eq(consent.userId, userId),
+    );
   const kinds = new Set(rows.map((r) => r.kind));
   return kinds.has("health_data") && kinds.has("terms");
 }

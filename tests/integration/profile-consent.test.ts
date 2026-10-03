@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Db } from "@/lib/db/types";
-import { hasRequiredConsents, recordConsents } from "@/features/consent/queries";
+import { CONSENT_VERSION, hasRequiredConsents, recordConsents } from "@/features/consent/queries";
 import {
   getProfile,
   markOnboardingCompleted,
@@ -25,6 +25,12 @@ describe("consent and profile", () => {
     await recordConsents(db, "alice");
     expect(await hasRequiredConsents(db, "alice")).toBe(true);
     expect(await hasRequiredConsents(db, "bob")).toBe(false);
+  });
+
+  it("can restrict the check to one version of the consent texts", async () => {
+    await recordConsents(db, "alice");
+    expect(await hasRequiredConsents(db, "alice", CONSENT_VERSION)).toBe(true);
+    expect(await hasRequiredConsents(db, "alice", "2099-01-01")).toBe(false);
   });
 
   it("creates the profile at step 1 and completes it at step 2", async () => {
