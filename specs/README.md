@@ -4,8 +4,8 @@ Application web responsive de suivi du poids et des mensurations, avec des objec
 
 | | |
 |---|---|
-| **Version du document** | 1.1 |
-| **Date** | 30 septembre 2026 |
+| **Version du document** | 1.2 |
+| **Date** | 3 octobre 2026 |
 | **Statut** | Revu et validé |
 | **Périmètre** | V1 : produit public, gratuit |
 | **Développement** | Développeur solo, sans échéance imposée |
@@ -56,6 +56,7 @@ Application web responsive de suivi du poids et des mensurations, avec des objec
 |---|---|---|
 | 1.0 | 29/09/2026 | Première version, issue du brainstorming. |
 | 1.1 | 30/09/2026 | Revue de la spec. **Rythme calculé sur les pesées brutes** (supprime le retard de la tendance) et tendance amorcée sur la moyenne des 3 premières pesées ([03](03-regles-metier-et-calculs.md)). « Trop rapide » relatif au rythme choisi, sans plafond absolu. **Vérification d'email non bloquante**, réinitialisation réservée aux emails vérifiés. Option « Juste suivre mon poids » à l'onboarding. Finalités des données de profil précisées ([07](07-securite-et-rgpd.md)). Corrections mineures (fuseau horaire, bascule kg/lb à l'onboarding). |
+| 1.2 | 03/10/2026 | Ajustements issus du plan L0-L1 (proxy Next 16, groupes de routes, lien de vérification Better Auth, profil nullable pendant l'onboarding, rate limit par IP). |
 
 ## Conventions
 
