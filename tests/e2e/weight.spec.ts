@@ -18,7 +18,7 @@ test("E2E-2: the demo account logs a weighing with + and the home trend changes"
   const before = (await hero.textContent()) ?? "";
   const trend = Number(before.replace(",", "."));
   // 3 % away from the trend: visible effect, below the 5 % suspicious threshold.
-  // Opposite directions so the mobile and desktop runs (same account, run in parallel) both move it.
+  // Opposite directions so the mobile and desktop runs (same account, run one after the other) both move it.
   const factor = testInfo.project.name === "mobile" ? 0.97 : 1.03;
   const typed = (trend * factor).toFixed(1).replace(".", ",");
 
