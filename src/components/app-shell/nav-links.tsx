@@ -1,8 +1,9 @@
 "use client";
 
-import { ChartLine, House, PersonStanding, Settings, Target } from "lucide-react";
+import { ChartLine, House, PersonStanding, Plus, Settings, Target } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useOpenWeightSheet } from "@/features/weight/components/weight-sheet-provider";
 
 const items = [
   { href: "/accueil", label: "Accueil", Icon: House },
@@ -40,25 +41,36 @@ export function SideNav() {
 
 export function BottomNav() {
   const pathname = usePathname();
+  const openWeightSheet = useOpenWeightSheet();
+  const link = ({ href, label, Icon }: (typeof items)[number]) => {
+    const active = isActive(pathname, href);
+    return (
+      <Link
+        key={href}
+        href={href}
+        aria-current={active ? "page" : undefined}
+        className={`flex min-h-11 min-w-11 flex-col items-center gap-1 text-[10px] ${active ? "text-fg" : "text-subtle"}`}
+      >
+        <Icon size={22} strokeWidth={1.7} aria-hidden />
+        {label}
+      </Link>
+    );
+  };
   return (
     <nav
       aria-label="Navigation principale"
-      className="fixed inset-x-0 bottom-0 flex justify-around border-t border-line bg-bg px-4 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] lg:hidden"
+      className="fixed inset-x-0 bottom-0 flex items-center justify-around border-t border-line bg-bg px-4 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] lg:hidden"
     >
-      {items.map(({ href, label, Icon }) => {
-        const active = isActive(pathname, href);
-        return (
-          <Link
-            key={href}
-            href={href}
-            aria-current={active ? "page" : undefined}
-            className={`flex min-h-11 min-w-11 flex-col items-center gap-1 text-[10px] ${active ? "text-fg" : "text-subtle"}`}
-          >
-            <Icon size={22} strokeWidth={1.7} aria-hidden />
-            {label}
-          </Link>
-        );
-      })}
+      {items.slice(0, 2).map(link)}
+      <button
+        type="button"
+        aria-label="Nouvelle pesée"
+        onClick={openWeightSheet}
+        className="flex size-11 items-center justify-center rounded-full bg-fg text-white"
+      >
+        <Plus size={22} strokeWidth={1.5} aria-hidden />
+      </button>
+      {items.slice(2).map(link)}
     </nav>
   );
 }
