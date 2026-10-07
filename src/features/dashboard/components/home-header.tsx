@@ -10,7 +10,9 @@ export function HomeHeader({ date }: { date: LocalDate }) {
         <p className="text-xs font-medium text-fg-2">{formatLongDate(date)}</p>
         <h1 className="text-2xl font-semibold tracking-tight lg:text-[28px]">Bonjour</h1>
       </div>
-      <NewWeightButton className="hidden lg:inline-flex" />
+      <div className="hidden lg:block">
+        <NewWeightButton />
+      </div>
       <Link
         href="/reglages"
         aria-label="Réglages"
