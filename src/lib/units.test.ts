@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { cmToIn, inToCm, round1 } from "./units";
+import {
+  cmToIn,
+  formatDecimal,
+  formatDelta,
+  formatInputDecimal,
+  formatWeeklyRate,
+  formatWeight,
+  inToCm,
+  parseDecimal,
+  round1,
+  round2,
+  toDisplayWeight,
+  toStoredKg,
+} from "./units";
 
 describe("units", () => {
   it("converts inches to centimetres with the exact factor", () => {
@@ -14,5 +27,76 @@ describe("units", () => {
     expect(round1(168.45)).toBe(168.5);
     expect(round1(168.44)).toBe(168.4);
     expect(round1(-3.25)).toBe(-3.3);
+  });
+});
+
+describe("parseDecimal", () => {
+  it("reads French and English decimals", () => {
+    expect(parseDecimal("78,4")).toBe(78.4);
+    expect(parseDecimal("78.4")).toBe(78.4);
+    expect(parseDecimal(" 80 ")).toBe(80);
+  });
+
+  it("returns NaN for anything that is not a plain positive decimal", () => {
+    for (const raw of ["", "abc", "1e400", "Infinity", "-5", "1,2,3", "12345", undefined, 42]) {
+      expect(parseDecimal(raw)).toBeNaN();
+    }
+  });
+});
+
+describe("rounding", () => {
+  it("rounds stored kilograms to two decimals, despite floating point", () => {
+    expect(round2(78.015)).toBe(78.02);
+    expect(round2(1.005)).toBe(1.01);
+  });
+
+  it("returns 0 rather than NaN for tiny values (regression slopes)", () => {
+    expect(round1(1e-17)).toBe(0);
+    expect(round2(-1e-9)).toBe(0);
+  });
+
+  it("keeps NaN as NaN", () => {
+    expect(round1(Number.NaN)).toBeNaN();
+  });
+});
+
+describe("weight conversions", () => {
+  it("converts pounds to stored kilograms and back without drift", () => {
+    expect(toStoredKg(172, "lb")).toBe(78.02);
+    expect(toDisplayWeight(78.02, "lb")).toBe(172);
+    expect(toDisplayWeight(78.4, "lb")).toBe(172.8);
+    expect(toStoredKg(172.8, "lb")).toBe(78.38);
+    expect(toDisplayWeight(78.38, "kg")).toBe(78.4);
+  });
+
+  it("rounds kilograms to storage precision", () => {
+    expect(toStoredKg(78.456, "kg")).toBe(78.46);
+  });
+});
+
+describe("fr-FR formatting", () => {
+  it("shows one decimal with a comma and a true minus sign", () => {
+    expect(formatDecimal(78.4)).toBe("78,4");
+    expect(formatDecimal(78)).toBe("78,0");
+    expect(formatDecimal(-3.46)).toBe("−3,5");
+    expect(formatDecimal(-0.01)).toBe("0,0");
+  });
+
+  it("signs differences without a useless zero", () => {
+    expect(formatDelta(-3.5)).toBe("−3,5");
+    expect(formatDelta(1)).toBe("+1");
+    expect(formatDelta(0.04)).toBe("0");
+    expect(formatDelta(-0.04)).toBe("0");
+  });
+
+  it("formats weights and weekly rates in the display unit", () => {
+    expect(formatWeight(78.4, "kg")).toBe("78,4 kg");
+    expect(formatWeight(78.4, "lb")).toBe("172,8 lb");
+    expect(formatWeeklyRate(-0.35, "kg")).toBe("−0,4 kg/sem");
+  });
+
+  it("formats a number field value", () => {
+    expect(formatInputDecimal(78)).toBe("78,0");
+    expect(formatInputDecimal(172.84)).toBe("172,8");
   });
 });
