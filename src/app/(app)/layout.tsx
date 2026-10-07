@@ -1,22 +1,12 @@
 import { AppShell } from "@/components/app-shell/app-shell";
-import { getLatestWeight } from "@/features/weight/queries";
-import { today } from "@/lib/dates";
-import { getDb } from "@/lib/db/client";
+import { getWeightSheetDefaults } from "@/features/weight/sheet-defaults";
 import { requireUser } from "@/lib/session";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser("app");
-  const latest = await getLatestWeight(getDb(), user.userId);
+  const weightSheet = await getWeightSheetDefaults(user);
   return (
-    <AppShell
-      emailVerified={user.emailVerified}
-      weightSheet={{
-        today: today(user.profile?.timezone ?? "Europe/Paris"),
-        // EF-WGT-01 CA3: pre-filled with the last weighing (the onboarding one at first).
-        lastWeightKg: latest?.weightKg ?? null,
-        unit: user.profile?.weightUnit ?? "kg",
-      }}
-    >
+    <AppShell emailVerified={user.emailVerified} weightSheet={weightSheet ?? undefined}>
       {children}
     </AppShell>
   );

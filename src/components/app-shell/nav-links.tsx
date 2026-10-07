@@ -39,7 +39,7 @@ export function SideNav() {
   );
 }
 
-export function BottomNav() {
+export function BottomNav({ canAddWeight = true }: { canAddWeight?: boolean }) {
   const pathname = usePathname();
   const openWeightSheet = useOpenWeightSheet();
   const link = ({ href, label, Icon }: (typeof items)[number]) => {
@@ -62,14 +62,16 @@ export function BottomNav() {
       className="fixed inset-x-0 bottom-0 flex items-center justify-around border-t border-line bg-bg px-4 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] lg:hidden"
     >
       {items.slice(0, 2).map(link)}
-      <button
-        type="button"
-        aria-label="Nouvelle pesée"
-        onClick={openWeightSheet}
-        className="flex size-11 items-center justify-center rounded-full bg-fg text-white"
-      >
-        <Plus size={22} strokeWidth={1.5} aria-hidden />
-      </button>
+      {canAddWeight && (
+        <button
+          type="button"
+          aria-label="Nouvelle pesée"
+          onClick={openWeightSheet}
+          className="flex size-11 items-center justify-center rounded-full bg-fg text-white"
+        >
+          <Plus size={22} strokeWidth={1.5} aria-hidden />
+        </button>
+      )}
       {items.slice(2).map(link)}
     </nav>
   );

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import HomePage from "@/app/(app)/accueil/page";
 import { AppShell } from "./app-shell";
@@ -35,5 +35,31 @@ describe("AppShell", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: "Nouvelle pesée" }));
     expect(screen.getByRole("dialog", { name: "Nouvelle pesée" })).toBeTruthy();
+  });
+
+  it("has no + tab without weightSheet (settings before onboarding)", () => {
+    render(
+      <AppShell emailVerified>
+        <p>page</p>
+      </AppShell>,
+    );
+    expect(screen.queryByRole("button", { name: "Nouvelle pesée" })).toBeNull();
+  });
+
+  it("orders the tabs Accueil, Progrès, +, Corps, Objectif", () => {
+    render(
+      <AppShell emailVerified weightSheet={{ today: "2026-10-03", lastWeightKg: null, unit: "kg" }}>
+        <p>page</p>
+      </AppShell>,
+    );
+    const nav = screen.getAllByRole("navigation", { name: "Navigation principale" })[1];
+    const labels = within(nav)
+      .getAllByRole("link")
+      .map((l) => l.textContent);
+    expect(labels).toEqual(["Accueil", "Progrès", "Corps", "Objectif"]);
+    const order = Array.from(nav.querySelectorAll("a, button")).map(
+      (e) => e.getAttribute("aria-label") ?? e.textContent,
+    );
+    expect(order).toEqual(["Accueil", "Progrès", "Nouvelle pesée", "Corps", "Objectif"]);
   });
 });
