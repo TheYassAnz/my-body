@@ -18,16 +18,24 @@ const profile = (p: Partial<Profile>): Profile => ({
 });
 
 describe("nextOnboardingStep", () => {
+  const done = profile({ heightCm: 170, birthDate: "1990-01-01" });
+
   it("starts with the silhouette when there is no profile", () => {
-    expect(nextOnboardingStep(null)).toBe("sex");
+    expect(nextOnboardingStep({ profile: null, hasWeight: false })).toBe("sex");
   });
 
   it("asks for height and birth date next", () => {
-    expect(nextOnboardingStep(profile({}))).toBe("body");
-    expect(nextOnboardingStep(profile({ heightCm: 170 }))).toBe("body");
+    expect(nextOnboardingStep({ profile: profile({}), hasWeight: false })).toBe("body");
+    expect(nextOnboardingStep({ profile: profile({ heightCm: 170 }), hasWeight: true })).toBe(
+      "body",
+    );
+  });
+
+  it("asks for the current weight once the body step is filled", () => {
+    expect(nextOnboardingStep({ profile: done, hasWeight: false })).toBe("weight");
   });
 
   it("is done once every implemented step is filled", () => {
-    expect(nextOnboardingStep(profile({ heightCm: 170, birthDate: "1990-01-01" }))).toBeNull();
+    expect(nextOnboardingStep({ profile: done, hasWeight: true })).toBeNull();
   });
 });

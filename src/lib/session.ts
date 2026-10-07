@@ -1,6 +1,7 @@
 import "server-only";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { hasRequiredConsents } from "@/features/consent/queries";
 import { getProfile, type Profile } from "@/features/profile/queries";
 import { accessRedirect, type Area } from "@/lib/access";
@@ -14,8 +15,8 @@ export type CurrentUser = {
   profile: Profile | null;
 };
 
-/** Server-side guard: the only source of userId for queries and actions. */
-export async function requireUser(area: Area): Promise<CurrentUser> {
+/** Server-side guard: the only source of userId for queries and actions. Memoized per request. */
+export const requireUser = cache(async (area: Area): Promise<CurrentUser> => {
   // headers() first: it opts the route out of prerendering before getAuth() reads env vars.
   const requestHeaders = await headers();
   const session = await getAuth().api.getSession({ headers: requestHeaders });
@@ -36,4 +37,4 @@ export async function requireUser(area: Area): Promise<CurrentUser> {
   if (target) redirect(target);
 
   return { userId, email: session.user.email, emailVerified: session.user.emailVerified, profile };
-}
+});

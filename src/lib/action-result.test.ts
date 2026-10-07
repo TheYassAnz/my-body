@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { fieldError, fieldValue, keepValues, type ActionResult } from "./action-result";
+import {
+  confirmedReasons,
+  fieldError,
+  fieldValue,
+  keepValues,
+  type ActionResult,
+} from "./action-result";
 
 describe("action results", () => {
   const failed: ActionResult = {
@@ -20,5 +26,24 @@ describe("action results", () => {
     fd.set("email", "julie@example.com");
     fd.set("password", "secret-secret");
     expect(keepValues(fd, "email")).toEqual({ email: "julie@example.com" });
+  });
+});
+
+describe("confirmedReasons", () => {
+  const form = (values: Record<string, string>) => {
+    const fd = new FormData();
+    for (const [k, v] of Object.entries(values)) fd.set(k, v);
+    return fd;
+  };
+
+  it("merges reasons confirmed earlier with the button just pressed", () => {
+    expect(confirmedReasons(form({ confirmed: "replace", confirm: "suspicious" }))).toEqual(
+      new Set(["replace", "suspicious"]),
+    );
+  });
+
+  it("ignores unknown or missing reasons", () => {
+    expect(confirmedReasons(form({ confirmed: "hack,", confirm: "x" }))).toEqual(new Set());
+    expect(confirmedReasons(new FormData())).toEqual(new Set());
   });
 });

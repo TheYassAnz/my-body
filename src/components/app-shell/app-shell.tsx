@@ -1,14 +1,21 @@
+import { ToastProvider } from "@/components/ui/toast";
+import {
+  WeightSheetProvider,
+  type WeightSheetDefaults,
+} from "@/features/weight/components/weight-sheet-provider";
 import { EmailBanner } from "./email-banner";
 import { BottomNav, SideNav } from "./nav-links";
 
 export function AppShell({
   emailVerified,
+  weightSheet,
   children,
 }: {
   emailVerified: boolean;
+  weightSheet?: WeightSheetDefaults;
   children: React.ReactNode;
 }) {
-  return (
+  const shell = (
     <div className="flex min-h-dvh">
       <aside className="hidden w-[210px] shrink-0 flex-col border-r border-line px-4 py-6 lg:flex">
         <p className="px-2.5 pb-6 text-[17px] font-bold tracking-tight">
@@ -23,7 +30,16 @@ export function AppShell({
           {children}
         </main>
       </div>
-      <BottomNav />
+      <BottomNav canAddWeight={weightSheet !== undefined} />
     </div>
+  );
+  return (
+    <ToastProvider>
+      {weightSheet ? (
+        <WeightSheetProvider defaults={weightSheet}>{shell}</WeightSheetProvider>
+      ) : (
+        shell
+      )}
+    </ToastProvider>
   );
 }

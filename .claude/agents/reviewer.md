@@ -5,7 +5,7 @@ description: >
   the spec in specs/: business-rule correctness, per-user data isolation,
   security/GDPR, tests, and architecture boundaries. Read-only: reports
   findings, never edits code. Use after each task or lot is implemented.
-model: opus
+model: sonnet
 tools: [Read, Grep, Glob, Bash]
 ---
 

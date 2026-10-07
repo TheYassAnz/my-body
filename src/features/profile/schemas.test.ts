@@ -11,6 +11,10 @@ const body = (o: Record<string, string>) =>
   });
 
 describe("bodyStepSchema", () => {
+  it("accepts a comma decimal height", () => {
+    expect(body({ height: "168,5" }).data?.heightCm).toBe(168.5);
+  });
+
   it("accepts a valid adult profile", () => {
     const r = body({});
     expect(r.success && r.data).toEqual({

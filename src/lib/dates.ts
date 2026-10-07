@@ -28,3 +28,31 @@ export function isValidTimezone(tz: string): boolean {
     return false;
   }
 }
+
+const DAY_MS = 86_400_000;
+
+function toUtc(date: LocalDate): number {
+  const [y, m, d] = date.split("-").map(Number);
+  return Date.UTC(y, m - 1, d);
+}
+
+export function addDays(date: LocalDate, days: number): LocalDate {
+  return new Date(toUtc(date) + days * DAY_MS).toISOString().slice(0, 10);
+}
+
+/** Whole days from `from` to `to` (negative if `to` is earlier). */
+export function daysBetween(from: LocalDate, to: LocalDate): number {
+  return Math.round((toUtc(to) - toUtc(from)) / DAY_MS);
+}
+
+const longDate = new Intl.DateTimeFormat("fr-FR", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  timeZone: "UTC",
+});
+
+/** "samedi 3 octobre" */
+export function formatLongDate(date: LocalDate): string {
+  return longDate.format(new Date(toUtc(date)));
+}

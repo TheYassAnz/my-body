@@ -15,6 +15,13 @@
       "when": 1791046986349,
       "tag": "0001_profile_consent",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791373951790,
+      "tag": "0002_weight_entry",
+      "breakpoints": true
     }
   ]
 }

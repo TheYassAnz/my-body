@@ -47,7 +47,7 @@ Dès **L2**, l'application est utilisable au quotidien par le développeur lui-m
 ### L3 · Objectifs
 - Table `goal`, contraintes. `goal-status` et `projection` (TDD, table de cas complète).
 - Écran Objectif (types, curseur de rythme, aperçu, suivi), onboarding étape 4.
-- Accueil : bloc Objectif, bandeau « objectif atteint ».
+- Accueil : bloc Objectif, bandeau « objectif atteint ». Rythme de l'Accueil en vert quand il va dans le sens de l'objectif.
 - **Terminé quand :** l'onboarding est complet (hors étape 5) et E2E-5 passe.
 
 ### L4 · Mensurations et silhouette
@@ -72,6 +72,7 @@ Dès **L2**, l'application est utilisable au quotidien par le développeur lui-m
 - Accueil desktop complet (grand graphique, silhouette, tableau des mensurations), cohérence avec les maquettes.
 - Audit d'accessibilité (E2E-10 et VoiceOver), performance (ENF-01 à 04), pages d'erreur et 404.
 - Sécurité : en-têtes, CSP, revue des points de [07](07-securite-et-rgpd.md). Validation juridique des points ouverts.
+- Fermeture du panneau bas par glissement vers le bas.
 - README complet. Recette sur appareils réels.
 - **Terminé quand :** tous les critères « M » de [02](02-exigences-fonctionnelles.md) sont satisfaits et la checklist de lancement ci-dessous est cochée.
 

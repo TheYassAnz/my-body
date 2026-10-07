@@ -1,0 +1,56 @@
+/**
+ * pnpm db:seed — development and CI only. Recreates demo@my-body.test with 120 days
+ * of weighings (specs/04 §6). L3 adds a loss goal, L4 the measurement sessions.
+ */
+import { loadEnvConfig } from "@next/env";
+import { eq } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import { recordConsents } from "@/features/consent/queries";
+import { markOnboardingCompleted, saveBodyInfo, saveSex } from "@/features/profile/queries";
+import { insertWeights } from "@/features/weight/queries";
+import { createAuth } from "@/lib/auth/create-auth";
+import { today } from "@/lib/dates";
+import { requireEnv } from "@/lib/env";
+import * as schema from "./schema";
+import { user } from "./schema";
+import { DEMO_EMAIL, demoWeights } from "./seed-data";
+
+async function main() {
+  loadEnvConfig(process.cwd());
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production") {
+    throw new Error("db:seed refuses to run in production");
+  }
+  const password = requireEnv("SEED_DEMO_PASSWORD");
+  const pool = new Pool({ connectionString: requireEnv("DATABASE_URL") });
+  const db = drizzle(pool, { schema });
+
+  try {
+    await db.delete(user).where(eq(user.email, DEMO_EMAIL)); // cascades to every table
+    const auth = createAuth({
+      db,
+      sendEmail: async () => {},
+      baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+      secret: process.env.BETTER_AUTH_SECRET || "seed-only-secret-0123456789abcdef0123",
+      rateLimitEnabled: false,
+      withNextCookies: false,
+    });
+    const { user: demo } = await auth.api.signUpEmail({
+      body: { email: DEMO_EMAIL, password, name: "Démo" },
+    });
+    await db.update(user).set({ emailVerified: true }).where(eq(user.id, demo.id));
+    await recordConsents(db, demo.id);
+    await saveSex(db, demo.id, "male", "Europe/Paris");
+    await saveBodyInfo(db, demo.id, { heightCm: 178, birthDate: "1990-04-12", lengthUnit: "cm" });
+    await insertWeights(db, demo.id, demoWeights(today("Europe/Paris")));
+    await markOnboardingCompleted(db, demo.id);
+    console.log(`Seeded ${DEMO_EMAIL}`); // no health data in logs
+  } finally {
+    await pool.end();
+  }
+}
+
+main().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : "seed_failed");
+  process.exit(1);
+});
