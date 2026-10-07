@@ -90,9 +90,9 @@ describe("fr-FR formatting", () => {
   });
 
   it("formats weights and weekly rates in the display unit", () => {
-    expect(formatWeight(78.4, "kg")).toBe("78,4 kg");
-    expect(formatWeight(78.4, "lb")).toBe("172,8 lb");
-    expect(formatWeeklyRate(-0.35, "kg")).toBe("−0,4 kg/sem");
+    expect(formatWeight(78.4, "kg")).toBe("78,4 kg");
+    expect(formatWeight(78.4, "lb")).toBe("172,8 lb");
+    expect(formatWeeklyRate(-0.35, "kg")).toBe("−0,4 kg/sem");
   });
 
   it("formats a number field value", () => {
