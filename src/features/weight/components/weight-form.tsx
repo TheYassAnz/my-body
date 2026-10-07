@@ -23,8 +23,11 @@ export function WeightForm({
 }) {
   const toast = useToast();
   const { unit } = defaults;
+  // A confirmation only covers the date and weight that were submitted: editing either voids it.
+  const [edited, setEdited] = useState(false);
   const [state, action, pending] = useActionState(
     async (prev: ActionResult | null, formData: FormData) => {
+      setEdited(false);
       const result = await saveWeightAction(prev, formData);
       if (result.ok) {
         toast(SAVED_TOAST);
@@ -40,20 +43,25 @@ export function WeightForm({
       : formatInputDecimal(toDisplayWeight(defaults.lastWeightKg, unit)),
   );
   const [note, setNote] = useState("");
-  const confirmation = state && !state.ok ? state.needsConfirmation : undefined;
+  const confirmation = !edited && state && !state.ok ? state.needsConfirmation : undefined;
   const addSuggestion = (s: string) =>
     setNote((n) => (n.trim() ? `${n.trim()}, ${s}` : s).slice(0, NOTE_MAX_LENGTH));
 
   return (
     <form action={action} className="mt-4 flex flex-col gap-5">
       <input type="hidden" name="unit" value={unit} />
-      <input type="hidden" name="confirmed" value={fieldValue(state, "confirmed") ?? ""} />
+      <input
+        type="hidden"
+        name="confirmed"
+        value={edited ? "" : (fieldValue(state, "confirmed") ?? "")}
+      />
       <Input
         label="Date"
         name="date"
         type="date"
         max={defaults.today}
         defaultValue={fieldValue(state, "date") ?? defaults.today}
+        onChange={() => setEdited(true)}
         error={fieldError(state, "date")}
       />
       <NumberStepper
@@ -61,7 +69,10 @@ export function WeightForm({
         name="weight"
         unit={unit}
         value={weight}
-        onChange={setWeight}
+        onChange={(v) => {
+          setWeight(v);
+          setEdited(true);
+        }}
         min={toDisplayWeight(WEIGHT_MIN_KG, unit)}
         max={toDisplayWeight(WEIGHT_MAX_KG, unit)}
         fallback={toDisplayWeight(FALLBACK_KG, unit)}

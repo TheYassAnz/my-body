@@ -66,6 +66,36 @@ describe("WeightForm", () => {
     expect(screen.getByRole("status").textContent).toBe("Pesée enregistrée");
   });
 
+  it.each([
+    ["weight", () => fireEvent.change(screen.getByLabelText("Poids"), { target: { value: "40" } })],
+    [
+      "date",
+      () => fireEvent.change(screen.getByLabelText("Date"), { target: { value: "2026-10-01" } }),
+    ],
+  ])("voids the confirmation when the %s is edited", async (_field, edit) => {
+    saveWeightAction.mockResolvedValueOnce({
+      ok: false,
+      needsConfirmation: { reason: "suspicious", message: "Écart de 17 kg, confirmer ?" },
+      values: {
+        date: "2026-10-03",
+        weight: "95",
+        unit: "kg",
+        bodyFat: "",
+        note: "",
+        confirmed: "replace",
+      },
+    });
+    renderForm();
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    expect(await screen.findByRole("button", { name: "Confirmer" })).toBeTruthy();
+
+    edit();
+
+    expect(screen.queryByRole("button", { name: "Confirmer" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Enregistrer" })).toBeTruthy();
+    expect(document.querySelector<HTMLInputElement>("input[name=confirmed]")?.value).toBe("");
+  });
+
   it("shows field errors returned by the server", async () => {
     saveWeightAction.mockResolvedValueOnce({
       ok: false,
