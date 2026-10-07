@@ -9,7 +9,9 @@ import {
   smallint,
   text,
   timestamp,
+  unique,
   uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 
@@ -60,4 +62,33 @@ export const consent = pgTable(
     acceptedAt: timestamp("accepted_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [index("consent_user_id_idx").on(t.userId)],
+);
+
+export const weightEntry = pgTable(
+  "weight_entry",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    // Local calendar date of the weighing: no timestamp, so no timezone issue.
+    date: date("date", { mode: "string" }).notNull(),
+    weightKg: numeric("weight_kg", { precision: 5, scale: 2, mode: "number" }).notNull(),
+    bodyFatPct: numeric("body_fat_pct", { precision: 4, scale: 1, mode: "number" }),
+    note: varchar("note", { length: 140 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    // EF-WGT-02, and the index for chronological reads.
+    unique("weight_entry_user_date_unique").on(t.userId, t.date),
+    check("weight_entry_weight_range", sql`${t.weightKg} between 20 and 400`),
+    check(
+      "weight_entry_body_fat_range",
+      sql`${t.bodyFatPct} is null or ${t.bodyFatPct} between 2 and 70`,
+    ),
+  ],
 );
