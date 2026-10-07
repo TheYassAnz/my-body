@@ -1,4 +1,5 @@
-import { z } from "zod";
+// Type-only on purpose: client components import this file, and a runtime zod import would ship it to the browser.
+import type { ZodError } from "zod";
 
 /** Writes that need an explicit yes (EF-WGT-02, EF-WGT-03). */
 export type ConfirmReason = "replace" | "suspicious";
@@ -28,8 +29,14 @@ export function confirmedReasons(formData: FormData): Set<ConfirmReason> {
   return new Set(CONFIRM_REASONS.filter((r) => raw.includes(r)));
 }
 
-export function fieldErrorsFrom(error: z.ZodError): Record<string, string[]> {
-  return z.flattenError(error).fieldErrors as Record<string, string[]>;
+/** Same shape as zod's `flattenError().fieldErrors`: messages grouped by the first path segment. */
+export function fieldErrorsFrom(error: ZodError): Record<string, string[]> {
+  const fieldErrors: Record<string, string[]> = {};
+  for (const issue of error.issues) {
+    if (issue.path.length === 0) continue;
+    (fieldErrors[String(issue.path[0])] ??= []).push(issue.message);
+  }
+  return fieldErrors;
 }
 
 export function fieldError(state: ActionResult | null, field: string): string | undefined {
