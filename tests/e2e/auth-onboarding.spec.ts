@@ -35,6 +35,8 @@ test("sign up, consent, onboarding, sign out and sign in again", async ({ page }
 
   await expect(page).toHaveURL(/\/accueil$/);
   await expect(page.getByRole("heading", { name: "Bonjour" })).toBeVisible();
+  await expect(page.getByText("Tendance en calibrage · encore 6 pesées")).toBeVisible();
+  await expect(page.getByTestId("weight-hero")).toHaveText("70,4");
   await expect(
     page.getByText("Confirme ton email pour pouvoir récupérer ton compte."),
   ).toBeVisible();

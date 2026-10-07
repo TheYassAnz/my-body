@@ -1,30 +1,29 @@
-import { User } from "lucide-react";
-import Link from "next/link";
+import { HomeHeader } from "@/features/dashboard/components/home-header";
+import { WeightBlock } from "@/features/dashboard/components/weight-block";
+import { getDashboard } from "@/features/dashboard/queries";
+import { today } from "@/lib/dates";
+import { getDb } from "@/lib/db/client";
+import { requireUser } from "@/lib/session";
 
 export default async function HomePage({
   searchParams,
 }: {
   searchParams: Promise<{ email?: string }>;
 }) {
+  const { userId, profile } = await requireUser("app");
   const { email } = await searchParams;
+  const todayDate = today(profile?.timezone ?? "Europe/Paris");
+  const { weight } = await getDashboard(getDb(), userId, todayDate);
+
   return (
     <>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight lg:text-[28px]">Bonjour</h1>
-        <Link
-          href="/reglages"
-          aria-label="Réglages"
-          className="flex size-11 items-center justify-center rounded-full border border-line text-fg lg:hidden"
-        >
-          <User size={20} strokeWidth={1.7} aria-hidden />
-        </Link>
-      </div>
+      <HomeHeader date={todayDate} />
       {email === "verifie" && (
         <p role="status" className="mt-3 text-sm text-positive">
           Email confirmé.
         </p>
       )}
-      <p className="mt-6 text-sm text-fg-2">Ton tableau de bord arrive bientôt.</p>
+      <WeightBlock summary={weight} unit={profile?.weightUnit ?? "kg"} />
     </>
   );
 }

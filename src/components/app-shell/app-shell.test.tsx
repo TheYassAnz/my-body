@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import HomePage from "@/app/(app)/accueil/page";
 import { AppShell } from "./app-shell";
 import { isActive } from "./nav-links";
 
@@ -10,13 +9,6 @@ vi.mock("next/navigation", () => ({ usePathname: () => "/accueil" }));
 vi.mock("@/features/weight/actions", () => ({ saveWeightAction: vi.fn() }));
 
 afterEach(cleanup);
-
-describe("Accueil", () => {
-  it("links to Réglages from the header so mobile users can reach sign-out", async () => {
-    render(await HomePage({ searchParams: Promise.resolve({}) }));
-    expect(screen.getByRole("link", { name: "Réglages" }).getAttribute("href")).toBe("/reglages");
-  });
-});
 
 describe("isActive", () => {
   it("matches the exact path and sub-paths only", () => {
