@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ageOn, isValidTimezone, type LocalDate } from "@/lib/dates";
-import { inToCm, round1 } from "@/lib/units";
+import { inToCm, parseDecimal, round1 } from "@/lib/units";
 
 export const sexStepSchema = z.object({
   sex: z.enum(["male", "female"], { error: "Choisis une silhouette" }),
@@ -10,12 +10,11 @@ export const sexStepSchema = z.object({
 export function bodyStepSchema(todayDate: LocalDate) {
   return z
     .object({
-      // Raw bound keeps round1 away from exponent notation (NaN for >= 1e21 or < 1e-6).
-      height: z.coerce
-        .number({ error: "Taille invalide" })
-        .refine((h) => Number.isFinite(h) && h >= 1 && h <= 1000, {
-          error: "Taille entre 100 et 250 cm",
-        }),
+      // "168,5" or "168.5"; parseDecimal also keeps round1 away from exponent notation.
+      height: z
+        .string({ error: "Taille invalide" })
+        .transform(parseDecimal)
+        .refine((h) => Number.isFinite(h), { error: "Taille entre 100 et 250 cm" }),
       lengthUnit: z.enum(["cm", "in"]),
       birthDate: z.iso.date({ error: "Date invalide" }),
     })

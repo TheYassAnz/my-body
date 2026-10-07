@@ -6,6 +6,7 @@ import {
   markOnboardingCompleted,
   saveBodyInfo,
   saveSex,
+  saveWeightUnit,
 } from "@/features/profile/queries";
 import { createTestDb, insertTestUser } from "../helpers/db";
 
@@ -76,5 +77,13 @@ describe("consent and profile", () => {
     await expect(
       saveBodyInfo(db, "alice", { heightCm: 99, birthDate: "1990-04-12", lengthUnit: "cm" }),
     ).rejects.toThrow();
+  });
+
+  it("saves the weight unit chosen at onboarding, for the caller only", async () => {
+    await saveSex(db, "alice", "female", "Europe/Paris");
+    await saveSex(db, "bob", "male", "Europe/Paris");
+    await saveWeightUnit(db, "alice", "lb");
+    expect((await getProfile(db, "alice"))?.weightUnit).toBe("lb");
+    expect((await getProfile(db, "bob"))?.weightUnit).toBe("kg");
   });
 });

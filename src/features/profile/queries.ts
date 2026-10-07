@@ -29,3 +29,9 @@ export async function saveBodyInfo(
 export async function markOnboardingCompleted(db: Db, userId: string, at: Date = new Date()) {
   await db.update(profile).set({ onboardingCompletedAt: at }).where(eq(profile.userId, userId));
 }
+
+export type WeightUnit = Profile["weightUnit"];
+
+export async function saveWeightUnit(db: Db, userId: string, weightUnit: WeightUnit) {
+  await db.update(profile).set({ weightUnit }).where(eq(profile.userId, userId));
+}

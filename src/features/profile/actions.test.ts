@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { profile } from "@/lib/db/schema";
+import { upsertWeight } from "@/features/weight/queries";
+import { profile, weightEntry } from "@/lib/db/schema";
 import type { Db } from "@/lib/db/types";
 import { createTestDb, insertTestUser } from "../../../tests/helpers/db";
 
@@ -18,7 +19,7 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/lib/db/client", () => ({ getDb: () => ctx.db }));
 vi.mock("@/lib/session", () => ({ requireUser: ctx.requireUser }));
 
-import { saveBodyAction, saveSexAction } from "./actions";
+import { saveBodyAction, saveFirstWeightAction, saveSexAction } from "./actions";
 
 const form = (values: Record<string, string>) => {
   const fd = new FormData();
@@ -88,14 +89,25 @@ describe("profile server actions", () => {
       await asAlice(true);
     });
 
-    it("saves the body info, completes onboarding and opens the app", async () => {
-      await expect(saveBodyAction(null, form(BODY))).rejects.toThrow("REDIRECT /accueil");
+    it("saves the body info and moves on to the weight step", async () => {
+      await expect(saveBodyAction(null, form(BODY))).rejects.toThrow("REDIRECT /onboarding");
       expect(await row("alice")).toMatchObject({
         heightCm: 170,
         birthDate: "1990-04-12",
         lengthUnit: "cm",
-        onboardingCompletedAt: expect.any(Date),
+        onboardingCompletedAt: null,
       });
+    });
+
+    it("completes onboarding when the weight already exists (user went back)", async () => {
+      await upsertWeight(ctx.db, "alice", {
+        date: "2026-10-01",
+        weightKg: 70,
+        bodyFatPct: null,
+        note: null,
+      });
+      await expect(saveBodyAction(null, form(BODY))).rejects.toThrow("REDIRECT /accueil");
+      expect((await row("alice"))?.onboardingCompletedAt).toBeInstanceOf(Date);
     });
 
     it("refuses an invalid height and changes nothing", async () => {
@@ -116,7 +128,7 @@ describe("profile server actions", () => {
       await ctx.db.insert(profile).values({ userId: "bob", sex: "male", timezone: "Europe/Paris" });
       const before = await row("bob");
       await expect(saveBodyAction(null, form({ ...BODY, userId: "bob" }))).rejects.toThrow(
-        "REDIRECT /accueil",
+        "REDIRECT /onboarding",
       );
       expect(await row("bob")).toEqual(before);
       expect(await row("alice")).toMatchObject({ heightCm: 170 });
@@ -127,6 +139,73 @@ describe("profile server actions", () => {
       await asAlice(false);
       await expect(saveBodyAction(null, form(BODY))).rejects.toThrow("REDIRECT /onboarding");
       expect(await ctx.db.select().from(profile)).toHaveLength(0);
+    });
+  });
+
+  describe("saveFirstWeightAction", () => {
+    const weights = () => ctx.db.select().from(weightEntry);
+
+    beforeEach(async () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-10-03T10:00:00Z"));
+      await ctx.db.insert(profile).values({
+        userId: "alice",
+        sex: "female",
+        timezone: "Europe/Paris",
+        heightCm: 168,
+        birthDate: "1990-04-12",
+      });
+      await asAlice(true);
+    });
+    afterEach(() => vi.useRealTimers());
+
+    it("creates today's weighing, saves the unit, completes onboarding and opens the app", async () => {
+      await expect(
+        saveFirstWeightAction(null, form({ weight: "172", unit: "lb", date: "2020-01-01" })),
+      ).rejects.toThrow("REDIRECT /accueil");
+      expect(await weights()).toMatchObject([
+        { userId: "alice", date: "2026-10-03", weightKg: 78.02 },
+      ]);
+      expect(await row("alice")).toMatchObject({
+        weightUnit: "lb",
+        onboardingCompletedAt: expect.any(Date),
+      });
+    });
+
+    it("refuses an invalid weight and writes nothing", async () => {
+      const r = await saveFirstWeightAction(null, form({ weight: "19,9", unit: "kg" }));
+      expect(r).toMatchObject({
+        ok: false,
+        fieldErrors: { weight: expect.any(Array) },
+        values: { weight: "19,9", unit: "kg" },
+      });
+      expect(await weights()).toHaveLength(0);
+      expect((await row("alice"))?.weightUnit).toBe("kg");
+    });
+
+    it("replaces the weighing when the step is saved again the same day", async () => {
+      await expect(
+        saveFirstWeightAction(null, form({ weight: "70", unit: "kg" })),
+      ).rejects.toThrow();
+      await expect(
+        saveFirstWeightAction(null, form({ weight: "71", unit: "kg" })),
+      ).rejects.toThrow();
+      expect(await weights()).toMatchObject([{ weightKg: 71 }]);
+    });
+
+    it("ignores a forged userId field", async () => {
+      await expect(
+        saveFirstWeightAction(null, form({ weight: "70", unit: "kg", userId: "bob" })),
+      ).rejects.toThrow("REDIRECT /accueil");
+      expect(await weights()).toMatchObject([{ userId: "alice" }]);
+    });
+
+    it("sends users without a profile row back to step 1 and writes nothing", async () => {
+      await asAlice(false);
+      await expect(saveFirstWeightAction(null, form({ weight: "70", unit: "kg" }))).rejects.toThrow(
+        "REDIRECT /onboarding",
+      );
+      expect(await weights()).toHaveLength(0);
     });
   });
 });
