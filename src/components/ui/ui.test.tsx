@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Button } from "./button";
 import { Input } from "./input";
+import { Sheet } from "./sheet";
+import { ToastProvider, useToast } from "./toast";
 
 afterEach(cleanup);
 
@@ -29,5 +31,41 @@ describe("Button", () => {
     const button = screen.getByRole("button", { name: "Envoyer" });
     expect(button).toHaveProperty("disabled", true);
     expect(button.getAttribute("aria-busy")).toBe("true");
+  });
+});
+
+describe("Sheet", () => {
+  it("is a dialog named by its title that closes with Escape", () => {
+    const onOpenChange = vi.fn();
+    render(
+      <Sheet open onOpenChange={onOpenChange} title="Nouvelle pesée">
+        <p>contenu</p>
+      </Sheet>,
+    );
+    const dialog = screen.getByRole("dialog", { name: "Nouvelle pesée" });
+    fireEvent.keyDown(dialog, { key: "Escape" });
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(screen.getByRole("button", { name: "Fermer" })).toBeTruthy();
+  });
+});
+
+describe("Toast", () => {
+  function Trigger() {
+    const toast = useToast();
+    return <button onClick={() => toast("Pesée enregistrée")}>go</button>;
+  }
+
+  it("announces a message, then hides it after 3 s", () => {
+    vi.useFakeTimers();
+    render(
+      <ToastProvider>
+        <Trigger />
+      </ToastProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "go" }));
+    expect(screen.getByRole("status").textContent).toBe("Pesée enregistrée");
+    act(() => vi.advanceTimersByTime(3000));
+    expect(screen.getByRole("status").textContent).toBe("");
+    vi.useRealTimers();
   });
 });
