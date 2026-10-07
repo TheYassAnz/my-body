@@ -118,3 +118,5 @@ Par utilisateur actif et par an : environ 300 pesées et environ 40 séances × 
 ## 6. Données de démonstration
 
 Un script `pnpm db:seed` crée, en environnement de développement uniquement, un compte `demo@my-body.test` avec 120 jours de pesées bruitées, 10 séances de mesure et un objectif de perte. Le mot de passe est défini dans `.env.example`.
+
+En L2, le seed crée le compte, son profil, ses consentements et 120 jours de pesées (déterministes, jusqu'à la veille). L'objectif de perte (L3) et les séances de mesure (L4) y seront ajoutés. Script : `src/lib/db/seed.ts`, lancé avec `tsx`.

@@ -62,7 +62,7 @@ Contraste : `--muted` sur blanc atteint 2,8:1. Il est réservé aux textes de 12
 | **Bouton secondaire** | Pilule, bordure 1 px `--fg`, texte `--fg`. |
 | **Bouton destructif** | Pilule, bordure `--danger`, texte `--danger`. Version pleine dans la confirmation finale. |
 | **Bouton +** (barre d'onglets) | Cercle de 44 px, fond `--fg`, « + » blanc fin. |
-| **Stepper numérique** | Grand chiffre centré (40 à 44 px) entouré de deux boutons ronds − / + (40 px, bordure `--line`). Appui long = répétition. Toucher le chiffre ouvre le clavier numérique (`inputmode="decimal"`). |
+| **Stepper numérique** | Grand chiffre centré (40 à 44 px) entouré de deux boutons ronds − / + (**44 px**, ENF-14 ; bordure `--line`). Appui long = répétition. Toucher le chiffre ouvre le clavier numérique (`inputmode="decimal"`). |
 | **Contrôle segmenté** | Texte seul, espacement de 16 à 18 px. L'élément actif est en `--fg`, 600, souligné de 1,5 px. Inactifs en `--subtle`. |
 | **Puces de métrique** | Pilule, bordure `--line`. Active : fond `--fg`, texte blanc. |
 | **Panneau bas (mobile)** | Poignée de 40×5 px, haut arrondi à 22 px, fond assombri `rgba(10,10,10,.35)`. Se ferme par glissement vers le bas, Échap ou toucher du fond. |

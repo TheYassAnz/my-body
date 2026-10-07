@@ -6,8 +6,8 @@
 |---|---|---|
 | Framework | **Next.js** (App Router, dernière version stable au démarrage) + **TypeScript** strict | Pages en React Server Components, mutations en Server Actions |
 | UI | **React**, **Tailwind CSS**, police **Geist** (`next/font`) | Design system « Clarté » ([06](06-design-system.md)) |
-| Composants de base | Primitives accessibles **Radix UI** (Dialog, Popover, Slider…), stylées maison | Fenêtres modales, panneaux, curseur de rythme |
-| Graphiques | **Recharts** | Courbes de poids et de mensurations, mini-courbes |
+| Composants de base | Primitives accessibles **Radix UI** (`@radix-ui/react-dialog` en L2 ; Popover, Slider… plus tard), stylées maison | Fenêtres modales, panneaux, curseur de rythme |
+| Graphiques | **Recharts** pour les grands graphiques (Progrès, Accueil desktop) ; mini-courbe de l'Accueil mobile en SVG rendu côté serveur (ENF-03) | Courbes de poids et de mensurations, mini-courbes |
 | Silhouette | Composant **SVG maison** | Deux tracés (homme, femme) et des ancres de zones |
 | Formulaires | **React Hook Form** + **Zod** (schémas partagés client et serveur) | |
 | Base de données | **PostgreSQL** chez **Neon** (région UE, via la marketplace Vercel) | |
@@ -121,13 +121,13 @@ export async function saveWeight(input: unknown): Promise<ActionResult> {
   const parsed = weightInputSchema.safeParse(input);
   if (!parsed.success) return { ok: false, fieldErrors: parsed.error.flatten().fieldErrors };
   // conversion d'unités → métrique, upsert (user_id, date) …
-  revalidatePath('/(app)', 'layout');
+  revalidatePath('/', 'layout');
   return { ok: true };
 }
 ```
 
-- Type de retour unique : `ActionResult = { ok: true; data?: T } | { ok: false; fieldErrors?: Record<string, string[]>; formError?: string; needsConfirmation?: ConfirmReason }`.
-- `needsConfirmation` gère les cas « remplacer la pesée existante » et « valeur suspecte ». Le client renvoie l'action avec `confirm: true`.
+- Type de retour unique : `ActionResult = { ok: true; data?: T } | { ok: false; fieldErrors?: Record<string, string[]>; formError?: string; needsConfirmation?: { reason: 'replace' | 'suspicious'; message: string } }`.
+- `needsConfirmation` gère les cas « remplacer la pesée existante » et « valeur suspecte ». Le client renvoie l'action avec le bouton `confirm=<reason>` ; le champ caché `confirmed` conserve les raisons déjà acceptées, ce qui permet des confirmations successives (remplacement puis valeur suspecte).
 - Les erreurs inattendues sont journalisées côté serveur. Le client reçoit `formError: "Une erreur est survenue, réessaie."`.
 - Les écritures sur plusieurs tables (suppression de la dernière mesure d'une séance, changement d'objectif) passent par une **transaction**.
 
@@ -137,7 +137,7 @@ Le fuseau de l'utilisateur est stocké dans son profil. `today(tz)` renvoie une 
 
 ### 4.4 Rafraîchissement
 
-Après chaque mutation, `revalidatePath` sur le layout `(app)`, puisque tous les écrans affichent des dérivés du poids ou des mensurations. Pas de cache applicatif en V1 : les calculs sont peu coûteux ([04 §5](04-modele-de-donnees.md)).
+Après chaque mutation, `revalidatePath('/', 'layout')`, puisque tous les écrans affichent des dérivés du poids ou des mensurations. Pas de cache applicatif en V1 : les calculs sont peu coûteux ([04 §5](04-modele-de-donnees.md)).
 
 ## 5. Environnements
 
