@@ -32,8 +32,8 @@ export function Slider({
   const id = useId();
   const pct = (v: number) => `${((v - min) / (max - min)) * 100}%`;
   const track = zone
-    ? `linear-gradient(to right, var(--line) 0 ${pct(zone.from)}, var(--positive) ${pct(zone.from)} ${pct(zone.to)}, var(--line) ${pct(zone.to)} 100%)`
-    : "var(--line)";
+    ? `linear-gradient(to right, var(--dot) 0 ${pct(zone.from)}, var(--positive) ${pct(zone.from)} ${pct(zone.to)}, var(--dot) ${pct(zone.to)} 100%)`
+    : "var(--dot)";
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -60,6 +60,7 @@ export function Slider({
           step={step}
           value={value}
           aria-describedby={describedBy}
+          aria-valuetext={format(value)}
           onChange={(e) => onChange(Number(e.target.value))}
           className="slider relative h-11 w-full"
         />

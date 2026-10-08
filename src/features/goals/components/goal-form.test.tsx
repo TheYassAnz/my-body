@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { ActionResult } from "@/lib/action-result";
 import { ToastProvider } from "@/components/ui/toast";
 import { GoalForm } from "./goal-form";
 
@@ -76,5 +77,77 @@ describe("GoalForm", () => {
     const alert = await screen.findByRole("alert");
     expect(alert.textContent).toContain("archive");
     expect(screen.getByRole("button", { name: "Confirmer" }).getAttribute("value")).toBe("archive");
+  });
+
+  it("voids the confirmation when a field is edited, and resends confirm=archive when confirmed", async () => {
+    const action = vi
+      .fn<(prev: ActionResult | null, fd: FormData) => Promise<ActionResult>>()
+      .mockResolvedValueOnce({
+        ok: false,
+        needsConfirmation: {
+          reason: "archive",
+          message: "Changer d'objectif archive. Continuer ?",
+        },
+        values: { type: "gain", target: "85", rate: "0.25", unit: "kg", confirmed: "archive" },
+      })
+      .mockResolvedValue({ ok: true });
+    setup({ action, active: { type: "lose", targetKg: 74, weeklyRatePct: 0.5 } });
+    fireEvent.click(screen.getByRole("radio", { name: /Prendre du poids/ }));
+    fireEvent.change(screen.getByLabelText("Cible"), { target: { value: "85" } });
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    expect(await screen.findByRole("button", { name: "Confirmer" })).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText("Cible"), { target: { value: "86" } });
+    expect(screen.queryByRole("button", { name: "Confirmer" })).toBeNull();
+    expect(document.querySelector<HTMLInputElement>("input[name=confirmed]")?.value).toBe("");
+  });
+
+  it("sends confirm=archive with the second submit", async () => {
+    const action = vi
+      .fn<(prev: ActionResult | null, fd: FormData) => Promise<ActionResult>>()
+      .mockResolvedValueOnce({
+        ok: false,
+        needsConfirmation: {
+          reason: "archive",
+          message: "Changer d'objectif archive. Continuer ?",
+        },
+        values: { type: "gain", target: "85", rate: "0.25", unit: "kg", confirmed: "" },
+      })
+      .mockResolvedValue({ ok: true });
+    setup({ action, active: { type: "lose", targetKg: 74, weeklyRatePct: 0.5 } });
+    fireEvent.click(screen.getByRole("radio", { name: /Prendre du poids/ }));
+    fireEvent.change(screen.getByLabelText("Cible"), { target: { value: "85" } });
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Confirmer" }));
+    await waitFor(() => expect(action).toHaveBeenCalledTimes(2));
+    expect(action.mock.calls[1]?.[1].get("confirm")).toBe("archive");
+  });
+
+  it("shows only the pace, without a date, while the target is empty", () => {
+    setup();
+    const preview = screen.getByText(/≈ 0,39 kg\/sem/);
+    expect(preview.textContent).not.toContain("atteinte");
+  });
+
+  it("shows no date for a target on the wrong side of the trend", () => {
+    setup();
+    fireEvent.change(screen.getByLabelText("Cible"), { target: { value: "85" } });
+    expect(screen.getByText(/≈ 0,39 kg\/sem/).textContent).not.toContain("atteinte");
+  });
+
+  it("works in pounds: target shown, pace and date previewed in lb", () => {
+    setup({ unit: "lb", active: { type: "lose", targetKg: 74, weeklyRatePct: 0.5 } });
+    // 74 kg = 163,1 lb (stored back as 73,98 kg, hence a day later); 0.39 kg/week = 0,86 lb/week.
+    expect((screen.getByLabelText("Cible") as HTMLInputElement).value).toBe("163,1");
+    expect(screen.getByText(/≈ 0,86 lb\/sem · atteinte vers le 19 déc\./)).toBeTruthy();
+    expect(document.querySelector<HTMLInputElement>("input[name=unit]")?.value).toBe("lb");
+  });
+
+  it("links the rate slider to its preview", () => {
+    setup();
+    const slider = screen.getByLabelText(/Rythme/);
+    expect(slider.getAttribute("aria-valuetext")).toMatch(/^0,5\s%\/sem$/);
+    const id = slider.getAttribute("aria-describedby") ?? "";
+    expect(document.getElementById(id)?.textContent).toContain("kg/sem");
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, type ReactNode } from "react";
+import { useActionState, useId, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NumberStepper } from "@/components/ui/number-stepper";
@@ -77,10 +77,20 @@ export function GoalForm({
   const rated = isRated(type);
   const targetKg = toStoredKg(parseDecimal(target), unit);
   const kgPerWeek = previewKgPerWeek(rate, referenceKg);
-  const reachedOn =
-    rated && Number.isFinite(targetKg)
-      ? theoreticalDate(today, referenceKg, targetKg, kgPerWeek)
-      : null;
+  // Same side rule as the server: a loss goes below the trend, a gain above it.
+  const validTarget =
+    rated &&
+    Number.isFinite(targetKg) &&
+    (type === "lose" ? targetKg < referenceKg : targetKg > referenceKg);
+  const reachedOn = validTarget ? theoreticalDate(today, referenceKg, targetKg, kgPerWeek) : null;
+  const previewId = useId();
+  const rateErrorId = `${previewId}-rate-error`;
+  const pace = `≈ ${twoDecimals.format(unit === "lb" ? kgPerWeek / 0.45359237 : kgPerWeek)} ${unit}/sem`;
+  const paceText = !validTarget
+    ? pace
+    : reachedOn
+      ? `${pace} · atteinte vers le ${formatShortDate(reachedOn, today)}`
+      : `${pace} · atteinte dans plus de 2 ans`;
   const confirmation = !edited && state && !state.ok ? state.needsConfirmation : undefined;
   const alert = rated && exceedsRecommended(type, rate) ? RATE_ALERTS[type] : null;
 
@@ -104,7 +114,7 @@ export function GoalForm({
         {TYPES.map((t) => (
           <label
             key={t}
-            className="flex min-h-24 cursor-pointer flex-col gap-1 rounded-xl border border-line p-3 has-[:checked]:border-fg has-[:checked]:bg-fg has-[:checked]:text-white"
+            className="flex min-h-24 cursor-pointer flex-col gap-1 rounded-xl border border-line p-3 has-[:checked]:border-fg has-[:checked]:bg-fg has-[:checked]:text-white has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)]"
           >
             <input
               type="radio"
@@ -160,23 +170,18 @@ export function GoalForm({
             step={0.05}
             zone={{ from: GOAL_RATES[type].recommendedMin, to: GOAL_RATES[type].recommendedMax }}
             format={pctLabel}
-            describedBy="rate-preview"
+            describedBy={fieldError(state, "rate") ? `${previewId} ${rateErrorId}` : previewId}
           />
           {fieldError(state, "rate") && (
-            <p role="alert" className="text-xs font-medium text-fg">
+            <p id={rateErrorId} role="alert" className="text-xs font-medium text-fg">
               {fieldError(state, "rate")}
             </p>
           )}
           {alert && (
             <p className="rounded-xl bg-surface p-3 text-xs font-medium text-fg">{alert}</p>
           )}
-          <p id="rate-preview" className="text-sm text-fg-2">
-            ≈ {twoDecimals.format(unit === "lb" ? kgPerWeek / 0.45359237 : kgPerWeek)}
-            {" "}
-            {unit}/sem ·{" "}
-            {reachedOn
-              ? `atteinte vers le ${formatShortDate(reachedOn, today)}`
-              : "atteinte dans plus de 2 ans"}
+          <p id={previewId} className="text-sm text-fg-2">
+            {paceText}
           </p>
         </>
       ) : (
