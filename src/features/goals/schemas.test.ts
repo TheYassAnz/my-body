@@ -42,6 +42,23 @@ describe("goalInputSchema", () => {
     });
   });
 
+  it("snaps a gain rate of 0,37 to 0.35 and accepts it", () => {
+    expect(parse({ type: "gain", target: "85", rate: "0,37" })).toMatchObject({
+      success: true,
+      data: { weeklyRatePct: 0.35 },
+    });
+  });
+
+  it("rejects a loss target in pounds that is above the trend", () => {
+    const r = goalInputSchema(REF).safeParse({
+      type: "lose",
+      target: "177",
+      rate: "0.5",
+      unit: "lb",
+    });
+    expect(r.success).toBe(false); // 177 lb = 80.29 kg > 80
+  });
+
   it("ignores target and rate for maintain and recomp", () => {
     for (const type of ["maintain", "recomp"]) {
       expect(parse({ type, target: "abc", rate: "99" })).toMatchObject({

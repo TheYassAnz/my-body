@@ -2,6 +2,7 @@
 
 import "server-only";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { listWeights } from "@/features/weight/queries";
 import {
   confirmedReasons,
@@ -12,11 +13,17 @@ import {
 } from "@/lib/action-result";
 import { today } from "@/lib/dates";
 import { getDb } from "@/lib/db/client";
-import { goalReferenceKg } from "@/lib/metrics";
+import { goalReferenceKg, goalStatus } from "@/lib/metrics";
 import { round2 } from "@/lib/units";
 import { requireUser } from "@/lib/session";
 import { archiveMessage } from "./copy";
-import { createGoal, getActiveGoal, replaceActiveGoal, updateActiveGoalTarget } from "./queries";
+import {
+  createGoal,
+  finishActiveGoal,
+  getActiveGoal,
+  replaceActiveGoal,
+  updateActiveGoalTarget,
+} from "./queries";
 import { goalInputSchema } from "./schemas";
 
 const FIELDS = ["type", "target", "rate", "unit"];
@@ -44,11 +51,13 @@ export async function saveGoalAction(
 
   try {
     const db = getDb();
-    const referenceKg = goalReferenceKg(await listWeights(db, userId), todayDate);
-    if (referenceKg === null) {
+    const rawReferenceKg = goalReferenceKg(await listWeights(db, userId), todayDate);
+    if (rawReferenceKg === null) {
       return { ok: false, formError: "Ajoute d'abord une pesée pour définir un objectif.", values };
     }
 
+    // Validate against the value that gets stored, so the target is never equal to the start.
+    const referenceKg = round2(rawReferenceKg);
     const parsed = goalInputSchema(referenceKg).safeParse(Object.fromEntries(formData));
     if (!parsed.success) return { ok: false, fieldErrors: fieldErrorsFrom(parsed.error), values };
     const { type, targetWeightKg, weeklyRatePct } = parsed.data;
@@ -69,7 +78,7 @@ export async function saveGoalAction(
     const next = {
       type,
       startDate: todayDate,
-      startWeightKg: round2(referenceKg),
+      startWeightKg: referenceKg,
       targetWeightKg,
       weeklyRatePct,
     };
@@ -95,5 +104,58 @@ export async function saveGoalAction(
   }
 
   revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+/**
+ * EF-GOAL-04: closes a reached goal. The server recomputes the status itself:
+ * the banner is only a hint. "maintain" starts a maintenance goal at today's trend,
+ * "new" just ends the goal and lets the user pick another one.
+ */
+export async function achieveGoalAction(
+  _: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const { userId, profile } = await requireUser("app");
+  const mode = String(formData.get("mode") ?? "");
+  if (mode !== "maintain" && mode !== "new") return { ok: false, formError: GENERIC_ERROR };
+  const todayDate = today(profile?.timezone ?? "Europe/Paris");
+
+  try {
+    const db = getDb();
+    const [active, points] = await Promise.all([
+      getActiveGoal(db, userId),
+      listWeights(db, userId),
+    ]);
+    if (!active || goalStatus(active, points, todayDate).status !== "achieved") {
+      return { ok: false, formError: "Ton objectif n'est pas encore atteint." };
+    }
+    if (mode === "maintain") {
+      const referenceKg = goalReferenceKg(points, todayDate);
+      if (referenceKg === null) return { ok: false, formError: GENERIC_ERROR };
+      await replaceActiveGoal(
+        db,
+        userId,
+        {
+          type: "maintain",
+          startDate: todayDate,
+          startWeightKg: round2(referenceKg),
+          targetWeightKg: null,
+          weeklyRatePct: null,
+        },
+        "achieved",
+        todayDate,
+      );
+    } else if (!(await finishActiveGoal(db, userId, "achieved", todayDate))) {
+      return { ok: false, formError: GENERIC_ERROR };
+    }
+  } catch {
+    // userId only: never the weights or the goal (specs/07 §8).
+    console.error("achieve_goal_failed", { userId });
+    return { ok: false, formError: GENERIC_ERROR };
+  }
+
+  revalidatePath("/", "layout");
+  if (mode === "new") redirect("/objectif");
   return { ok: true };
 }

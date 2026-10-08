@@ -27,7 +27,7 @@ vi.mock("./queries", async (importOriginal) => {
   return { ...original, createGoal: vi.fn(original.createGoal) };
 });
 
-import { saveGoalAction } from "./actions";
+import { achieveGoalAction, saveGoalAction } from "./actions";
 
 const form = (values: Record<string, string>) => {
   const fd = new FormData();
@@ -55,14 +55,14 @@ const asUser = (userId: string, timezone = "Europe/Paris") =>
     profile: { ...profile(timezone), userId },
   });
 
-/** 12 flat weighings at 80 kg: calibrated, trend 80. */
-const seedWeights = (userId: string) =>
+/** 12 weighings (flat 80 kg unless `last` differs): calibrated, trend 80. */
+const seedWeights = (userId: string, base = 80, last = base) =>
   insertWeights(
     ctx.db,
     userId,
     Array.from({ length: 12 }, (_, i) => ({
       date: addDays("2026-09-21", i),
-      weightKg: 80,
+      weightKg: i === 11 ? last : base,
       bodyFatPct: null,
       note: null,
     })),
@@ -113,6 +113,34 @@ describe("saveGoalAction", () => {
       startWeightKg: 91.3,
       targetWeightKg: null,
     });
+  });
+
+  it("starts from the trend, not the last weighing, once calibrated", async () => {
+    asUser("bob");
+    await seedWeights("bob", 80, 82); // trend 80.2, last weighing 82
+    await saveGoalAction(null, form({ type: "lose", target: "75", rate: "0,5", unit: "kg" }));
+    expect((await getActiveGoal(ctx.db, "bob"))?.startWeightKg).toBe(80.2);
+  });
+
+  it("starts from the last weighing during calibration, not the average", async () => {
+    asUser("bob");
+    await insertWeights(ctx.db, "bob", [
+      { date: "2026-10-02", weightKg: 80, bodyFatPct: null, note: null },
+      { date: "2026-10-03", weightKg: 82, bodyFatPct: null, note: null },
+    ]);
+    await saveGoalAction(null, form({ type: "lose", target: "75", rate: "0,5", unit: "kg" }));
+    expect((await getActiveGoal(ctx.db, "bob"))?.startWeightKg).toBe(82);
+  });
+
+  it("compares the target with the rounded reference that gets stored", async () => {
+    asUser("bob");
+    await seedWeights("bob", 75, 75.04); // trend 75.004, stored as 75
+    const result = await saveGoalAction(
+      null,
+      form({ type: "lose", target: "75", rate: "0,5", unit: "kg" }),
+    );
+    expect(result).toMatchObject({ ok: false, fieldErrors: { target: expect.any(Array) } });
+    expect(await getActiveGoal(ctx.db, "bob")).toBeNull();
   });
 
   it("dates the goal in the profile's timezone, not in UTC", async () => {
@@ -311,5 +339,87 @@ describe("saveGoalAction", () => {
       expect(result, rate).toMatchObject({ ok: false, fieldErrors: { rate: expect.any(Array) } });
     }
     expect(await getActiveGoal(ctx.db, "alice")).toBeNull();
+  });
+});
+
+describe("achieveGoalAction", () => {
+  let close: () => Promise<void>;
+  const lose = (targetWeightKg: number) => ({
+    type: "lose" as const,
+    startDate: "2026-09-01",
+    startWeightKg: 90,
+    targetWeightKg,
+    weeklyRatePct: 0.5,
+  });
+
+  beforeEach(async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-03T10:00:00Z"));
+    ({ db: ctx.db, close } = await createTestDb());
+    await insertTestUser(ctx.db, "alice");
+    await insertTestUser(ctx.db, "bob");
+    await seedWeights("alice"); // trend 80
+    asUser("alice");
+  });
+  afterEach(async () => {
+    vi.useRealTimers();
+    vi.clearAllMocks();
+    await close();
+  });
+
+  it("refuses when the goal is not reached, and changes nothing", async () => {
+    await createGoal(ctx.db, "alice", lose(75)); // trend 80 > target 75
+    const result = await achieveGoalAction(null, form({ mode: "maintain" }));
+    expect(result).toMatchObject({ ok: false, formError: expect.any(String) });
+    expect((await getActiveGoal(ctx.db, "alice"))?.type).toBe("lose");
+    expect(await listPastGoals(ctx.db, "alice")).toHaveLength(0);
+  });
+
+  it("refuses when there is no active goal", async () => {
+    expect(await achieveGoalAction(null, form({ mode: "maintain" }))).toMatchObject({ ok: false });
+  });
+
+  it("moves to maintenance: the old goal is achieved, the new reference is today's trend", async () => {
+    await createGoal(ctx.db, "alice", lose(82)); // trend 80 ≤ target 82
+    expect(await achieveGoalAction(null, form({ mode: "maintain" }))).toEqual({ ok: true });
+    expect(await getActiveGoal(ctx.db, "alice")).toMatchObject({
+      type: "maintain",
+      startDate: "2026-10-03",
+      startWeightKg: 80,
+      targetWeightKg: null,
+    });
+    expect(await listPastGoals(ctx.db, "alice")).toMatchObject([
+      { type: "lose", status: "achieved", endedAt: "2026-10-03" },
+    ]);
+    expect(ctx.revalidatePath).toHaveBeenCalledWith("/", "layout");
+  });
+
+  it("'new' marks the goal achieved and sends the user to /objectif", async () => {
+    await createGoal(ctx.db, "alice", lose(82));
+    await expect(achieveGoalAction(null, form({ mode: "new" }))).rejects.toThrow(
+      "REDIRECT:/objectif",
+    );
+    expect(await getActiveGoal(ctx.db, "alice")).toBeNull();
+    expect((await listPastGoals(ctx.db, "alice"))[0].status).toBe("achieved");
+  });
+
+  it("dates the end in the profile's timezone", async () => {
+    vi.setSystemTime(new Date("2026-10-04T02:30:00Z"));
+    asUser("alice", "America/Los_Angeles");
+    await createGoal(ctx.db, "alice", lose(82));
+    await achieveGoalAction(null, form({ mode: "maintain" }));
+    expect((await listPastGoals(ctx.db, "alice"))[0].endedAt).toBe("2026-10-03");
+  });
+
+  it("rejects an unknown mode", async () => {
+    await createGoal(ctx.db, "alice", lose(82));
+    expect(await achieveGoalAction(null, form({ mode: "delete" }))).toMatchObject({ ok: false });
+    expect((await getActiveGoal(ctx.db, "alice"))?.type).toBe("lose");
+  });
+
+  it("never closes another user's goal", async () => {
+    await createGoal(ctx.db, "bob", lose(82));
+    await achieveGoalAction(null, form({ mode: "maintain", userId: "bob" }));
+    expect(await getActiveGoal(ctx.db, "bob")).toMatchObject({ type: "lose", status: "active" });
   });
 });
