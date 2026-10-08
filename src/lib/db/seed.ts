@@ -1,12 +1,13 @@
 /**
  * pnpm db:seed — development and CI only. Recreates demo@my-body.test with 120 days
- * of weighings (specs/04 §6). L3 adds a loss goal, L4 the measurement sessions.
+ * of weighings (specs/04 §6). a loss goal; L4 adds the measurement sessions.
  */
 import { loadEnvConfig } from "@next/env";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { recordConsents } from "@/features/consent/queries";
+import { createGoal } from "@/features/goals/queries";
 import { markOnboardingCompleted, saveBodyInfo, saveSex } from "@/features/profile/queries";
 import { insertWeights } from "@/features/weight/queries";
 import { createAuth } from "@/lib/auth/create-auth";
@@ -14,7 +15,7 @@ import { today } from "@/lib/dates";
 import { requireEnv } from "@/lib/env";
 import * as schema from "./schema";
 import { user } from "./schema";
-import { DEMO_EMAIL, demoWeights } from "./seed-data";
+import { DEMO_EMAIL, demoGoal, demoWeights } from "./seed-data";
 
 async function main() {
   loadEnvConfig(process.cwd());
@@ -42,7 +43,9 @@ async function main() {
     await recordConsents(db, demo.id);
     await saveSex(db, demo.id, "male", "Europe/Paris");
     await saveBodyInfo(db, demo.id, { heightCm: 178, birthDate: "1990-04-12", lengthUnit: "cm" });
-    await insertWeights(db, demo.id, demoWeights(today("Europe/Paris")));
+    const weights = demoWeights(today("Europe/Paris"));
+    await insertWeights(db, demo.id, weights);
+    await createGoal(db, demo.id, demoGoal(today("Europe/Paris"), weights));
     await markOnboardingCompleted(db, demo.id);
     console.log(`Seeded ${DEMO_EMAIL}`); // no health data in logs
   } finally {
