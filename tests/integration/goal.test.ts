@@ -5,6 +5,7 @@ import {
   getActiveGoal,
   listPastGoals,
   replaceActiveGoal,
+  StaleGoalError,
   updateActiveGoalTarget,
   type NewGoal,
 } from "@/features/goals/queries";
@@ -86,6 +87,25 @@ describe("goals", () => {
     ).rejects.toThrow();
     expect((await getActiveGoal(db, "alice"))?.type).toBe("lose");
     expect(await listPastGoals(db, "alice")).toHaveLength(0);
+  });
+
+  it("changes nothing when the expected goal is no longer the active one", async () => {
+    await createGoal(db, "alice", loseGoal);
+    const stale = await getActiveGoal(db, "alice");
+    await finishActiveGoal(db, "alice", "achieved", "2026-10-02"); // another tab closes it...
+    await createGoal(db, "alice", {
+      ...loseGoal,
+      type: "gain",
+      startWeightKg: 70,
+      targetWeightKg: 80,
+    }); // ...and starts G
+    await expect(
+      replaceActiveGoal(db, "alice", maintainGoal, "achieved", "2026-10-03", stale?.id),
+    ).rejects.toBeInstanceOf(StaleGoalError);
+    expect(await getActiveGoal(db, "alice")).toMatchObject({ type: "gain", status: "active" });
+    expect(await listPastGoals(db, "alice")).toHaveLength(1);
+    expect(await finishActiveGoal(db, "alice", "achieved", "2026-10-03", stale?.id)).toBe(false);
+    expect((await getActiveGoal(db, "alice"))?.type).toBe("gain");
   });
 
   it("finishes the active goal without creating another", async () => {

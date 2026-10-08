@@ -22,6 +22,7 @@ import {
   finishActiveGoal,
   getActiveGoal,
   replaceActiveGoal,
+  StaleGoalError,
   updateActiveGoalTarget,
 } from "./queries";
 import { goalInputSchema } from "./schemas";
@@ -145,14 +146,17 @@ export async function achieveGoalAction(
         },
         "achieved",
         todayDate,
+        active.id,
       );
-    } else if (!(await finishActiveGoal(db, userId, "achieved", todayDate))) {
-      return { ok: false, formError: GENERIC_ERROR };
+    } else if (!(await finishActiveGoal(db, userId, "achieved", todayDate, active.id))) {
+      return { ok: false, formError: CONCURRENT_ERROR };
     }
-  } catch {
-    // userId only: never the weights or the goal (specs/07 §8).
-    console.error("achieve_goal_failed", { userId });
-    return { ok: false, formError: GENERIC_ERROR };
+  } catch (error) {
+    // userId and SQLSTATE only: never the weights or the goal (specs/07 §8).
+    const code = sqlState(error);
+    console.error("achieve_goal_failed", { userId, code });
+    const concurrent = code === "23505" || error instanceof StaleGoalError;
+    return { ok: false, formError: concurrent ? CONCURRENT_ERROR : GENERIC_ERROR };
   }
 
   revalidatePath("/", "layout");

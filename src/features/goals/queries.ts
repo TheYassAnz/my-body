@@ -35,31 +35,47 @@ export async function createGoal(db: Db, userId: string, g: NewGoal) {
   await db.insert(goal).values({ userId, ...g });
 }
 
-/** Ends the active goal and starts another, atomically (specs/05 §4.2). */
+/** The goal the caller checked is no longer the active one (another tab changed it). */
+export class StaleGoalError extends Error {}
+
+/**
+ * Ends the active goal and starts another, atomically (specs/05 §4.2).
+ * With `expectedId`, only that goal may be ended; otherwise nothing is written
+ * and StaleGoalError is thrown.
+ */
 export async function replaceActiveGoal(
   db: Db,
   userId: string,
   g: NewGoal,
   endAs: EndStatus,
   endedAt: LocalDate,
+  expectedId?: string,
 ) {
   await db.transaction(async (tx) => {
-    await finishActiveGoal(tx, userId, endAs, endedAt);
+    const finished = await finishActiveGoal(tx, userId, endAs, endedAt, expectedId);
+    if (!finished && expectedId !== undefined) throw new StaleGoalError();
     await createGoal(tx, userId, g);
   });
 }
 
-/** Ends the active goal. False when the user has none. */
+/** Ends the active goal (the one `expectedId`, if given). False when none matched. */
 export async function finishActiveGoal(
   db: Db,
   userId: string,
   endAs: EndStatus,
   endedAt: LocalDate,
+  expectedId?: string,
 ): Promise<boolean> {
   const rows = await db
     .update(goal)
     .set({ status: endAs, endedAt })
-    .where(and(eq(goal.userId, userId), eq(goal.status, "active")))
+    .where(
+      and(
+        eq(goal.userId, userId),
+        eq(goal.status, "active"),
+        expectedId === undefined ? undefined : eq(goal.id, expectedId),
+      ),
+    )
     .returning({ id: goal.id });
   return rows.length > 0;
 }

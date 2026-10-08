@@ -24,7 +24,11 @@ vi.mock("@/lib/db/client", () => ({ getDb: () => ctx.db }));
 vi.mock("@/lib/session", () => ({ requireUser: ctx.requireUser }));
 vi.mock("./queries", async (importOriginal) => {
   const original = await importOriginal<typeof import("./queries")>();
-  return { ...original, createGoal: vi.fn(original.createGoal) };
+  return {
+    ...original,
+    createGoal: vi.fn(original.createGoal),
+    replaceActiveGoal: vi.fn(original.replaceActiveGoal),
+  };
 });
 
 import { achieveGoalAction, saveGoalAction } from "./actions";
@@ -373,6 +377,39 @@ describe("achieveGoalAction", () => {
     expect(result).toMatchObject({ ok: false, formError: expect.any(String) });
     expect((await getActiveGoal(ctx.db, "alice"))?.type).toBe("lose");
     expect(await listPastGoals(ctx.db, "alice")).toHaveLength(0);
+  });
+
+  it("refuses on a maintain goal and on an unachieved gain goal", async () => {
+    await createGoal(ctx.db, "alice", {
+      ...lose(82),
+      type: "maintain",
+      targetWeightKg: null,
+      weeklyRatePct: null,
+    });
+    expect(await achieveGoalAction(null, form({ mode: "maintain" }))).toMatchObject({ ok: false });
+    expect((await getActiveGoal(ctx.db, "alice"))?.type).toBe("maintain");
+    await queries.finishActiveGoal(ctx.db, "alice", "archived", "2026-10-02");
+    await createGoal(ctx.db, "alice", { ...lose(85), type: "gain", startWeightKg: 70 });
+    expect(await achieveGoalAction(null, form({ mode: "maintain" }))).toMatchObject({ ok: false });
+    expect((await getActiveGoal(ctx.db, "alice"))?.type).toBe("gain");
+  });
+
+  it("does not touch a newer goal when the checked one was closed meanwhile", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    await createGoal(ctx.db, "alice", lose(82));
+    // Another tab closes L and saves a fresh gain goal G between the check and the write.
+    const realReplace = vi.mocked(queries.replaceActiveGoal).getMockImplementation();
+    vi.mocked(queries.replaceActiveGoal).mockImplementationOnce(async (...args) => {
+      await queries.finishActiveGoal(ctx.db, "alice", "achieved", "2026-10-02");
+      await createGoal(ctx.db, "alice", { ...lose(95), type: "gain", startWeightKg: 70 });
+      return realReplace?.(...args);
+    });
+    const result = await achieveGoalAction(null, form({ mode: "maintain" }));
+    expect(result).toMatchObject({ ok: false, formError: expect.stringContaining("Recharge") });
+    expect(await getActiveGoal(ctx.db, "alice")).toMatchObject({ type: "gain", status: "active" });
+    expect(await listPastGoals(ctx.db, "alice")).toHaveLength(1);
+    expect(log).toHaveBeenCalledWith("achieve_goal_failed", { userId: "alice", code: undefined });
+    log.mockRestore();
   });
 
   it("refuses when there is no active goal", async () => {

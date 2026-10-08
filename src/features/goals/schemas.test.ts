@@ -49,14 +49,12 @@ describe("goalInputSchema", () => {
     });
   });
 
-  it("rejects a loss target in pounds that is above the trend", () => {
-    const r = goalInputSchema(REF).safeParse({
-      type: "lose",
-      target: "177",
-      rate: "0.5",
-      unit: "lb",
-    });
-    expect(r.success).toBe(false); // 177 lb = 80.29 kg > 80
+  it("compares a target in pounds with the trend at the boundary", () => {
+    const lb = (target: string) =>
+      goalInputSchema(REF).safeParse({ type: "lose", target, rate: "0.5", unit: "lb" }).success;
+    expect(lb("176.3")).toBe(true); // 79.97 kg < 80
+    expect(lb("176.4")).toBe(false); // 80.01 kg >= 80
+    expect(lb("177")).toBe(false);
   });
 
   it("ignores target and rate for maintain and recomp", () => {
