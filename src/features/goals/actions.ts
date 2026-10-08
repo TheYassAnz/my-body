@@ -77,20 +77,25 @@ export async function saveGoalAction(
     if (!active) {
       await createGoal(db, userId, next);
     } else if (active.type !== type) {
-      await replaceActiveGoal(db, userId, next, "archived", todayDate);
+      await replaceActiveGoal(db, userId, next, "archived", todayDate, active.id);
     } else if (targetWeightKg !== null && weeklyRatePct !== null) {
       // Same type with a target: lose or gain only. Maintain and recomp carry none (goal_target_and_rate).
-      if (!(await updateActiveGoalTarget(db, userId, { targetWeightKg, weeklyRatePct }))) {
-        return { ok: false, formError: GENERIC_ERROR, values };
-      }
+      const updated = await updateActiveGoalTarget(
+        db,
+        userId,
+        { targetWeightKg, weeklyRatePct },
+        active.id,
+      );
+      if (!updated) return { ok: false, formError: CONCURRENT_ERROR, values };
     }
   } catch (error) {
     // userId and SQLSTATE only: never the weights, the target or the rate (specs/07 §8).
     const code = sqlState(error);
     console.error("save_goal_failed", { userId, code });
+    const concurrent = code === "23505" || error instanceof StaleGoalError;
     return {
       ok: false,
-      formError: code === "23505" ? CONCURRENT_ERROR : GENERIC_ERROR,
+      formError: concurrent ? CONCURRENT_ERROR : GENERIC_ERROR,
       values,
     };
   }

@@ -80,16 +80,17 @@ export async function finishActiveGoal(
   return rows.length > 0;
 }
 
-/** EF-GOAL-02 CA2: changes target and rate in place. False when the user has no active goal. */
+/** EF-GOAL-02 CA2: changes target and rate of the checked goal in place. False when it is no longer the active one. */
 export async function updateActiveGoalTarget(
   db: Db,
   userId: string,
   t: { targetWeightKg: number; weeklyRatePct: number },
+  expectedId: string,
 ): Promise<boolean> {
   const rows = await db
     .update(goal)
     .set(t)
-    .where(and(eq(goal.userId, userId), eq(goal.status, "active")))
+    .where(and(eq(goal.userId, userId), eq(goal.status, "active"), eq(goal.id, expectedId)))
     .returning({ id: goal.id });
   return rows.length > 0;
 }

@@ -108,6 +108,21 @@ describe("goals", () => {
     expect((await getActiveGoal(db, "alice"))?.type).toBe("gain");
   });
 
+  it("does not update a goal other than the expected one", async () => {
+    await createGoal(db, "alice", loseGoal);
+    const stale = await getActiveGoal(db, "alice");
+    await finishActiveGoal(db, "alice", "archived", "2026-10-02");
+    await createGoal(db, "alice", {
+      ...loseGoal,
+      type: "gain",
+      startWeightKg: 70,
+      targetWeightKg: 80,
+    });
+    const t = { targetWeightKg: 60, weeklyRatePct: 0.5 };
+    expect(await updateActiveGoalTarget(db, "alice", t, stale?.id as string)).toBe(false);
+    expect(await getActiveGoal(db, "alice")).toMatchObject({ type: "gain", targetWeightKg: 80 });
+  });
+
   it("finishes the active goal without creating another", async () => {
     await createGoal(db, "alice", loseGoal);
     expect(await finishActiveGoal(db, "alice", "achieved", "2026-10-03")).toBe(true);
@@ -119,7 +134,12 @@ describe("goals", () => {
     await createGoal(db, "alice", loseGoal);
     const before = await getActiveGoal(db, "alice");
     expect(
-      await updateActiveGoalTarget(db, "alice", { targetWeightKg: 78, weeklyRatePct: 0.75 }),
+      await updateActiveGoalTarget(
+        db,
+        "alice",
+        { targetWeightKg: 78, weeklyRatePct: 0.75 },
+        before?.id as string,
+      ),
     ).toBe(true);
     const after = await getActiveGoal(db, "alice");
     expect(after).toMatchObject({ id: before?.id, targetWeightKg: 78, weeklyRatePct: 0.75 });
@@ -154,7 +174,12 @@ describe("goals", () => {
 
     it("never updates or finishes another user's goal", async () => {
       expect(
-        await updateActiveGoalTarget(db, "alice", { targetWeightKg: 70, weeklyRatePct: 0.5 }),
+        await updateActiveGoalTarget(
+          db,
+          "alice",
+          { targetWeightKg: 70, weeklyRatePct: 0.5 },
+          (await getActiveGoal(db, "bob"))?.id as string,
+        ),
       ).toBe(false);
       expect(await finishActiveGoal(db, "alice", "archived", "2026-10-03")).toBe(false);
       expect(await getActiveGoal(db, "bob")).toMatchObject({ status: "active", startWeightKg: 95 });

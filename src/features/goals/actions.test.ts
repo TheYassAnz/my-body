@@ -28,6 +28,7 @@ vi.mock("./queries", async (importOriginal) => {
     ...original,
     createGoal: vi.fn(original.createGoal),
     replaceActiveGoal: vi.fn(original.replaceActiveGoal),
+    updateActiveGoalTarget: vi.fn(original.updateActiveGoalTarget),
   };
 });
 
@@ -194,6 +195,74 @@ describe("saveGoalAction", () => {
       weeklyRatePct: 0.75,
     });
     expect(await listPastGoals(ctx.db, "alice")).toHaveLength(0);
+  });
+
+  it("does not write a loss target onto a gain goal swapped in by another tab", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const loseGoal = {
+      type: "lose" as const,
+      startDate: "2026-09-01",
+      startWeightKg: 90,
+      targetWeightKg: 75,
+      weeklyRatePct: 0.5,
+    };
+    await createGoal(ctx.db, "alice", loseGoal);
+    const real = vi.mocked(queries.updateActiveGoalTarget).getMockImplementation();
+    vi.mocked(queries.updateActiveGoalTarget).mockImplementationOnce(async (...args) => {
+      await queries.finishActiveGoal(ctx.db, "alice", "archived", "2026-10-02");
+      await createGoal(ctx.db, "alice", {
+        ...loseGoal,
+        type: "gain",
+        startWeightKg: 70,
+        targetWeightKg: 85,
+        weeklyRatePct: 0.25,
+      });
+      return real?.(...args) as Promise<boolean>;
+    });
+    const result = await saveGoalAction(
+      null,
+      form({ type: "lose", target: "72", rate: "0,75", unit: "kg" }),
+    );
+    expect(result).toMatchObject({ ok: false, formError: expect.stringContaining("Recharge") });
+    expect(await getActiveGoal(ctx.db, "alice")).toMatchObject({
+      type: "gain",
+      targetWeightKg: 85,
+      weeklyRatePct: 0.25,
+    });
+    log.mockRestore();
+  });
+
+  it("does not archive a goal swapped in by another tab while replacing", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const loseGoal = {
+      type: "lose" as const,
+      startDate: "2026-09-01",
+      startWeightKg: 90,
+      targetWeightKg: 75,
+      weeklyRatePct: 0.5,
+    };
+    await createGoal(ctx.db, "alice", loseGoal);
+    const real = vi.mocked(queries.replaceActiveGoal).getMockImplementation();
+    vi.mocked(queries.replaceActiveGoal).mockImplementationOnce(async (...args) => {
+      await queries.finishActiveGoal(ctx.db, "alice", "archived", "2026-10-02");
+      await createGoal(ctx.db, "alice", {
+        ...loseGoal,
+        type: "recomp",
+        targetWeightKg: null as never,
+        weeklyRatePct: null as never,
+      });
+      return real?.(...args);
+    });
+    const result = await saveGoalAction(
+      null,
+      form({ type: "gain", target: "85", rate: "0,25", unit: "kg", confirm: "archive" }),
+    );
+    expect(result).toMatchObject({ ok: false, formError: expect.stringContaining("Recharge") });
+    expect(await getActiveGoal(ctx.db, "alice")).toMatchObject({
+      type: "recomp",
+      status: "active",
+    });
+    log.mockRestore();
   });
 
   it("asks for confirmation before changing the type, and writes nothing", async () => {
