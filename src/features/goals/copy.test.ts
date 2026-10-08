@@ -74,7 +74,9 @@ describe("statusMessage (specs/03 §5)", () => {
         summary({ type: "recomp", status: st(status, { waist, deviationKg: 2 }) }),
         "kg",
       );
-    expect(r("stable", "waist_improving")).toBe("Poids stable · Tour de taille en baisse");
+    expect(r("stable", "waist_improving")).toBe(
+      "Poids stable · Tour de taille en baisse : ta recompo fonctionne.",
+    );
     expect(r("stable", "waist_flat")).toBe(
       "Poids stable · Tour de taille stable : patience, la recompo est lente.",
     );

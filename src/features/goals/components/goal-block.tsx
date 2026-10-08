@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { LocalDate } from "@/lib/dates";
 import { formatDecimal, formatWeight, toDisplayWeight, type WeightUnit } from "@/lib/units";
-import { GOAL_LABELS, projectionLabel, statusMessage } from "../copy";
+import { GOAL_LABELS, projectionLabel, showsProjection, statusMessage } from "../copy";
 import type { GoalSummary } from "../summary";
 import { AchievedBanner } from "./achieved-banner";
 
@@ -33,7 +33,7 @@ export function GoalBlock({
   }
 
   const state = summary.status.status;
-  const showProjection = state !== "calibrating" && state !== "achieved";
+  const showProjection = showsProjection(state);
   const positive = state === "on_track" || state === "stable";
   const progressText = summary.progress
     ? `${formatDecimal(toDisplayWeight(summary.progress.doneKg, unit))} / ${formatWeight(summary.progress.totalKg, unit)}`

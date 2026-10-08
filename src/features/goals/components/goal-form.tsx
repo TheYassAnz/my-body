@@ -19,6 +19,7 @@ import {
 import {
   formatDecimal,
   formatInputDecimal,
+  KG_PER_LB,
   parseDecimal,
   toDisplayWeight,
   toStoredKg,
@@ -85,7 +86,7 @@ export function GoalForm({
   const reachedOn = validTarget ? theoreticalDate(today, referenceKg, targetKg, kgPerWeek) : null;
   const previewId = useId();
   const rateErrorId = `${previewId}-rate-error`;
-  const pace = `≈ ${twoDecimals.format(unit === "lb" ? kgPerWeek / 0.45359237 : kgPerWeek)} ${unit}/sem`;
+  const pace = `≈ ${twoDecimals.format(unit === "lb" ? kgPerWeek / KG_PER_LB : kgPerWeek)} ${unit}/sem`;
   const paceText = !validTarget
     ? pace
     : reachedOn

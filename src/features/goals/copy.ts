@@ -1,5 +1,11 @@
 import { formatShortDate, type LocalDate } from "@/lib/dates";
-import type { GoalType, Projection, RatedGoalType, WaistIndicator } from "@/lib/metrics";
+import type {
+  GoalStatus,
+  GoalType,
+  Projection,
+  RatedGoalType,
+  WaistIndicator,
+} from "@/lib/metrics";
 import { formatDelta, toDisplayWeight, type WeightUnit } from "@/lib/units";
 import type { ActiveGoalSummary } from "./summary";
 
@@ -43,7 +49,7 @@ export const HISTORY_STATUS_LABELS = { achieved: "Atteint", archived: "Archivé"
 
 const WAIST_MESSAGES: Record<WaistIndicator, string> = {
   waist_insufficient: "Mesure ta taille régulièrement pour suivre ta recompo.",
-  waist_improving: "Tour de taille en baisse",
+  waist_improving: "Tour de taille en baisse : ta recompo fonctionne.",
   waist_flat: "Tour de taille stable : patience, la recompo est lente.",
 };
 
@@ -81,6 +87,10 @@ export function statusMessage(s: ActiveGoalSummary, unit: WeightUnit): string {
     }
   }
 }
+
+/** The projection is meaningless while calibrating and once the goal is reached. */
+export const showsProjection = (status: GoalStatus["status"]) =>
+  status !== "calibrating" && status !== "achieved";
 
 export function projectionLabel(p: Projection, today: LocalDate): string {
   if (p.kind === "estimated") return `Atteinte estimée : ~ ${formatShortDate(p.date, today)}`;
