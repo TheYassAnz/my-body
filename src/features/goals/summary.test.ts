@@ -58,6 +58,12 @@ describe("buildGoalSummary", () => {
     expect(s.progress).toMatchObject({ doneKg: 0, ratio: 0 });
   });
 
+  it("caps the done distance at the total when the reference overshoots the target", () => {
+    const s = buildGoalSummary(lose, linear(78.8, 0, 20), TODAY);
+    if (s.state !== "active") throw new Error("unreachable");
+    expect(s.progress).toMatchObject({ doneKg: 10, totalKg: 10, ratio: 1 });
+  });
+
   it("has no progress bar for maintain and recomp", () => {
     const s = buildGoalSummary(
       {

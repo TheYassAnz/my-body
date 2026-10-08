@@ -48,15 +48,19 @@ export function buildGoalSummary(
   const rate = status.status === "calibrating" ? null : weeklyRate(past, today, referenceKg);
 
   const rated = goal.targetWeightKg !== null;
+  const totalKg = rated ? Math.abs(goal.startWeightKg - (goal.targetWeightKg as number)) : 0;
   const progress = rated
     ? {
-        doneKg: Math.max(
-          0,
-          goal.type === "lose"
-            ? goal.startWeightKg - referenceKg
-            : referenceKg - goal.startWeightKg,
+        doneKg: Math.min(
+          totalKg,
+          Math.max(
+            0,
+            goal.type === "lose"
+              ? goal.startWeightKg - referenceKg
+              : referenceKg - goal.startWeightKg,
+          ),
         ),
-        totalKg: Math.abs(goal.startWeightKg - (goal.targetWeightKg as number)),
+        totalKg,
         ratio: goalProgress(goal.startWeightKg, referenceKg, goal.targetWeightKg as number),
       }
     : null;
