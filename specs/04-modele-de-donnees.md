@@ -90,7 +90,12 @@ Toutes les clés étrangères vers `user` sont en `ON DELETE CASCADE` : supprime
 | `created_at`, `updated_at` | timestamptz | not null | |
 
 - **Index unique partiel** `UNIQUE (user_id) WHERE status = 'active'` : un seul objectif actif par utilisateur.
-- CHECK : `(type IN ('lose','gain')) = (target_weight_kg IS NOT NULL AND weekly_rate_pct IS NOT NULL)`.
+- CHECK (5, migration `0003_goal.sql`) :
+  - `goal_target_and_rate` : `(type IN ('lose','gain')) = (target_weight_kg IS NOT NULL AND weekly_rate_pct IS NOT NULL)` ;
+  - `goal_target_with_rate` : cible et rythme ensemble ou absents ;
+  - `goal_rate_range` : rythme dans les bornes du type (perte 0,25 à 1,5 ; prise 0,1 à 0,75) ;
+  - `goal_weight_range` : poids de départ (et cible) entre 20 et 400 kg ;
+  - `goal_ended_at` : `(status = 'active') = (ended_at IS NULL)`.
 
 ### `consent`
 
@@ -119,4 +124,4 @@ Par utilisateur actif et par an : environ 300 pesées et environ 40 séances × 
 
 Un script `pnpm db:seed` crée, en environnement de développement uniquement, un compte `demo@my-body.test` avec 120 jours de pesées bruitées, 10 séances de mesure et un objectif de perte. Le mot de passe est défini dans `.env.example`.
 
-En L2, le seed crée le compte, son profil, ses consentements et 120 jours de pesées (déterministes, jusqu'à la veille). L'objectif de perte (L3) et les séances de mesure (L4) y seront ajoutés. Script : `src/lib/db/seed.ts`, lancé avec `tsx`.
+En L2, le seed crée le compte, son profil, ses consentements et 120 jours de pesées (déterministes, jusqu'à la veille). En L3, le seed ajoute un objectif de perte (cible 75 kg, 0,5 %/sem, démarré 30 jours plus tôt). Les séances de mesure (L4) y seront ajoutées. Script : `src/lib/db/seed.ts`, lancé avec `tsx`.

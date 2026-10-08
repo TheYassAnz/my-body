@@ -47,7 +47,8 @@ Les règles de calcul citées sont détaillées dans [03](03-regles-metier-et-ca
 - CA5 : Un utilisateur de moins de 16 ans voit le message « my-body est réservé aux 16 ans et plus » et ne peut pas continuer.
 
 **EF-ONB-02 · M · Accès conditionné**
-- CA1 : Tant que le profil, une pesée et un objectif actif n'existent pas, toute route connectée hors `/onboarding` et `/reglages` redirige vers `/onboarding`.
+- CA1 : Tant que le profil, une pesée et un objectif actif n'existent pas **à la fin de l'onboarding**, toute route connectée hors `/onboarding` et `/reglages` redirige vers `/onboarding`.
+- CA2 : Un compte onboardé sans objectif actif (avant L3, ou après « Nouvel objectif ») n'est pas renvoyé vers `/onboarding` : `/accueil` et `/objectif` proposent d'en définir un.
 
 ---
 

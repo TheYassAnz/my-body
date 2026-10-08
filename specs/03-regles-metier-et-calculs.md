@@ -87,7 +87,7 @@ Convention de signe : **négatif = baisse**. Pour l'affichage et la comparaison 
 - Curseur au pas de 0,05 %. Au-delà de la zone recommandée, le curseur passe en zone d'alerte avec un message :
   - perte > 1,0 % : « Rythme agressif : risque accru de perte musculaire et de fatigue. »
   - prise > 0,5 % : « Rythme rapide : une part importante de la prise sera du gras. »
-- Aperçu en kg/sem : `r / 100 × tendance_actuelle`.
+- Aperçu en kg/sem : `r / 100 × tendance_actuelle`, affiché avec **2 décimales** (« ≈ 0,39 kg/sem »), seule exception à la règle d'une décimale du §8.
 - Date théorique : `aujourd'hui + |cible − tendance| / (kg/sem) × 7` jours.
 
 ## 5. Statut de l'objectif
@@ -106,7 +106,7 @@ Convention de signe : **négatif = baisse**. Pour l'affichage et la comparaison 
 | 6 | v < 0,5 × r | `too_slow` | « Plus lent que prévu. » |
 | 7 | sinon | `on_track` | « Dans le rythme. » |
 
-Pour le plateau (ligne 3), on refait le calcul du §3 sur une fenêtre de 21 jours. Il faut au moins 21 jours d'historique.
+Pour le plateau (ligne 3), on refait le calcul du §3 sur une fenêtre de 21 jours. Il faut au moins 21 jours d'historique, c'est-à-dire une première pesée datée au plus tard `aujourd'hui − 20` (fenêtre de 21 jours, aujourd'hui compris, comme pour le rythme).
 
 Le statut « trop rapide » est **relatif au rythme choisi**, sans plafond absolu. Choisir un rythme agressif (perte > 1,0 %, prise > 0,5 %) est permis. L'avertissement est donné **au moment du choix** par la zone d'alerte du curseur (§4), et pas répété en permanence ensuite.
 
@@ -125,6 +125,8 @@ Le poids est évalué comme en maintien (`stable` ou `out_of_band`). On y ajoute
 - Moins de 2 mesures au total : `waist_insufficient`, message « Mesure ta taille régulièrement pour suivre ta recompo. »
 - Écart (dernière − plus ancienne) ≤ −0,5 cm : `waist_improving`, message « Tour de taille en baisse : ta recompo fonctionne. »
 - Sinon : `waist_flat`, message « Tour de taille stable : patience, la recompo est lente. »
+
+Tant que L4 n'est pas livrée, l'indicateur de taille est `waist_insufficient`.
 
 Le statut affiché combine les deux, par exemple « Poids stable · Tour de taille en baisse ».
 
@@ -214,4 +216,4 @@ Pour une zone `z` et une période `P` (7 j, 30 j, 90 j, Début) :
 | Taille (height) | 100 à 250 cm |
 | Date de naissance | âge ≥ 16 ans et ≤ 120 ans |
 | Rythme | dans les bornes du type (§4) |
-| Cible | perte : 20 kg ≤ cible < tendance ; prise : tendance < cible ≤ 400 kg |
+| Cible | perte : 20 kg ≤ cible < tendance ; prise : tendance < cible ≤ 400 kg. La tendance de référence (ou la dernière pesée pendant le calibrage) est arrondie à 2 décimales avant la validation, comme la valeur stockée. |

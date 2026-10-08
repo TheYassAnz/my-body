@@ -1973,7 +1973,7 @@ Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
   - `buildGoalSummary(goal: (GoalSpec & { startDate: LocalDate }) | null, points: readonly WeightPoint[], today: LocalDate, waist?: readonly WaistMeasure[]): GoalSummary`
   - `type PastGoalSummary = { id: string; type: GoalType; status: "achieved" | "archived"; startDate: LocalDate; endedAt: LocalDate; startKg: number; endKg: number | null }`
   - `buildGoalHistory(goals: readonly Goal[], points: readonly WeightPoint[]): PastGoalSummary[]`
-  - `copy.ts` : `GOAL_LABELS`, `GOAL_DESCRIPTIONS`, `archiveMessage` (tâche 5), `RATE_ALERTS`, `statusMessage(summary: ActiveGoalSummary, unit: WeightUnit): string`, `projectionLabel(p: Projection, today: LocalDate): string`, `GOAL_DISCLAIMER`, `STATUS_LABELS` (historique)
+  - `copy.ts` : `GOAL_LABELS`, `GOAL_DESCRIPTIONS`, `archiveMessage` (tâche 5), `RATE_ALERTS`, `statusMessage(summary: ActiveGoalSummary, unit: WeightUnit): string`, `projectionLabel(p: Projection, today: LocalDate): string`, `GOAL_DISCLAIMER`, `HISTORY_STATUS_LABELS` (historique)
 
 - [ ] **Étape 1 : tests de `buildGoalSummary` et `buildGoalHistory` (échec attendu)**
 
