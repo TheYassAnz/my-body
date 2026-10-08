@@ -68,7 +68,7 @@ my-body/
 │  ├─ features/
 │  │  ├─ weight/        actions.ts · queries.ts · schemas.ts · components/ (WeightSheet, WeightChart, History)
 │  │  ├─ measurements/  actions.ts · queries.ts · schemas.ts · components/ (Silhouette, ZoneSheet, MeasureSession)
-│  │  ├─ goals/         actions.ts · queries.ts · schemas.ts · copy.ts (messages de statut) · components/ (GoalForm, RateSlider, GoalStatus)
+│  │  ├─ goals/         actions.ts · queries.ts · schemas.ts · copy.ts (messages de statut) · summary.ts · components/ (GoalForm, GoalTracking, GoalBlock, AchievedBanner, GoalHistory) ; le curseur de rythme est `components/ui/slider.tsx`
 │  │  ├─ dashboard/     queries.ts (agrégation pour l'Accueil) · components/
 │  │  ├─ auth/          actions.ts · client-actions.ts · schemas.ts · components/
 │  │  ├─ consent/       queries.ts

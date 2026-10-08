@@ -12,6 +12,7 @@ import { markOnboardingCompleted, saveBodyInfo, saveSex } from "@/features/profi
 import { insertWeights } from "@/features/weight/queries";
 import { createAuth } from "@/lib/auth/create-auth";
 import { today } from "@/lib/dates";
+import { sqlState } from "./errors";
 import { requireEnv } from "@/lib/env";
 import * as schema from "./schema";
 import { user } from "./schema";
@@ -54,6 +55,7 @@ async function main() {
 }
 
 main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : "seed_failed");
+  // SQLSTATE only: Drizzle messages embed the query params (demo data).
+  console.error("seed_failed", { code: sqlState(error) });
   process.exit(1);
 });

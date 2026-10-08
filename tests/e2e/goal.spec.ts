@@ -27,9 +27,12 @@ test("E2E-5: switching goal type asks for confirmation and keeps the old goal in
 
   // The radio is sr-only: click its visible label text (exact, so the description does not match).
   await page.getByText(wasLose ? "Prendre du poids" : "Perdre du poids", { exact: true }).click();
+  // Wait for the form to re-render with the new type (a pre-hydration click could be reset by React).
+  await expect(page.getByLabel("Actuel (tendance)")).toBeVisible();
   await expect(next).toBeChecked();
   const trend = Number((await page.getByLabel("Actuel (tendance)").inputValue()).replace(",", "."));
   const target = (wasLose ? trend + 4 : trend - 4).toFixed(1).replace(".", ",");
+  await expect(next).toBeChecked();
   await page.getByLabel("Cible", { exact: true }).fill(target);
   await page.getByRole("button", { name: "Enregistrer" }).click();
 
