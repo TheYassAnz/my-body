@@ -45,7 +45,7 @@ Assistant plein écran, une question par étape, avec une barre de progression f
 | 1. Sexe | « Pour afficher la bonne silhouette » : deux grands choix illustrés, Homme / Femme. | Obligatoire |
 | 2. Toi | Taille (en cm ; bascule cm/in qui fixe aussi l'unité de longueur du profil), date de naissance. | Taille entre 100 et 250 cm ; âge ≥ 16 ans |
 | 3. Poids actuel | Grand champ numérique avec stepper ± 0,1, bascule kg/lb (qui fixe l'unité de poids du profil), date du jour. Petit texte d'aide sur le protocole de pesée. | 20 à 400 kg. Crée la première pesée. |
-| 4. Objectif | Choix du type (4 cartes avec une phrase d'explication), puis cible et rythme selon le type ([03 §4](03-regles-metier-et-calculs.md)). Aperçu : « ≈ 0,39 kg/sem · atteinte vers le 15 nov. ». Sous les cartes, un lien discret **« Juste suivre mon poids »** crée un objectif maintien et passe à l'étape suivante. | Voir EF-GOAL |
+| 4. Objectif | Choix du type (4 cartes avec une phrase d'explication), puis cible et rythme selon le type ([03 §4](03-regles-metier-et-calculs.md)). Aperçu : « ≈ 0,39 kg/sem · atteinte vers le 15 nov. ». Sous le formulaire (après « Terminer »), un lien discret **« Juste suivre mon poids »** crée un objectif maintien (référence : dernière pesée) et passe à l'étape suivante. | Voir EF-GOAL |
 | 5. Première séance | « Mesure-toi maintenant pour voir ta progression plus tard ». Deux boutons : « Commencer (3 min) » ouvre la séance guidée, « Plus tard » mène à l'accueil. | Optionnel |
 
 ### 3.2 Accueil (`/accueil`)
@@ -66,7 +66,8 @@ Assistant plein écran, une question par étape, avec une barre de progression f
 
 | Situation | Affichage |
 |---|---|
-| Calibrage (< 7 pesées ou < 10 jours) | Le grand chiffre est la dernière pesée, avec la mention « Tendance en calibrage · encore N pesées ». Le rythme est remplacé par ce message, la projection est masquée. |
+| Calibrage (< 7 pesées ou < 10 jours) | Le grand chiffre est la dernière pesée, avec la mention « Tendance en calibrage · encore N pesées ». Le rythme est remplacé par ce message, la projection (et son libellé) est masquée. |
+| Objectif atteint | Le bandeau « objectif atteint » porte le message : la ligne de statut et la projection sont masquées. L'avancement est plafonné au total. |
 | Aucune mensuration | Le bloc Mensurations devient un appel à l'action : « Mesure-toi une première fois » avec le bouton « Commencer ». |
 | Dernière séance > 14 jours | Message « Il est temps de te mesurer » et bouton. |
 | Objectif atteint | Bandeau « 🎯 Objectif atteint ! » avec deux boutons : « Passer en maintien » et « Nouvel objectif ». |
@@ -121,10 +122,11 @@ Assistant plein écran, une question par étape, avec une barre de progression f
 - **Objectif actif** :
   - 4 types en grille 2×2 ; le type actif est en noir ;
   - champs « Actuel (tendance) » en lecture seule et « Cible » ;
-  - **curseur de rythme** en %/semaine, avec la zone recommandée en surbrillance et une zone d'alerte ([03 §4](03-regles-metier-et-calculs.md)). En dessous : « ≈ X kg/sem · atteinte vers le <date> ».
+  - **curseur de rythme** (`<input type="range">` natif stylé) en %/semaine, avec la zone recommandée en surbrillance et une zone d'alerte ([03 §4](03-regles-metier-et-calculs.md)). En dessous : « ≈ X kg/sem · atteinte vers le <date> ».
   - Bloc **Suivi** : rythme réel sur 4 semaines, statut et message d'explication.
 - Modifier la cible ou le rythme met à jour l'objectif actif. Changer de type **archive** l'objectif actuel et en crée un nouveau (après confirmation).
 - **Historique des objectifs** (repliable) : type, dates, poids de départ et d'arrivée, statut (atteint ou archivé).
+- Une mention légale (pas de conseil médical) figure en bas de l'écran.
 
 ### 3.8 Réglages (`/reglages`)
 

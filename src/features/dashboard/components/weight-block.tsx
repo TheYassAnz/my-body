@@ -13,7 +13,15 @@ export const calibrationMessage = (n: number) =>
   `Tendance en calibrage · encore ${n} ${n > 1 ? "pesées" : "pesée"}`;
 
 /** Accueil "Poids" block (specs/01 §3.2). Formatting only: values come computed. */
-export function WeightBlock({ summary, unit }: { summary: WeightSummary; unit: WeightUnit }) {
+export function WeightBlock({
+  summary,
+  unit,
+  rateTone,
+}: {
+  summary: WeightSummary;
+  unit: WeightUnit;
+  rateTone: "positive" | "neutral";
+}) {
   if (summary.state === "empty") {
     return (
       <section aria-labelledby="weight-title" className="mt-8">
@@ -46,7 +54,11 @@ export function WeightBlock({ summary, unit }: { summary: WeightSummary; unit: W
         </span>
         <span className="text-[22px] text-muted">{unit}</span>
       </p>
-      {paceLine && <p className="mt-3 text-sm text-fg-2">{paceLine}</p>}
+      {paceLine && (
+        <p className={`mt-3 text-sm ${rateTone === "positive" ? "text-positive" : "text-fg-2"}`}>
+          {paceLine}
+        </p>
+      )}
       <p className="mt-1 text-sm text-fg-2">
         {summary.todayKg === null
           ? "Pas encore de pesée aujourd'hui"

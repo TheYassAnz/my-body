@@ -68,14 +68,14 @@ my-body/
 │  ├─ features/
 │  │  ├─ weight/        actions.ts · queries.ts · schemas.ts · components/ (WeightSheet, WeightChart, History)
 │  │  ├─ measurements/  actions.ts · queries.ts · schemas.ts · components/ (Silhouette, ZoneSheet, MeasureSession)
-│  │  ├─ goals/         actions.ts · queries.ts · schemas.ts · components/ (GoalForm, RateSlider, GoalStatus)
+│  │  ├─ goals/         actions.ts · queries.ts · schemas.ts · copy.ts (messages de statut) · summary.ts · components/ (GoalForm, GoalTracking, GoalBlock, AchievedBanner, GoalHistory) ; le curseur de rythme est `components/ui/slider.tsx`
 │  │  ├─ dashboard/     queries.ts (agrégation pour l'Accueil) · components/
 │  │  ├─ auth/          actions.ts · client-actions.ts · schemas.ts · components/
 │  │  ├─ consent/       queries.ts
 │  │  ├─ profile/       actions.ts · queries.ts · schemas.ts · components/
 │  │  └─ account/       actions.ts (suppression) · export.ts (CSV)
 │  ├─ lib/
-│  │  ├─ metrics/       config.ts · trend.ts · rate.ts · goal-status.ts · projection.ts · deltas.ts · index.ts
+│  │  ├─ metrics/       config.ts · trend.ts · rate.ts · goal-rates.ts · goal-status.ts · projection.ts · deltas.ts · index.ts
 │  │  ├─ units.ts       conversions et formatage (Intl.NumberFormat)
 │  │  ├─ dates.ts       « aujourd'hui » dans le fuseau de l'utilisateur, calculs en jours
 │  │  ├─ db/            schema/ (auth.ts · app.ts) · client.ts (node-postgres) · seed.ts ; migrations dans drizzle/
@@ -126,10 +126,11 @@ export async function saveWeight(input: unknown): Promise<ActionResult> {
 }
 ```
 
-- Type de retour unique : `ActionResult = { ok: true; data?: T } | { ok: false; fieldErrors?: Record<string, string[]>; formError?: string; needsConfirmation?: { reason: 'replace' | 'suspicious'; message: string } }`.
-- `needsConfirmation` gère les cas « remplacer la pesée existante » et « valeur suspecte ». Le client renvoie l'action avec le bouton `confirm=<reason>` ; le champ caché `confirmed` conserve les raisons déjà acceptées, ce qui permet des confirmations successives (remplacement puis valeur suspecte).
+- Type de retour unique : `ActionResult = { ok: true; data?: T } | { ok: false; fieldErrors?: Record<string, string[]>; formError?: string; needsConfirmation?: { reason: 'replace' | 'suspicious' | 'archive'; message: string } }`.
+- `needsConfirmation` gère les cas « remplacer la pesée existante », « valeur suspecte » et « archiver l'objectif » (changement de type). Le client renvoie l'action avec le bouton `confirm=<reason>` ; le champ caché `confirmed` conserve les raisons déjà acceptées, ce qui permet des confirmations successives (remplacement puis valeur suspecte).
 - Les erreurs inattendues sont journalisées côté serveur. Le client reçoit `formError: "Une erreur est survenue, réessaie."`.
 - Les écritures sur plusieurs tables (suppression de la dernière mesure d'une séance, changement d'objectif) passent par une **transaction**.
+- Terminer ou remplacer un objectif peut être lié à l'identifiant attendu (`StaleGoalError` si l'objectif a changé entre-temps, utilisé par « objectif atteint »). Le code SQLSTATE `23505` (index unique, envoi concurrent) devient un message utilisateur propre, les autres erreurs le message générique ; seuls `{ userId, code }` sont journalisés (helper `sqlState`, `src/lib/db/errors.ts`). L'action d'onboarding `saveGoalStepAction` traite `23505` comme « objectif déjà créé ».
 
 ### 4.3 « Aujourd'hui »
 

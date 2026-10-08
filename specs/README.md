@@ -4,8 +4,8 @@ Application web responsive de suivi du poids et des mensurations, avec des objec
 
 | | |
 |---|---|
-| **Version du document** | 1.3 |
-| **Date** | 7 octobre 2026 |
+| **Version du document** | 1.4 |
+| **Date** | 8 octobre 2026 |
 | **Statut** | Revu et validé |
 | **Périmètre** | V1 : produit public, gratuit |
 | **Développement** | Développeur solo, sans échéance imposée |
@@ -58,6 +58,7 @@ Application web responsive de suivi du poids et des mensurations, avec des objec
 | 1.1 | 30/09/2026 | Revue de la spec. **Rythme calculé sur les pesées brutes** (supprime le retard de la tendance) et tendance amorcée sur la moyenne des 3 premières pesées ([03](03-regles-metier-et-calculs.md)). « Trop rapide » relatif au rythme choisi, sans plafond absolu. **Vérification d'email non bloquante**, réinitialisation réservée aux emails vérifiés. Option « Juste suivre mon poids » à l'onboarding. Finalités des données de profil précisées ([07](07-securite-et-rgpd.md)). Corrections mineures (fuseau horaire, bascule kg/lb à l'onboarding). |
 | 1.2 | 03/10/2026 | Ajustements issus du plan L0-L1 (proxy Next 16, groupes de routes, lien de vérification Better Auth, profil nullable pendant l'onboarding, rate limit par IP). |
 | 1.3 | 07/10/2026 | Ajustements issus du plan L2 (mini-courbe SVG serveur, confirmations successives, revalidation globale, stepper 44 px, seed sans objectif). |
+| 1.4 | 08/10/2026 | Ajustements issus du plan L3 (compte sans objectif non redirigé, statut sans texte dans `lib/metrics`, confirmation `archive`, 5 CHECK sur `goal`, aperçu à 2 décimales, lien « Juste suivre mon poids » sous le formulaire, transaction et erreurs SQLSTATE). |
 
 ## Conventions
 

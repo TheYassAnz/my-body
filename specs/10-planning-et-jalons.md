@@ -48,6 +48,7 @@ Dès **L2**, l'application est utilisable au quotidien par le développeur lui-m
 - Table `goal`, contraintes. `goal-status` et `projection` (TDD, table de cas complète).
 - Écran Objectif (types, curseur de rythme, aperçu, suivi), onboarding étape 4.
 - Accueil : bloc Objectif, bandeau « objectif atteint ». Rythme de l'Accueil en vert quand il va dans le sens de l'objectif.
+- Historique des objectifs (EF-GOAL-05).
 - **Terminé quand :** l'onboarding est complet (hors étape 5) et E2E-5 passe.
 
 ### L4 · Mensurations et silhouette

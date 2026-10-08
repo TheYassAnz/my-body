@@ -56,3 +56,21 @@ const longDate = new Intl.DateTimeFormat("fr-FR", {
 export function formatLongDate(date: LocalDate): string {
   return longDate.format(new Date(toUtc(date)));
 }
+
+const shortDate = new Intl.DateTimeFormat("fr-FR", {
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+});
+const shortDateWithYear = new Intl.DateTimeFormat("fr-FR", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+/** "15 nov." ; the year is added when it differs from `today`'s (specs/03 §5.4). */
+export function formatShortDate(date: LocalDate, today: LocalDate): string {
+  const format = date.slice(0, 4) === today.slice(0, 4) ? shortDate : shortDateWithYear;
+  return format.format(new Date(toUtc(date)));
+}

@@ -10,6 +10,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -19,6 +20,8 @@ export const sexEnum = pgEnum("sex", ["male", "female"]);
 export const weightUnitEnum = pgEnum("weight_unit", ["kg", "lb"]);
 export const lengthUnitEnum = pgEnum("length_unit", ["cm", "in"]);
 export const consentKindEnum = pgEnum("consent_kind", ["health_data", "terms"]);
+export const goalTypeEnum = pgEnum("goal_type", ["lose", "gain", "recomp", "maintain"]);
+export const goalStatusEnum = pgEnum("goal_status", ["active", "achieved", "archived"]);
 
 export const profile = pgTable(
   "profile",
@@ -90,5 +93,56 @@ export const weightEntry = pgTable(
       "weight_entry_body_fat_range",
       sql`${t.bodyFatPct} is null or ${t.bodyFatPct} between 2 and 70`,
     ),
+  ],
+);
+
+export const goal = pgTable(
+  "goal",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    type: goalTypeEnum("type").notNull(),
+    status: goalStatusEnum("status").default("active").notNull(),
+    // Local calendar dates (profile timezone), like weight_entry.date.
+    startDate: date("start_date", { mode: "string" }).notNull(),
+    // Trend at creation (latest weighing while calibrating); the reference for maintain and recomp.
+    startWeightKg: numeric("start_weight_kg", { precision: 5, scale: 2, mode: "number" }).notNull(),
+    targetWeightKg: numeric("target_weight_kg", { precision: 5, scale: 2, mode: "number" }),
+    weeklyRatePct: numeric("weekly_rate_pct", { precision: 3, scale: 2, mode: "number" }),
+    endedAt: date("ended_at", { mode: "string" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    // EF-GOAL-02: one active goal per user.
+    uniqueIndex("goal_one_active_per_user")
+      .on(t.userId)
+      .where(sql`${t.status} = 'active'`),
+    index("goal_user_id_idx").on(t.userId),
+    check(
+      "goal_target_and_rate",
+      sql`(${t.type} in ('lose', 'gain')) = (${t.targetWeightKg} is not null and ${t.weeklyRatePct} is not null)`,
+    ),
+    check(
+      "goal_target_with_rate",
+      sql`(${t.targetWeightKg} is null) = (${t.weeklyRatePct} is null)`,
+    ),
+    check(
+      "goal_rate_range",
+      sql`${t.weeklyRatePct} is null
+        or (${t.type} = 'lose' and ${t.weeklyRatePct} between 0.25 and 1.5)
+        or (${t.type} = 'gain' and ${t.weeklyRatePct} between 0.1 and 0.75)`,
+    ),
+    check(
+      "goal_weight_range",
+      sql`${t.startWeightKg} between 20 and 400
+        and (${t.targetWeightKg} is null or ${t.targetWeightKg} between 20 and 400)`,
+    ),
+    check("goal_ended_at", sql`(${t.status} = 'active') = (${t.endedAt} is null)`),
   ],
 );

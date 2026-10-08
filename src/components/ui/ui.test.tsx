@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { Button } from "./button";
 import { Input } from "./input";
 import { Sheet } from "./sheet";
+import { Slider } from "./slider";
 import { ToastProvider, useToast } from "./toast";
 
 afterEach(cleanup);
@@ -67,5 +68,30 @@ describe("Toast", () => {
     act(() => vi.advanceTimersByTime(3000));
     expect(screen.getByRole("status").textContent).toBe("");
     vi.useRealTimers();
+  });
+});
+
+describe("Slider", () => {
+  it("is a range input with a label, a value and the step", () => {
+    const onChange = vi.fn();
+    render(
+      <Slider
+        label="Rythme"
+        name="rate"
+        value={0.5}
+        onChange={onChange}
+        min={0.25}
+        max={1.5}
+        step={0.05}
+        format={(v) => `${v} %/sem`}
+      />,
+    );
+    const input = screen.getByLabelText("Rythme") as HTMLInputElement;
+    expect(input.type).toBe("range");
+    expect(input.getAttribute("step")).toBe("0.05");
+    expect(input.value).toBe("0.5");
+    expect(screen.getByText("0.5 %/sem")).toBeTruthy();
+    fireEvent.change(input, { target: { value: "0.75" } });
+    expect(onChange).toHaveBeenCalledWith(0.75);
   });
 });

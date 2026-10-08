@@ -42,6 +42,12 @@ describe("confirmedReasons", () => {
     );
   });
 
+  it("accepts the archive reason", () => {
+    expect(confirmedReasons(form({ confirmed: "replace,archive", confirm: "suspicious" }))).toEqual(
+      new Set(["replace", "suspicious", "archive"]),
+    );
+  });
+
   it("ignores unknown or missing reasons", () => {
     expect(confirmedReasons(form({ confirmed: "hack,", confirm: "x" }))).toEqual(new Set());
     expect(confirmedReasons(new FormData())).toEqual(new Set());

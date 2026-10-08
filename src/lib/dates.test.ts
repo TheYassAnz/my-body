@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { addDays, ageOn, daysBetween, formatLongDate, isValidTimezone, today } from "./dates";
+import {
+  addDays,
+  ageOn,
+  daysBetween,
+  formatLongDate,
+  formatShortDate,
+  isValidTimezone,
+  today,
+} from "./dates";
 
 describe("today", () => {
   const instant = new Date("2026-09-29T22:30:00Z");
@@ -43,5 +51,15 @@ describe("calendar arithmetic", () => {
 
   it("formats a long French date", () => {
     expect(formatLongDate("2026-10-03")).toBe("samedi 3 octobre");
+  });
+});
+
+describe("formatShortDate", () => {
+  it("omits the year when it is the current one", () => {
+    expect(formatShortDate("2026-11-15", "2026-10-07")).toBe("15 nov.");
+    expect(formatShortDate("2026-12-16", "2026-10-07")).toBe("16 déc.");
+  });
+  it("adds the year when it differs", () => {
+    expect(formatShortDate("2027-03-02", "2026-10-07")).toBe("2 mars 2027");
   });
 });

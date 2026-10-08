@@ -45,3 +45,41 @@ body {
     animation: none !important;
   }
 }
+
+/* Range input: the track is drawn by the Slider component, here only the thumb. */
+.slider {
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+.slider::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 44px;
+}
+.slider::-moz-range-track {
+  background: transparent;
+  height: 44px;
+}
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: 10px;
+  border-radius: 9999px;
+  background: var(--fg);
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--fg);
+}
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: var(--fg);
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--fg);
+}
+.slider:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+  border-radius: 9999px;
+}

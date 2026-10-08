@@ -35,6 +35,7 @@ describe("WeightBlock", () => {
     render(
       <WeightBlock
         unit="kg"
+        rateTone="neutral"
         summary={{
           state: "ready",
           trendKg: 78.43,
@@ -52,10 +53,27 @@ describe("WeightBlock", () => {
     ).toBeTruthy();
   });
 
+  it("colours the pace line by tone: green toward the goal, grey otherwise, never red", () => {
+    const summary = {
+      state: "ready" as const,
+      trendKg: 78.43,
+      todayKg: null,
+      rate: { kgPerWeek: -0.35, pctPerWeek: -0.45 },
+      sparkline,
+    };
+    const { rerender } = render(<WeightBlock unit="kg" rateTone="positive" summary={summary} />);
+    const line = () => screen.getByText(/kg\/sem/);
+    expect(line().className).toContain("text-positive");
+    rerender(<WeightBlock unit="kg" rateTone="neutral" summary={summary} />);
+    expect(line().className).toContain("text-fg-2");
+    expect(line().className).not.toContain("text-positive");
+  });
+
   it("shows the last weighing and the remaining count while calibrating", () => {
     render(
       <WeightBlock
         unit="kg"
+        rateTone="neutral"
         summary={{
           state: "calibrating",
           latest: { date: "2026-10-02", weightKg: 70.4 },
@@ -75,6 +93,7 @@ describe("WeightBlock", () => {
     render(
       <WeightBlock
         unit="kg"
+        rateTone="neutral"
         summary={{
           state: "calibrating",
           latest: { date: "2026-10-03", weightKg: 70 },
@@ -88,7 +107,7 @@ describe("WeightBlock", () => {
   });
 
   it("invites to log a first weighing when there is none", () => {
-    render(<WeightBlock unit="kg" summary={{ state: "empty" }} />);
+    render(<WeightBlock unit="kg" rateTone="neutral" summary={{ state: "empty" }} />);
     expect(screen.getByText("Aucune pesée pour l'instant.")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Ajouter ma première pesée" })).toBeTruthy();
   });
@@ -97,6 +116,7 @@ describe("WeightBlock", () => {
     render(
       <WeightBlock
         unit="lb"
+        rateTone="neutral"
         summary={{ state: "ready", trendKg: 78.4, todayKg: null, rate: null, sparkline }}
       />,
     );

@@ -1,9 +1,9 @@
 // Type-only on purpose: client components import this file, and a runtime zod import would ship it to the browser.
 import type { ZodError } from "zod";
 
-/** Writes that need an explicit yes (EF-WGT-02, EF-WGT-03). */
-export type ConfirmReason = "replace" | "suspicious";
-const CONFIRM_REASONS: readonly ConfirmReason[] = ["replace", "suspicious"];
+/** Writes that need an explicit yes (EF-WGT-02, EF-WGT-03, EF-GOAL-02). */
+export type ConfirmReason = "replace" | "suspicious" | "archive";
+const CONFIRM_REASONS: readonly ConfirmReason[] = ["replace", "suspicious", "archive"];
 
 export type ActionResult =
   | { ok: true }

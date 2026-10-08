@@ -1,5 +1,7 @@
+import type { NewGoal } from "@/features/goals/queries";
 import type { NewWeight } from "@/features/weight/queries";
 import { addDays, type LocalDate } from "@/lib/dates";
+import { currentTrend } from "@/lib/metrics";
 import { round2 } from "@/lib/units";
 
 export const DEMO_EMAIL = "demo@my-body.test";
@@ -32,4 +34,17 @@ export function demoWeights(todayDate: LocalDate, days = 120, seed = 42): NewWei
     });
   }
   return out;
+}
+
+/** A loss goal started 30 days ago at the trend of that day: on track with the demo weighings. */
+export function demoGoal(todayDate: LocalDate, weights: readonly NewWeight[]): NewGoal {
+  const startDate = addDays(todayDate, -30);
+  const trend = currentTrend(weights.filter((w) => w.date <= startDate)) ?? weights[0].weightKg;
+  return {
+    type: "lose",
+    startDate,
+    startWeightKg: round2(trend),
+    targetWeightKg: 75,
+    weeklyRatePct: 0.5,
+  };
 }
