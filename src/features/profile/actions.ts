@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { fieldErrorsFrom, keepValues, type ActionResult } from "@/lib/action-result";
 import { today } from "@/lib/dates";
 import { getDb } from "@/lib/db/client";
+import { sqlState } from "@/lib/db/errors";
 import { createGoal, getActiveGoal } from "@/features/goals/queries";
 import { goalInputSchema } from "@/features/goals/schemas";
 import { hasWeight, listWeights, upsertWeight } from "@/features/weight/queries";
@@ -128,15 +129,29 @@ export async function saveGoalStepAction(
   }
 
   // Idempotent: a double submit or a back-and-forth never creates a second goal.
-  if ((await getActiveGoal(db, user.userId)) === null) {
-    const { type, targetWeightKg, weeklyRatePct } = parsed.data;
-    await createGoal(db, user.userId, {
-      type,
-      startDate: todayDate,
-      startWeightKg: referenceKg,
-      targetWeightKg,
-      weeklyRatePct,
-    });
+  try {
+    if ((await getActiveGoal(db, user.userId)) === null) {
+      const { type, targetWeightKg, weeklyRatePct } = parsed.data;
+      await createGoal(db, user.userId, {
+        type,
+        startDate: todayDate,
+        startWeightKg: referenceKg,
+        targetWeightKg,
+        weeklyRatePct,
+      });
+    }
+  } catch (error) {
+    const code = sqlState(error);
+    // 23505: a concurrent submit created the goal first, which is what we wanted.
+    if (code !== "23505") {
+      // userId and SQLSTATE only: never the weights, the target or the rate (specs/07 §8).
+      console.error("save_goal_step_failed", { userId: user.userId, code });
+      return {
+        ok: false,
+        formError: "Une erreur est survenue, réessaie.",
+        values: keepValues(formData, "type", "target", "rate", "unit"),
+      };
+    }
   }
   return continueOnboarding(db, user.userId);
 }

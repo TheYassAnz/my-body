@@ -37,13 +37,15 @@ export default async function OnboardingPage({
     nextOnboardingStep({ profile, hasWeight: latest !== null, hasGoal: goal !== null }) ?? "goal";
   // Going back is allowed, skipping ahead is not.
   const requested = ONBOARDING_STEPS.find((s) => s === etape);
-  const step =
+  const wanted =
     requested && ONBOARDING_STEPS.indexOf(requested) <= ONBOARDING_STEPS.indexOf(next)
       ? requested
       : next;
   const todayDate = today(profile?.timezone ?? "Europe/Paris");
   const referenceKg =
-    step === "goal" ? goalReferenceKg(await listWeights(db, userId), todayDate) : null;
+    wanted === "goal" ? goalReferenceKg(await listWeights(db, userId), todayDate) : null;
+  // No weighing to base a goal on: fall back to the weight step instead of an empty page.
+  const step: OnboardingStep = wanted === "goal" && referenceKg === null ? "weight" : wanted;
   const index = ONBOARDING_STEPS.indexOf(step) + 1;
 
   return (

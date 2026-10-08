@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as goalQueries from "@/features/goals/queries";
 import { createGoal, getActiveGoal } from "@/features/goals/queries";
 import { upsertWeight } from "@/features/weight/queries";
 import { profile, weightEntry } from "@/lib/db/schema";
@@ -19,6 +20,10 @@ vi.mock("next/navigation", () => ({
 }));
 vi.mock("@/lib/db/client", () => ({ getDb: () => ctx.db }));
 vi.mock("@/lib/session", () => ({ requireUser: ctx.requireUser }));
+vi.mock("@/features/goals/queries", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/features/goals/queries")>();
+  return { ...original, createGoal: vi.fn(original.createGoal) };
+});
 
 import {
   saveBodyAction,
@@ -311,6 +316,38 @@ describe("profile server actions", () => {
       ).rejects.toThrow("REDIRECT /accueil");
       expect(await getActiveGoal(ctx.db, "bob")).toBeNull();
       expect(await getActiveGoal(ctx.db, "alice")).not.toBeNull();
+    });
+
+    it("treats a concurrent unique violation (23505, nested in cause) as already created", async () => {
+      const real = vi.mocked(goalQueries.createGoal).getMockImplementation();
+      vi.mocked(goalQueries.createGoal).mockImplementationOnce(async (db, userId, g) => {
+        // The other submit wins the race, then ours hits the unique index.
+        await real?.(db, userId, g);
+        throw new Error("Failed query", {
+          cause: Object.assign(new Error("dup"), { code: "23505" }),
+        });
+      });
+      await expect(
+        saveGoalStepAction(null, form({ type: "maintain", unit: "kg" })),
+      ).rejects.toThrow("REDIRECT /accueil");
+      expect((await row("alice"))?.onboardingCompletedAt).toBeInstanceOf(Date);
+    });
+
+    it("returns a clean form error on another DB failure and logs no health data", async () => {
+      const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+      vi.mocked(goalQueries.createGoal).mockRejectedValueOnce(
+        Object.assign(new Error("params: alice,78.2,70,0.5"), { code: "XX000" }),
+      );
+      const r = await saveGoalStepAction(
+        null,
+        form({ type: "lose", target: "70", rate: "0,5", unit: "kg" }),
+      );
+      expect(r).toMatchObject({ ok: false, formError: expect.any(String) });
+      expect((await row("alice"))?.onboardingCompletedAt).toBeNull();
+      const logged = JSON.stringify(spy.mock.calls);
+      expect(logged).toContain("XX000");
+      expect(logged).not.toMatch(/78\.2|70|0\.5/);
+      spy.mockRestore();
     });
   });
 });

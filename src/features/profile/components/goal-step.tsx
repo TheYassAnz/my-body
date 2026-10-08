@@ -31,9 +31,9 @@ export function GoalStep(props: Props) {
 }
 
 function SkipForm() {
-  const [, action, pending] = useActionState(saveGoalStepAction, null);
+  const [state, action, pending] = useActionState(saveGoalStepAction, null);
   return (
-    <form action={action} className="flex justify-center">
+    <form action={action} className="flex flex-col items-center">
       <input type="hidden" name="type" value="maintain" />
       <input type="hidden" name="unit" value="kg" />
       <button
@@ -43,6 +43,11 @@ function SkipForm() {
       >
         Juste suivre mon poids
       </button>
+      {state && !state.ok && state.formError && (
+        <p role="alert" className="text-sm text-fg-2">
+          {state.formError}
+        </p>
+      )}
     </form>
   );
 }

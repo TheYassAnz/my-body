@@ -13,6 +13,7 @@ import {
 } from "@/lib/action-result";
 import { today } from "@/lib/dates";
 import { getDb } from "@/lib/db/client";
+import { sqlState } from "@/lib/db/errors";
 import { goalReferenceKg, goalStatus } from "@/lib/metrics";
 import { round2 } from "@/lib/units";
 import { requireUser } from "@/lib/session";
@@ -30,16 +31,6 @@ import { goalInputSchema } from "./schemas";
 const FIELDS = ["type", "target", "rate", "unit"];
 const GENERIC_ERROR = "Une erreur est survenue, réessaie.";
 const CONCURRENT_ERROR = "Ton objectif vient déjà d'être enregistré. Recharge la page.";
-
-/** SQLSTATE of a Postgres error, which Drizzle may wrap in `cause`. */
-function sqlState(error: unknown): string | undefined {
-  for (let e: unknown = error, i = 0; e && typeof e === "object" && i < 3; i++) {
-    const code = (e as { code?: unknown }).code;
-    if (typeof code === "string") return code;
-    e = (e as { cause?: unknown }).cause;
-  }
-  return undefined;
-}
 
 /** EF-GOAL-01 and 02: creates the goal, updates its target and rate, or replaces it after a confirmation. */
 export async function saveGoalAction(
