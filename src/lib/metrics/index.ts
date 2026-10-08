@@ -4,3 +4,4 @@ export * from "./suspicious";
 export * from "./trend";
 export * from "./goal-rates";
 export * from "./goal-status";
+export * from "./projection";
