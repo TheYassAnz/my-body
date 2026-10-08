@@ -28,7 +28,12 @@ const active = (over: Partial<ActiveGoalSummary> = {}): ActiveGoalSummary => ({
 describe("GoalBlock", () => {
   it("shows target, projection, progress and status for a loss goal", () => {
     render(<GoalBlock summary={active()} unit="kg" today="2026-10-07" />);
-    expect(screen.getByText(`75,0${SP}kg`)).toBeTruthy();
+    const target = screen.getByText(`75,0${SP}kg`);
+    expect(target.textContent).toBe("75,0\u202fkg");
+    expect(screen.getByRole("progressbar").getAttribute("aria-valuetext")).toBe(
+      "3,6 / 7,0\u202fkg",
+    );
+    expect(screen.getByTestId("goal-status").className).toContain("text-positive");
     expect(screen.getByText(/Atteinte estimée : ~ 15 nov\./)).toBeTruthy();
     expect(screen.getByText(`3,6 / 7,0${SP}kg`)).toBeTruthy();
     expect(screen.getByText("Dans le rythme.")).toBeTruthy();
@@ -48,6 +53,8 @@ describe("GoalBlock", () => {
     );
     expect(screen.getByText("Encore 3 pesées pour calculer ton rythme.")).toBeTruthy();
     expect(screen.queryByText(/Atteinte estimée/)).toBeNull();
+    expect(screen.queryByText(/Non estimable/)).toBeNull();
+    expect(screen.getByTestId("goal-status").className).toContain("text-fg-2");
   });
 
   it("shows the reference and no bar for a maintenance goal", () => {
@@ -86,7 +93,7 @@ describe("GoalBlock", () => {
         today="2026-10-07"
       />,
     );
-    expect(screen.getByText(/🎯 Objectif atteint !/)).toBeTruthy();
+    expect(screen.getByText(/Objectif atteint !/)).toBeTruthy();
     expect(screen.getByRole("button", { name: "Passer en maintien" }).getAttribute("value")).toBe(
       "maintain",
     );

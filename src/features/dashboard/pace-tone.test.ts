@@ -42,6 +42,15 @@ describe("paceTone", () => {
   });
   it("is neutral while calibrating or without a rate", () => {
     expect(paceTone(goal("lose"), { state: "empty" })).toBe("neutral");
+    expect(
+      paceTone(goal("lose"), {
+        state: "calibrating",
+        latest: { date: "2026-10-06", weightKg: 80 },
+        todayKg: null,
+        missingEntries: 3,
+        sparkline,
+      }),
+    ).toBe("neutral");
     expect(paceTone(goal("lose"), { ...ready(-0.4), rate: null } as WeightSummary)).toBe("neutral");
   });
 });

@@ -32,6 +32,12 @@ export function GoalBlock({
     );
   }
 
+  const state = summary.status.status;
+  const showProjection = state !== "calibrating" && state !== "achieved";
+  const positive = state === "on_track" || state === "stable";
+  const progressText = summary.progress
+    ? `${formatDecimal(toDisplayWeight(summary.progress.doneKg, unit))} / ${formatWeight(summary.progress.totalKg, unit)}`
+    : undefined;
   const percent = summary.progress ? Math.round(summary.progress.ratio * 100) : null;
   return (
     <section aria-labelledby="goal-title" className="mt-8 flex flex-col gap-3">
@@ -44,7 +50,9 @@ export function GoalBlock({
           <span className="text-[28px] font-semibold tracking-tight tabular-nums">
             {formatWeight(summary.targetKg, unit)}
           </span>
-          <span className="text-sm text-fg-2">{projectionLabel(summary.projection, today)}</span>
+          {showProjection && (
+            <span className="text-sm text-fg-2">{projectionLabel(summary.projection, today)}</span>
+          )}
         </p>
       ) : (
         <p className="text-sm text-fg-2">Référence : {formatWeight(summary.startKg, unit)}</p>
@@ -57,19 +65,22 @@ export function GoalBlock({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={percent}
+            aria-valuetext={progressText}
             className="h-[3px] w-full rounded-full bg-line"
           >
             <div className="h-full rounded-full bg-fg" style={{ width: `${percent}%` }} />
           </div>
-          <p className="text-sm text-fg-2 tabular-nums">
-            {formatDecimal(toDisplayWeight(summary.progress.doneKg, unit))} /{" "}
-            {formatWeight(summary.progress.totalKg, unit)}
-          </p>
+          <p className="text-sm text-fg-2 tabular-nums">{progressText}</p>
         </>
       )}
-      <p data-testid="goal-status" className="text-sm font-medium">
-        {statusMessage(summary, unit)}
-      </p>
+      {state !== "achieved" && (
+        <p
+          data-testid="goal-status"
+          className={`text-sm font-medium ${positive ? "text-positive" : "text-fg-2"}`}
+        >
+          {statusMessage(summary, unit)}
+        </p>
+      )}
     </section>
   );
 }

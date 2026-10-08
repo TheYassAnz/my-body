@@ -66,13 +66,6 @@ describe("getDashboard", () => {
   });
 
   it("summarises the caller's active goal only", async () => {
-    await createGoal(db, "alice", {
-      type: "lose",
-      startDate: "2026-09-01",
-      startWeightKg: 82,
-      targetWeightKg: 75,
-      weeklyRatePct: 0.5,
-    });
     await createGoal(db, "bob", {
       type: "gain",
       startDate: "2026-09-01",
@@ -80,7 +73,24 @@ describe("getDashboard", () => {
       targetWeightKg: 70,
       weeklyRatePct: 0.25,
     });
+    await createGoal(db, "alice", {
+      type: "lose",
+      startDate: "2026-09-01",
+      startWeightKg: 82,
+      targetWeightKg: 75,
+      weeklyRatePct: 0.5,
+    });
     const { goal } = await getDashboard(db, "alice", "2026-10-03");
-    expect(goal).toMatchObject({ state: "active", type: "lose", targetKg: 75 });
+    expect(goal).toMatchObject({
+      state: "active",
+      type: "lose",
+      targetKg: 75,
+      status: { status: "calibrating" },
+    });
+    expect((await getDashboard(db, "bob", "2026-10-03")).goal).toMatchObject({
+      state: "active",
+      type: "gain",
+      targetKg: 70,
+    });
   });
 });
