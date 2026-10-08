@@ -1,21 +1,25 @@
 import { BodyStep } from "@/features/profile/components/body-step";
 import { OnboardingProgress } from "@/features/profile/components/onboarding-progress";
 import { SexStep } from "@/features/profile/components/sex-step";
+import { GoalStep } from "@/features/profile/components/goal-step";
 import { WeightStep } from "@/features/profile/components/weight-step";
 import {
   ONBOARDING_STEPS,
   nextOnboardingStep,
   type OnboardingStep,
 } from "@/features/profile/onboarding";
-import { getLatestWeight } from "@/features/weight/queries";
+import { getActiveGoal } from "@/features/goals/queries";
+import { getLatestWeight, listWeights } from "@/features/weight/queries";
 import { today } from "@/lib/dates";
 import { getDb } from "@/lib/db/client";
+import { goalReferenceKg } from "@/lib/metrics";
 import { requireUser } from "@/lib/session";
 
 const titles: Record<OnboardingStep, string> = {
   sex: "Quelle silhouette afficher ?",
   body: "Parle-nous un peu de toi",
   weight: "Quel est ton poids actuel ?",
+  goal: "Quel est ton objectif ?",
 };
 
 export default async function OnboardingPage({
@@ -25,14 +29,21 @@ export default async function OnboardingPage({
 }) {
   const { userId, profile } = await requireUser("onboarding");
   const { etape } = await searchParams;
-  const latest = profile ? await getLatestWeight(getDb(), userId) : null;
-  const next = nextOnboardingStep({ profile, hasWeight: latest !== null }) ?? "weight";
+  const db = getDb();
+  const [latest, goal] = profile
+    ? await Promise.all([getLatestWeight(db, userId), getActiveGoal(db, userId)])
+    : [null, null];
+  const next =
+    nextOnboardingStep({ profile, hasWeight: latest !== null, hasGoal: goal !== null }) ?? "goal";
   // Going back is allowed, skipping ahead is not.
   const requested = ONBOARDING_STEPS.find((s) => s === etape);
   const step =
     requested && ONBOARDING_STEPS.indexOf(requested) <= ONBOARDING_STEPS.indexOf(next)
       ? requested
       : next;
+  const todayDate = today(profile?.timezone ?? "Europe/Paris");
+  const referenceKg =
+    step === "goal" ? goalReferenceKg(await listWeights(db, userId), todayDate) : null;
   const index = ONBOARDING_STEPS.indexOf(step) + 1;
 
   return (
@@ -47,10 +58,13 @@ export default async function OnboardingPage({
       )}
       {step === "weight" && (
         <WeightStep
-          today={today(profile?.timezone ?? "Europe/Paris")}
+          today={todayDate}
           defaultUnit={profile?.weightUnit ?? "kg"}
           defaultKg={latest?.weightKg ?? null}
         />
+      )}
+      {step === "goal" && referenceKg !== null && (
+        <GoalStep unit={profile?.weightUnit ?? "kg"} referenceKg={referenceKg} today={todayDate} />
       )}
     </main>
   );

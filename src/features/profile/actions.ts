@@ -5,10 +5,14 @@ import { redirect } from "next/navigation";
 import { fieldErrorsFrom, keepValues, type ActionResult } from "@/lib/action-result";
 import { today } from "@/lib/dates";
 import { getDb } from "@/lib/db/client";
-import { hasWeight, upsertWeight } from "@/features/weight/queries";
+import { createGoal, getActiveGoal } from "@/features/goals/queries";
+import { goalInputSchema } from "@/features/goals/schemas";
+import { hasWeight, listWeights, upsertWeight } from "@/features/weight/queries";
 import { weightEntrySchema } from "@/features/weight/schemas";
 import type { Db } from "@/lib/db/types";
+import { goalReferenceKg } from "@/lib/metrics";
 import { requireUser } from "@/lib/session";
+import { round2 } from "@/lib/units";
 import { nextOnboardingStep } from "./onboarding";
 import {
   getProfile,
@@ -33,8 +37,12 @@ export async function saveSexAction(
 
 /** Completes onboarding when every step is filled, else shows the next step. */
 async function continueOnboarding(db: Db, userId: string): Promise<never> {
-  const [profile, weighed] = await Promise.all([getProfile(db, userId), hasWeight(db, userId)]);
-  if (nextOnboardingStep({ profile, hasWeight: weighed }) === null) {
+  const [profile, weighed, goal] = await Promise.all([
+    getProfile(db, userId),
+    hasWeight(db, userId),
+    getActiveGoal(db, userId),
+  ]);
+  if (nextOnboardingStep({ profile, hasWeight: weighed, hasGoal: goal !== null }) === null) {
     await markOnboardingCompleted(db, userId);
     redirect("/accueil");
   }
@@ -92,5 +100,43 @@ export async function saveFirstWeightAction(
     // The kg/lb toggle sets the profile's display unit (specs/01 §3.1).
     await saveWeightUnit(tx, user.userId, unit);
   });
+  return continueOnboarding(db, user.userId);
+}
+
+/** Step 4: first goal. "Juste suivre mon poids" posts type=maintain with nothing else (EF-GOAL-01 CA1). */
+export async function saveGoalStepAction(
+  _: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const user = await requireUser("onboarding");
+  if (!user.profile) redirect("/onboarding");
+
+  const db = getDb();
+  const todayDate = today(user.profile.timezone);
+  const rawReferenceKg = goalReferenceKg(await listWeights(db, user.userId), todayDate);
+  if (rawReferenceKg === null) redirect("/onboarding");
+
+  // Validate against the value that gets stored, so the target is never equal to the start.
+  const referenceKg = round2(rawReferenceKg);
+  const parsed = goalInputSchema(referenceKg).safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return {
+      ok: false,
+      fieldErrors: fieldErrorsFrom(parsed.error),
+      values: keepValues(formData, "type", "target", "rate", "unit"),
+    };
+  }
+
+  // Idempotent: a double submit or a back-and-forth never creates a second goal.
+  if ((await getActiveGoal(db, user.userId)) === null) {
+    const { type, targetWeightKg, weeklyRatePct } = parsed.data;
+    await createGoal(db, user.userId, {
+      type,
+      startDate: todayDate,
+      startWeightKg: referenceKg,
+      targetWeightKg,
+      weeklyRatePct,
+    });
+  }
   return continueOnboarding(db, user.userId);
 }

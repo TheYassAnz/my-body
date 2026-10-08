@@ -33,6 +33,9 @@ test("sign up, consent, onboarding, sign out and sign in again", async ({ page }
   await page.getByLabel("Poids", { exact: true }).fill("70,4");
   await page.getByRole("button", { name: "Continuer" }).click();
 
+  await expect(page.getByRole("heading", { name: "Quel est ton objectif ?" })).toBeVisible();
+  await page.getByRole("button", { name: "Juste suivre mon poids" }).click();
+
   await expect(page).toHaveURL(/\/accueil$/);
   await expect(page.getByRole("heading", { name: "Bonjour" })).toBeVisible();
   await expect(page.getByText("Tendance en calibrage · encore 6 pesées")).toBeVisible();

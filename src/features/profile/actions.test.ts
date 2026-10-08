@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createGoal, getActiveGoal } from "@/features/goals/queries";
 import { upsertWeight } from "@/features/weight/queries";
 import { profile, weightEntry } from "@/lib/db/schema";
 import type { Db } from "@/lib/db/types";
@@ -19,7 +20,12 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/lib/db/client", () => ({ getDb: () => ctx.db }));
 vi.mock("@/lib/session", () => ({ requireUser: ctx.requireUser }));
 
-import { saveBodyAction, saveFirstWeightAction, saveSexAction } from "./actions";
+import {
+  saveBodyAction,
+  saveFirstWeightAction,
+  saveGoalStepAction,
+  saveSexAction,
+} from "./actions";
 
 const form = (values: Record<string, string>) => {
   const fd = new FormData();
@@ -99,12 +105,30 @@ describe("profile server actions", () => {
       });
     });
 
-    it("completes onboarding when the weight already exists (user went back)", async () => {
+    it("goes on to the goal step when the weight exists but not the goal (user went back)", async () => {
       await upsertWeight(ctx.db, "alice", {
         date: "2026-10-01",
         weightKg: 70,
         bodyFatPct: null,
         note: null,
+      });
+      await expect(saveBodyAction(null, form(BODY))).rejects.toThrow("REDIRECT /onboarding");
+      expect((await row("alice"))?.onboardingCompletedAt).toBeNull();
+    });
+
+    it("completes onboarding when weight and goal already exist (user went back)", async () => {
+      await upsertWeight(ctx.db, "alice", {
+        date: "2026-10-01",
+        weightKg: 70,
+        bodyFatPct: null,
+        note: null,
+      });
+      await createGoal(ctx.db, "alice", {
+        type: "maintain",
+        startDate: "2026-10-01",
+        startWeightKg: 70,
+        targetWeightKg: null,
+        weeklyRatePct: null,
       });
       await expect(saveBodyAction(null, form(BODY))).rejects.toThrow("REDIRECT /accueil");
       expect((await row("alice"))?.onboardingCompletedAt).toBeInstanceOf(Date);
@@ -159,16 +183,16 @@ describe("profile server actions", () => {
     });
     afterEach(() => vi.useRealTimers());
 
-    it("creates today's weighing, saves the unit, completes onboarding and opens the app", async () => {
+    it("creates today's weighing, saves the unit and moves on to the goal step", async () => {
       await expect(
         saveFirstWeightAction(null, form({ weight: "172", unit: "lb", date: "2020-01-01" })),
-      ).rejects.toThrow("REDIRECT /accueil");
+      ).rejects.toThrow("REDIRECT /onboarding");
       expect(await weights()).toMatchObject([
         { userId: "alice", date: "2026-10-03", weightKg: 78.02 },
       ]);
       expect(await row("alice")).toMatchObject({
         weightUnit: "lb",
-        onboardingCompletedAt: expect.any(Date),
+        onboardingCompletedAt: null,
       });
     });
 
@@ -196,7 +220,7 @@ describe("profile server actions", () => {
     it("ignores a forged userId field", async () => {
       await expect(
         saveFirstWeightAction(null, form({ weight: "70", unit: "kg", userId: "bob" })),
-      ).rejects.toThrow("REDIRECT /accueil");
+      ).rejects.toThrow("REDIRECT /onboarding");
       expect(await weights()).toMatchObject([{ userId: "alice" }]);
     });
 
@@ -206,6 +230,87 @@ describe("profile server actions", () => {
         "REDIRECT /onboarding",
       );
       expect(await weights()).toHaveLength(0);
+    });
+  });
+
+  describe("saveGoalStepAction", () => {
+    beforeEach(async () => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-10-03T10:00:00Z"));
+      await ctx.db.insert(profile).values({
+        userId: "alice",
+        sex: "female",
+        timezone: "Europe/Paris",
+        heightCm: 168,
+        birthDate: "1990-04-12",
+      });
+      await upsertWeight(ctx.db, "alice", {
+        date: "2026-10-03",
+        weightKg: 78.2,
+        bodyFatPct: null,
+        note: null,
+      });
+      await asAlice(true);
+    });
+    afterEach(() => vi.useRealTimers());
+
+    it("'Juste suivre mon poids' creates a maintenance goal and completes onboarding", async () => {
+      await expect(
+        saveGoalStepAction(null, form({ type: "maintain", unit: "kg" })),
+      ).rejects.toThrow("REDIRECT /accueil");
+      expect(await getActiveGoal(ctx.db, "alice")).toMatchObject({
+        type: "maintain",
+        startWeightKg: 78.2,
+      });
+      expect((await row("alice"))?.onboardingCompletedAt).toBeInstanceOf(Date);
+    });
+
+    it("a loss goal starts at the weight typed at step 3", async () => {
+      await expect(
+        saveGoalStepAction(null, form({ type: "lose", target: "70", rate: "0,5", unit: "kg" })),
+      ).rejects.toThrow("REDIRECT /accueil");
+      expect(await getActiveGoal(ctx.db, "alice")).toMatchObject({
+        type: "lose",
+        startWeightKg: 78.2,
+        targetWeightKg: 70,
+        startDate: "2026-10-03",
+      });
+    });
+
+    it("rejects a target above the current weight and creates nothing", async () => {
+      const r = await saveGoalStepAction(
+        null,
+        form({ type: "lose", target: "80", rate: "0,5", unit: "kg" }),
+      );
+      expect(r).toMatchObject({ ok: false, fieldErrors: { target: expect.any(Array) } });
+      expect(await getActiveGoal(ctx.db, "alice")).toBeNull();
+      expect((await row("alice"))?.onboardingCompletedAt).toBeNull();
+    });
+
+    it("a second submission does not create a second goal", async () => {
+      await expect(
+        saveGoalStepAction(null, form({ type: "maintain", unit: "kg" })),
+      ).rejects.toThrow("REDIRECT");
+      await expect(
+        saveGoalStepAction(null, form({ type: "lose", target: "70", rate: "0,5", unit: "kg" })),
+      ).rejects.toThrow("REDIRECT");
+      expect((await getActiveGoal(ctx.db, "alice"))?.type).toBe("maintain");
+    });
+
+    it("sends users without a weighing back to the start and creates nothing", async () => {
+      await ctx.db.delete(weightEntry);
+      await expect(
+        saveGoalStepAction(null, form({ type: "maintain", unit: "kg" })),
+      ).rejects.toThrow("REDIRECT /onboarding");
+      expect(await getActiveGoal(ctx.db, "alice")).toBeNull();
+    });
+
+    it("ignores a forged userId field", async () => {
+      await expect(
+        saveGoalStepAction(null, form({ type: "maintain", unit: "kg", userId: "bob" })),
+      ).rejects.toThrow("REDIRECT /accueil");
+      expect(await getActiveGoal(ctx.db, "bob")).toBeNull();
+      expect(await getActiveGoal(ctx.db, "alice")).not.toBeNull();
     });
   });
 });
