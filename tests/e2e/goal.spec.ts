@@ -22,7 +22,12 @@ test("E2E-5: switching goal type asks for confirmation and keeps the old goal in
   const wasLose = await lose.isChecked();
   const [next, previous] = wasLose ? [gain, "Perte"] : [lose, "Prise"];
 
-  await next.check();
+  const historyItems = page.getByTestId("goal-history").locator("li");
+  const before = await historyItems.count();
+
+  // The radio is sr-only: click its visible label text (exact, so the description does not match).
+  await page.getByText(wasLose ? "Prendre du poids" : "Perdre du poids", { exact: true }).click();
+  await expect(next).toBeChecked();
   const trend = Number((await page.getByLabel("Actuel (tendance)").inputValue()).replace(",", "."));
   const target = (wasLose ? trend + 4 : trend - 4).toFixed(1).replace(".", ",");
   await page.getByLabel("Cible", { exact: true }).fill(target);
@@ -37,4 +42,5 @@ test("E2E-5: switching goal type asks for confirmation and keeps the old goal in
   await expect(next).toBeChecked();
   await page.getByText("Historique des objectifs").click();
   await expect(page.getByTestId("goal-history")).toContainText(previous);
+  await expect(historyItems).toHaveCount(before + 1);
 });

@@ -1,6 +1,6 @@
 /**
  * pnpm db:seed — development and CI only. Recreates demo@my-body.test with 120 days
- * of weighings (specs/04 §6). a loss goal; L4 adds the measurement sessions.
+ * of weighings (specs/04 §6). L3 adds a loss goal, L4 the measurement sessions.
  */
 import { loadEnvConfig } from "@next/env";
 import { eq } from "drizzle-orm";
