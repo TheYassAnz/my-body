@@ -205,7 +205,7 @@ describe("theoreticalDate", () => {
     expect(theoreticalDate(today, 80, 76, 0.4)).toBe("2026-12-16");
   });
   it("works for a gain", () => {
-    expect(theoreticalDate(today, 70, 72, 0.35)).toBe("2026-11-12");
+    expect(theoreticalDate(today, 70, 72, 0.35)).toBe("2026-11-16");
   });
   it("is null when the pace is not positive", () => {
     expect(theoreticalDate(today, 80, 76, 0)).toBeNull();
