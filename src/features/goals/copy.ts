@@ -32,6 +32,13 @@ export const RATE_ALERTS: Record<RatedGoalType, string> = {
 export const GOAL_DISCLAIMER =
   "my-body ne fournit pas de conseil médical. Consulte un professionnel de santé avant de débuter un régime.";
 
+export const HISTORY_TYPE_LABELS: Record<GoalType, string> = {
+  lose: "Perte",
+  gain: "Prise",
+  recomp: "Recomposition",
+  maintain: "Maintien",
+};
+
 export const HISTORY_STATUS_LABELS = { achieved: "Atteint", archived: "Archivé" } as const;
 
 const WAIST_MESSAGES: Record<WaistIndicator, string> = {
