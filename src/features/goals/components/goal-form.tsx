@@ -104,6 +104,9 @@ export function GoalForm({
   return (
     <form action={formAction} className="flex flex-col gap-5">
       <input type="hidden" name="unit" value={unit} />
+      {/* The submitted type: React resets the form after each action, and a reset puts
+          radios back to their default attribute, so the radios are not submitted. */}
+      <input type="hidden" name="type" value={type} />
       <input
         type="hidden"
         name="confirmed"
@@ -119,9 +122,9 @@ export function GoalForm({
           >
             <input
               type="radio"
-              name="type"
+              name="goal-type-choice"
               value={t}
-              checked={type === t}
+              defaultChecked={type === t}
               onChange={() => pickType(t)}
               className="sr-only"
             />

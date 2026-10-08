@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ActionResult } from "@/lib/action-result";
 import { ToastProvider } from "@/components/ui/toast";
@@ -149,5 +149,36 @@ describe("GoalForm", () => {
     expect(slider.getAttribute("aria-valuetext")).toMatch(/^0,5\s%\/sem$/);
     const id = slider.getAttribute("aria-describedby") ?? "";
     expect(document.getElementById(id)?.textContent).toContain("kg/sem");
+  });
+
+  it("keeps the chosen type and target in the second submission after React resets the form", async () => {
+    const action = vi
+      .fn<(prev: ActionResult | null, fd: FormData) => Promise<ActionResult>>()
+      .mockResolvedValueOnce({
+        ok: false,
+        needsConfirmation: {
+          reason: "archive",
+          message: "Changer d'objectif archive. Continuer ?",
+        },
+        values: { type: "gain", target: "84,4", rate: "0.25", unit: "kg", confirmed: "" },
+      })
+      .mockResolvedValue({ ok: true });
+    setup({ action, active: { type: "lose", targetKg: 74, weeklyRatePct: 0.5 } });
+    fireEvent.click(screen.getByRole("radio", { name: /Prendre du poids/ }));
+    fireEvent.change(screen.getByLabelText("Cible"), { target: { value: "84,4" } });
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    const confirm = await screen.findByRole("button", { name: "Confirmer" });
+    // React 19 resets the form after an action; emulate it.
+    act(() => document.querySelector("form")?.reset());
+    expect(
+      (screen.getByRole("radio", { name: /Prendre du poids/ }) as HTMLInputElement).checked,
+    ).toBe(true);
+    fireEvent.click(confirm);
+    await waitFor(() => expect(action).toHaveBeenCalledTimes(2));
+    const sent = action.mock.calls[1]?.[1];
+    expect(sent?.get("type")).toBe("gain");
+    expect(sent?.get("target")).toBe("84,4");
+    expect(sent?.get("rate")).toBe("0.25");
+    expect(sent?.get("confirm")).toBe("archive");
   });
 });
