@@ -3,7 +3,7 @@ import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import * as authSchema from "@/lib/db/schema/auth";
 import type { Db } from "@/lib/db/types";
-import { resetPasswordEmail, verificationEmail } from "@/lib/email/templates";
+import { accountDeletedEmail, resetPasswordEmail, verificationEmail } from "@/lib/email/templates";
 import type { SendEmail } from "@/lib/email/types";
 import { PASSWORD_MIN_LENGTH } from "./constants";
 
@@ -55,6 +55,17 @@ export function createAuth(deps: AuthDeps) {
     socialProviders: deps.google ? { google: deps.google } : {},
     // No trustedProviders: link only when the provider reports a verified email.
     account: { accountLinking: { enabled: true } },
+    user: {
+      deleteUser: {
+        enabled: true,
+        // EF-SET-05 CA3: after the cascade, so a failed deletion never sends it. The row is gone: use the user passed in.
+        afterDelete: async (user) => {
+          void deps
+            .sendEmail({ to: user.email, ...accountDeletedEmail() })
+            .catch(() => console.error("email_send_failed"));
+        },
+      },
+    },
     session: { expiresIn: 30 * DAY, updateAge: DAY },
     rateLimit: {
       enabled: deps.rateLimitEnabled ?? true,
@@ -64,6 +75,7 @@ export function createAuth(deps: AuthDeps) {
         "/sign-up/email": { window: 60, max: 3 },
         "/request-password-reset": { window: 3600, max: 3 },
         "/send-verification-email": { window: 3600, max: 3 },
+        "/delete-user": { window: 3600, max: 5 },
       },
     },
     plugins: deps.withNextCookies === false ? [] : [nextCookies()],
