@@ -19,6 +19,7 @@ Les paramètres ci-dessous sont regroupés dans `src/lib/metrics/config.ts` pour
 | `STABLE_BAND_PCT` | 1,5 % |
 | `SUSPICIOUS_DELTA_PCT` | 5 % |
 | `MEASURE_STALE_DAYS` | 14 |
+| `MEASURE_NEGLIGIBLE_DELTA_CM` | 0,3 cm |
 | `PROJECTION_MAX_DAYS` | 730 |
 
 ---
@@ -126,7 +127,7 @@ Le poids est évalué comme en maintien (`stable` ou `out_of_band`). On y ajoute
 - Écart (dernière − plus ancienne) ≤ −0,5 cm : `waist_improving`, message « Tour de taille en baisse : ta recompo fonctionne. »
 - Sinon : `waist_flat`, message « Tour de taille stable : patience, la recompo est lente. »
 
-Tant que L4 n'est pas livrée, l'indicateur de taille est `waist_insufficient`.
+Depuis L4, l'indicateur de taille est branché sur `goalStatus` via les mesures de la zone `waist`.
 
 Le statut affiché combine les deux, par exemple « Poids stable · Tour de taille en baisse ».
 

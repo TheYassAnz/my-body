@@ -43,7 +43,7 @@ Les règles de calcul citées sont détaillées dans [03](03-regles-metier-et-ca
 - CA1 : Chaque étape est enregistrée à la validation. Revenir sur `/onboarding` reprend à la première étape incomplète.
 - CA2 : L'étape 3 crée une pesée datée du jour.
 - CA3 : L'étape 4 crée l'objectif actif. Son `startWeightKg` est égal au poids saisi à l'étape 3.
-- CA4 : L'étape 5 est optionnelle. « Plus tard » termine l'onboarding.
+- CA4 : L'étape 5 est optionnelle. « Plus tard » et « Commencer » terminent l'onboarding (« Commencer » avant d'ouvrir la séance guidée). Seule l'étape 5 le termine, et seulement si le profil, une pesée et un objectif existent.
 - CA5 : Un utilisateur de moins de 16 ans voit le message « my-body est réservé aux 16 ans et plus » et ne peut pas continuer.
 
 **EF-ONB-02 · M · Accès conditionné**
@@ -82,7 +82,7 @@ Les règles de calcul citées sont détaillées dans [03](03-regles-metier-et-ca
 - CA1 : Les zones défilent dans l'ordre fixe et la zone courante est surlignée sur la silhouette.
 - CA2 : Chaque zone affiche la valeur précédente et sa date, un champ pré-rempli avec cette valeur et le protocole de mesure.
 - CA3 : Une zone peut être passée : aucune valeur n'est alors enregistrée pour elle.
-- CA4 : Chaque valeur est enregistrée au passage à la zone suivante. Quitter conserve les valeurs déjà saisies.
+- CA4 : « Zone suivante » enregistre la valeur affichée (pré-remplie) ; vider le champ revient à passer la zone. « Zone précédente » et « Passer cette zone » naviguent sans rien enregistrer. Quitter conserve les valeurs déjà enregistrées.
 - CA5 : Toutes les valeurs sont rattachées à la séance du jour, créée si besoin.
 - CA6 : Un écran de fin récapitule les valeurs saisies et leur écart avec la dernière mesure précédente de chaque zone.
 
@@ -95,7 +95,7 @@ Les règles de calcul citées sont détaillées dans [03](03-regles-metier-et-ca
 
 **EF-MEA-05 · S · Rappel de mesure dans l'app**
 - CA1 : Si un jour de mesure est choisi, l'accueil affiche « Prochaine mesure : <jour> » (le jour même : « aujourd'hui »).
-- CA2 : Si la dernière séance date de plus de 14 jours, ou s'il n'y en a aucune, un appel à l'action « Il est temps de te mesurer » s'affiche.
+- CA2 : Si la dernière séance date de plus de 14 jours, un appel à l'action « Il est temps de te mesurer » s'affiche. Un compte jamais mesuré voit à la place « Mesure-toi une première fois » avec le bouton « Commencer » ([01 §3.2](01-parcours-et-ecrans.md)).
 
 ---
 
@@ -106,7 +106,7 @@ Les règles de calcul citées sont détaillées dans [03](03-regles-metier-et-ca
 - CA2 : Chaque zone affiche sa dernière valeur connue et son écart sur la période choisie (7 j, 30 j, 90 j, Début), selon [03 §6](03-regles-metier-et-calculs.md).
 - CA3 : L'écart est vert s'il est favorable à l'objectif, gris sinon. Aucun rouge n'est utilisé.
 - CA4 : Une zone jamais mesurée affiche un point creux et « — ».
-- CA5 : Chaque point est un bouton accessible au clavier, avec une étiquette complète, par exemple « Taille : 84 cm, moins 3,5 cm sur 30 jours ».
+- CA5 : Chaque point est un bouton accessible au clavier, avec une étiquette complète, par exemple « Taille : 84,5 cm, moins 3,5 cm sur 30 jours » (zone jamais mesurée : « Taille : pas encore mesurée »).
 
 ---
 

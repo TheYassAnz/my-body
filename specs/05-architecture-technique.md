@@ -56,8 +56,10 @@ my-body/
 │  │  │  ├─ accueil/page.tsx
 │  │  │  ├─ progres/page.tsx
 │  │  │  ├─ corps/page.tsx
-│  │  │  ├─ corps/seance/page.tsx
 │  │  │  └─ objectif/page.tsx
+│  │  ├─ (session)/
+│  │  │  ├─ layout.tsx          même garde que (app), sans barre d'onglets
+│  │  │  └─ corps/seance/page.tsx   séance de mesure guidée (plein écran)
 │  │  ├─ (settings)/
 │  │  │  ├─ layout.tsx          garde de session sans exigence d'onboarding
 │  │  │  └─ reglages/page.tsx
@@ -67,7 +69,7 @@ my-body/
 │  │  └─ api/export/[kind]/route.ts     export CSV (pesees | mensurations)
 │  ├─ features/
 │  │  ├─ weight/        actions.ts · queries.ts · schemas.ts · components/ (WeightSheet, WeightChart, History)
-│  │  ├─ measurements/  actions.ts · queries.ts · schemas.ts · components/ (Silhouette, ZoneSheet, MeasureSession)
+│  │  ├─ measurements/  actions.ts · queries.ts · schemas.ts · limits.ts · copy.ts · summary.ts · silhouette-geometry.ts · components/ (Silhouette, BodyView, ZoneForm, MeasureSession, MeasureBlock, PeriodTabs)
 │  │  ├─ goals/         actions.ts · queries.ts · schemas.ts · copy.ts (messages de statut) · summary.ts · components/ (GoalForm, GoalTracking, GoalBlock, AchievedBanner, GoalHistory) ; le curseur de rythme est `components/ui/slider.tsx`
 │  │  ├─ dashboard/     queries.ts (agrégation pour l'Accueil) · components/
 │  │  ├─ auth/          actions.ts · client-actions.ts · schemas.ts · components/
@@ -94,7 +96,7 @@ my-body/
 **Règles de dépendance :**
 - `lib/metrics` ne dépend de **rien** (ni base, ni Next, ni horloge).
 - `features/*` dépendent de `lib/*` et de `components/ui`. Un domaine peut lire les `queries` d'un autre domaine, jamais ses `actions`.
-- Contrôle d'accès par groupes de routes via `requireUser(area)` : `(app)` exige l'onboarding terminé, `(settings)` ne l'exige pas, `onboarding` exige qu'il ne soit pas terminé, `consentement` gère les comptes sans consentement.
+- Contrôle d'accès par groupes de routes via `requireUser(area)` : `(app)` et `(session)` exigent l'onboarding terminé, `(settings)` ne l'exige pas, `onboarding` exige qu'il ne soit pas terminé, `consentement` gère les comptes sans consentement.
 - Authentification : l'inscription, la connexion et la réinitialisation passent par le client navigateur (`authClient`), car le limiteur de débit de Better Auth ne s'applique qu'aux requêtes HTTP `/api/auth/*`, pas aux appels serveur `auth.api`. Les consentements sont enregistrés par une Server Action juste après l'inscription (la garde de `/consentement` rattrape un oubli). Le renvoi de vérification passe par `getAuth().handler(Request)` pour la même raison.
 - Onboarding côté serveur : taille 100–250 cm après conversion depuis les pouces (saisie brute bornée), âge minimum 16 ans calculé sur la date du fuseau du profil.
 - `app/*` n'appelle que `features/*` et `components/ui`. **Aucune requête Drizzle directe dans `app/`.**

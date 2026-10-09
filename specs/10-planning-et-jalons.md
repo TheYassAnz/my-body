@@ -57,6 +57,7 @@ Dès **L2**, l'application est utilisable au quotidien par le développeur lui-m
 - Écran Corps, panneau de saisie d'une zone, séance guidée avec protocoles et récapitulatif.
 - Onboarding étape 5. Accueil : bloc Mensurations et rappels.
 - **Terminé quand :** E2E-3 et E2E-4 passent.
+- Hors lot : modifier ou supprimer une mesure (EF-MEA-04) reste en L5 ; silhouette et tableau de mensurations de l'Accueil desktop en L7 ; jour de mesure dans les Réglages en L6 (le rappel lit `reminderWeekday` s'il est défini).
 
 ### L5 · Progrès
 - Graphique générique (poids avec tendance, cible et projection ; séries simples pour les zones et le % MG), sélecteur de période, statistiques.
