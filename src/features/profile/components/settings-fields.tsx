@@ -15,7 +15,11 @@ export function RadioGroup({
   error?: string;
 }) {
   return (
-    <fieldset className="flex flex-col gap-1.5">
+    <fieldset
+      className="flex flex-col gap-1.5"
+      aria-invalid={error ? true : undefined}
+      aria-describedby={error ? `${name}-error` : undefined}
+    >
       <legend className="text-xs font-medium text-fg-2">{legend}</legend>
       <div className="flex gap-2">
         {options.map(([value, label]) => (
@@ -34,7 +38,11 @@ export function RadioGroup({
           </label>
         ))}
       </div>
-      {error && <p className="text-xs font-medium text-fg">{error}</p>}
+      {error && (
+        <p id={`${name}-error`} className="text-xs font-medium text-fg">
+          {error}
+        </p>
+      )}
     </fieldset>
   );
 }

@@ -1,10 +1,10 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
-import { fieldError, fieldValue } from "@/lib/action-result";
+import { fieldError, fieldValue, type ActionResult } from "@/lib/action-result";
 import { formatInputDecimal, toDisplayLength, type LengthUnit } from "@/lib/units";
 import type { Sex } from "../queries";
 import { saveProfileSettingsAction } from "../settings-actions";
@@ -15,11 +15,16 @@ export function ProfileSettingsForm({
 }: {
   defaults: { sex: Sex; heightCm: number | null; birthDate: string | null; lengthUnit: LengthUnit };
 }) {
-  const [state, action, pending] = useActionState(saveProfileSettingsAction, null);
   const show = useToast();
-  useEffect(() => {
-    if (state?.ok) show("Profil enregistré");
-  }, [state, show]);
+  // Toast from the wrapper, not an effect: the revalidated render can unmount this form first.
+  const [state, action, pending] = useActionState(
+    async (prev: ActionResult | null, fd: FormData) => {
+      const result = await saveProfileSettingsAction(prev, fd);
+      if (result.ok) show("Profil enregistré");
+      return result;
+    },
+    null,
+  );
 
   const height =
     defaults.heightCm === null

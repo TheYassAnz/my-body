@@ -1,20 +1,26 @@
 "use client";
 
-import { useActionState, useEffect, useId } from "react";
+import { useActionState, useId } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import type { ActionResult } from "@/lib/action-result";
 import { REMINDER_NONE } from "../schemas";
 import { saveReminderWeekdayAction } from "../settings-actions";
 
 const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"] as const;
 
 export function ReminderSettingsForm({ defaults }: { defaults: { weekday: number | null } }) {
-  const [state, action, pending] = useActionState(saveReminderWeekdayAction, null);
   const show = useToast();
+  // Toast from the wrapper, not an effect: the revalidated render can unmount this form first.
+  const [state, action, pending] = useActionState(
+    async (prev: ActionResult | null, fd: FormData) => {
+      const result = await saveReminderWeekdayAction(prev, fd);
+      if (result.ok) show("Jour de mesure enregistré");
+      return result;
+    },
+    null,
+  );
   const id = useId();
-  useEffect(() => {
-    if (state?.ok) show("Jour de mesure enregistré");
-  }, [state, show]);
 
   return (
     <form action={action} aria-label="Jour de mesure" className="flex flex-col gap-4">

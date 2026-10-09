@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { ToastProvider } from "@/components/ui/toast";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../settings-actions", () => ({
@@ -8,6 +9,11 @@ vi.mock("../settings-actions", () => ({
   saveReminderWeekdayAction: vi.fn(),
 }));
 
+import {
+  saveProfileSettingsAction,
+  saveReminderWeekdayAction,
+  saveUnitsAction,
+} from "../settings-actions";
 import { ProfileSettingsForm } from "./profile-settings-form";
 import { ReminderSettingsForm } from "./reminder-settings-form";
 import { UnitsSettingsForm } from "./units-settings-form";
@@ -68,8 +74,60 @@ describe("settings forms", () => {
 
   it("reminder: 'none' is selected when no day is set", () => {
     render(<ReminderSettingsForm defaults={{ weekday: null }} />);
-    expect((screen.getByLabelText("Jour de mesure conseillé") as HTMLInputElement).value).toBe(
+    expect((screen.getByLabelText("Jour de mesure conseillé") as HTMLSelectElement).value).toBe(
       "none",
     );
+  });
+
+  it.each([
+    [
+      "Unités",
+      "Unités enregistrées",
+      saveUnitsAction,
+      <UnitsSettingsForm key="u" defaults={{ weightUnit: "kg", lengthUnit: "cm" }} />,
+    ],
+    [
+      "Jour de mesure",
+      "Jour de mesure enregistré",
+      saveReminderWeekdayAction,
+      <ReminderSettingsForm key="r" defaults={{ weekday: null }} />,
+    ],
+    [
+      "Profil",
+      "Profil enregistré",
+      saveProfileSettingsAction,
+      <ProfileSettingsForm
+        key="p"
+        defaults={{ sex: "male", heightCm: null, birthDate: null, lengthUnit: "cm" }}
+      />,
+    ],
+  ])("%s: shows a toast after a successful save", async (name, message, action, form) => {
+    vi.mocked(action).mockResolvedValue({ ok: true });
+    render(<ToastProvider>{form}</ToastProvider>);
+
+    fireEvent.submit(screen.getByRole("form", { name }));
+
+    await waitFor(() => expect(screen.getByRole("status").textContent).toContain(message));
+  });
+
+  it("profile: links a field error to the radio group", async () => {
+    vi.mocked(saveProfileSettingsAction).mockResolvedValue({
+      ok: false,
+      fieldErrors: { sex: ["Choisis une silhouette."] },
+    });
+    render(
+      <ToastProvider>
+        <ProfileSettingsForm
+          defaults={{ sex: "male", heightCm: null, birthDate: null, lengthUnit: "cm" }}
+        />
+      </ToastProvider>,
+    );
+
+    fireEvent.submit(screen.getByRole("form", { name: "Profil" }));
+
+    const error = await screen.findByText("Choisis une silhouette.");
+    const group = screen.getByRole("group", { name: "Silhouette" });
+    expect(group.getAttribute("aria-describedby")).toBe(error.id);
+    expect(group.getAttribute("aria-invalid")).toBe("true");
   });
 });

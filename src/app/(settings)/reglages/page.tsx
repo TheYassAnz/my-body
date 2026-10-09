@@ -25,7 +25,7 @@ export default async function SettingsPage() {
           <Section title="Profil">
             {/* The key remounts the form once the saved values come back from the server. */}
             <ProfileSettingsForm
-              key={`${profile.sex}${profile.heightCm}${profile.birthDate}`}
+              key={`${profile.sex}|${profile.heightCm}|${profile.birthDate}|${profile.lengthUnit}`}
               defaults={{
                 sex: profile.sex,
                 heightCm: profile.heightCm,
@@ -36,7 +36,7 @@ export default async function SettingsPage() {
           </Section>
           <Section title="Affichage">
             <UnitsSettingsForm
-              key={`${profile.weightUnit}${profile.lengthUnit}`}
+              key={`${profile.weightUnit}|${profile.lengthUnit}`}
               defaults={{ weightUnit: profile.weightUnit, lengthUnit: profile.lengthUnit }}
             />
           </Section>
@@ -58,13 +58,13 @@ export default async function SettingsPage() {
       </Section>
       <Section title="Légal">
         <nav aria-label="Pages légales" className="flex flex-col gap-2 text-sm">
-          <Link href="/mentions-legales" className="underline">
+          <Link href="/mentions-legales" className="flex min-h-11 items-center underline">
             Mentions légales
           </Link>
-          <Link href="/cgu" className="underline">
+          <Link href="/cgu" className="flex min-h-11 items-center underline">
             Conditions générales d&apos;utilisation
           </Link>
-          <Link href="/confidentialite" className="underline">
+          <Link href="/confidentialite" className="flex min-h-11 items-center underline">
             Politique de confidentialité
           </Link>
         </nav>
