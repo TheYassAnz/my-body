@@ -1,10 +1,10 @@
+import type { Metadata } from "next";
+import { NOTICE } from "@/features/legal/content/notice";
+import { LegalPage } from "@/features/legal/components/legal-page";
+import { LEGAL_UPDATED_ON } from "@/features/legal/identity";
+
+export const metadata: Metadata = { title: "Mentions légales · my-body" };
+
 export default function LegalNoticePage() {
-  return (
-    <main className="mx-auto max-w-2xl px-6 py-12">
-      <h1 className="text-2xl font-semibold tracking-tight">Mentions légales</h1>
-      <p className="mt-4 text-sm text-fg-2">
-        Version provisoire. Le texte définitif sera publié avant l&apos;ouverture publique.
-      </p>
-    </main>
-  );
+  return <LegalPage document={NOTICE} updatedOn={LEGAL_UPDATED_ON} />;
 }

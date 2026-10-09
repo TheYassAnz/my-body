@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SiteFooter } from "@/features/legal/components/site-footer";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,6 +9,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         my-body
       </Link>
       {children}
+      <SiteFooter />
     </main>
   );
 }
