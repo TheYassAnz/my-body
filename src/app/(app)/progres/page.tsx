@@ -1,6 +1,5 @@
 import { getDb } from "@/lib/db/client";
 import { today } from "@/lib/dates";
-import { deltaTone } from "@/lib/metrics";
 import { requireUser } from "@/lib/session";
 import { ProgressView } from "@/features/progress/components/progress-view";
 import { parseProgressParams } from "@/features/progress/params";
@@ -25,18 +24,6 @@ export default async function ProgressPage({
     weightUnit,
     lengthUnit,
   });
-  // Neutral or green only, never red (spec 06): green when the change goes the goal's way.
-  const v = view.series.stats.variation;
-  const goalType = data.goal?.type;
-  const positive =
-    v !== null &&
-    v !== 0 &&
-    (view.metric === "weight"
-      ? (goalType === "lose" && v < 0) || (goalType === "gain" && v > 0)
-      : view.metric === "bodyFat"
-        ? (goalType === "lose" || goalType === "recomp") && v < 0
-        : deltaTone(view.metric, v, goalType ?? null) === "positive");
-
   return (
     <>
       <h1 className="text-2xl font-semibold tracking-tight lg:text-[28px]">Progrès</h1>
@@ -48,7 +35,7 @@ export default async function ProgressPage({
         series={view.series}
         weightUnit={weightUnit}
         lengthUnit={lengthUnit}
-        positive={positive}
+        positive={view.positive}
       />
     </>
   );

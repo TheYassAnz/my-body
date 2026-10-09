@@ -3,21 +3,28 @@
 import { CartesianGrid, ComposedChart, Line, ReferenceLine, Tooltip, XAxis, YAxis } from "recharts";
 import { formatDecimal } from "@/lib/units";
 import type { ProgressSeries } from "../build-series";
+import { chartModel, tooltipInfo, type Row } from "./chart-model";
 
-const t = (d: string) => Date.parse(`${d}T00:00:00Z`);
 const tick = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", timeZone: "UTC" });
 const long = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeZone: "UTC" });
 
-type Row = { t: number; value?: number; trend?: number; note?: string | null };
-
-function Tip({ active, payload }: { active?: boolean; payload?: { payload: Row }[] }) {
+function Tip({
+  active,
+  payload,
+  unit,
+}: {
+  active?: boolean;
+  payload?: { payload: Row }[];
+  unit: string;
+}) {
   const row = payload?.[0]?.payload;
-  if (!active || !row || row.value === undefined) return null;
+  const info = row && tooltipInfo(row, unit);
+  if (!active || !row || !info) return null;
   return (
     <div className="rounded-lg bg-fg px-3 py-2 text-xs text-white">
       <div>{long.format(row.t)}</div>
-      <div className="font-semibold">{formatDecimal(row.value)}</div>
-      {row.note ? <div>{row.note}</div> : null}
+      <div className="font-semibold">{info.text}</div>
+      {info.note ? <div>{info.note}</div> : null}
     </div>
   );
 }
@@ -25,18 +32,7 @@ function Tip({ active, payload }: { active?: boolean; payload?: { payload: Row }
 /** Weight = dots + trend; other metrics = linear line with dots (no smoothing). Spec 06 §4. */
 export function ProgressChart({ series, unit }: { series: ProgressSeries; unit: string }) {
   const weight = series.trend !== undefined;
-  const byT = new Map<number, Row>();
-  const row = (d: string) => byT.get(t(d)) ?? byT.set(t(d), { t: t(d) }).get(t(d))!;
-  for (const p of series.points) Object.assign(row(p.date), { value: p.value, note: p.note });
-  for (const p of series.trend ?? []) row(p.date).trend = p.value;
-  const data = [...byT.values()].sort((a, b) => a.t - b.t);
-  const end = series.projection ? t(series.projection.to.date) : data[data.length - 1].t;
-  const proj = series.projection
-    ? [
-        { t: t(series.projection.from.date), proj: series.projection.from.value },
-        { t: end, proj: series.projection.to.value },
-      ]
-    : [];
+  const { data, end, proj, domain } = chartModel(series);
 
   return (
     <div aria-hidden="true" className="h-64 w-full lg:h-96">
@@ -54,16 +50,17 @@ export function ProgressChart({ series, unit }: { series: ProgressSeries; unit: 
         />
         <YAxis
           orientation="right"
-          domain={["auto", "auto"]}
+          domain={domain}
           width={40}
           tick={{ fontSize: 11, fill: "var(--subtle)" }}
           tickFormatter={(v: number) => formatDecimal(v)}
           axisLine={false}
           tickLine={false}
         />
-        <Tooltip content={<Tip />} cursor={false} />
+        <Tooltip content={<Tip unit={unit} />} cursor={false} />
         {series.target !== undefined ? (
           <ReferenceLine
+            ifOverflow="extendDomain"
             y={series.target}
             stroke="var(--fg)"
             strokeOpacity={0.5}

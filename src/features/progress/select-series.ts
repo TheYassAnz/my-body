@@ -1,5 +1,5 @@
 import type { LocalDate } from "@/lib/dates";
-import { defaultPeriod, type ProgressPeriod } from "@/lib/metrics";
+import { defaultPeriod, deltaTone, type GoalType, type ProgressPeriod } from "@/lib/metrics";
 import type { LengthUnit, WeightUnit } from "@/lib/units";
 import { seriesOf } from "../measurements/summary";
 import type { loadProgress } from "./queries";
@@ -21,6 +21,7 @@ export function selectSeries(input: {
   period: ProgressPeriod;
   hasBodyFat: boolean;
   series: ProgressSeries;
+  positive: boolean;
 } {
   const { data, today } = input;
   const fat = data.weights
@@ -53,5 +54,19 @@ export function selectSeries(input: {
           today,
           period,
         });
-  return { metric, period, hasBodyFat, series };
+  const positive = isFavourable(metric, series.stats.variation, data.goal?.type ?? null);
+  return { metric, period, hasBodyFat, series, positive };
+}
+
+/** True only when the change goes the goal's way; there is no "bad" tone (never red, spec 06). */
+export function isFavourable(
+  metric: ProgressMetric,
+  variation: number | null,
+  goal: GoalType | null,
+): boolean {
+  if (variation === null || variation === 0 || goal === null) return false;
+  if (metric === "weight")
+    return (goal === "lose" && variation < 0) || (goal === "gain" && variation > 0);
+  if (metric === "bodyFat") return (goal === "lose" || goal === "recomp") && variation < 0;
+  return deltaTone(metric, variation, goal) === "positive";
 }
