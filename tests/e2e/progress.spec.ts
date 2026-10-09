@@ -57,8 +57,9 @@ test.describe("progress: editing the shared demo account", () => {
     const latest = history.getByRole("button").first();
     const text = (await latest.textContent()) ?? "";
     const current = Number(text.match(/(\d+,\d)\s*kg/)?.[1].replace(",", "."));
-    // 3 % away, opposite directions per project (same account, run one after the other).
-    const typed = (current * (testInfo.project.name === "mobile" ? 0.97 : 1.03))
+    // Small step (stays under the 5 % suspicious-value threshold against the trend), opposite
+    // directions per project (same account, run one after the other).
+    const typed = (current * (testInfo.project.name === "mobile" ? 0.985 : 1.015))
       .toFixed(1)
       .replace(".", ",");
 
@@ -66,6 +67,10 @@ test.describe("progress: editing the shared demo account", () => {
     const dialog = page.getByRole("dialog", { name: "Modifier la pesée" });
     await dialog.getByLabel("Poids", { exact: true }).fill(typed);
     await dialog.getByRole("button", { name: "Enregistrer" }).click();
+    // The suspicious-value confirmation (EF-WGT-03) may still apply depending on the seed noise.
+    const confirm = dialog.getByRole("button", { name: "Confirmer", exact: true });
+    await confirm.or(page.getByText("Modification enregistrée")).first().waitFor();
+    if (await confirm.isVisible()) await confirm.click();
     await expect(page.getByText("Modification enregistrée")).toBeVisible();
     await expect(dialog).toBeHidden();
 
