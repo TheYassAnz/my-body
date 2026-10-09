@@ -67,6 +67,12 @@ describe("privacy (specs/07)", () => {
 
   it("says health data is never sold or shared", () => {
     expect(t).toMatch(/ni vendues ni partagées/);
+    expect(t).not.toContain("à des fins commerciales");
+  });
+
+  it("lists body fat and does not claim that no name is stored", () => {
+    expect(t).toContain("pourcentage de masse grasse");
+    expect(t).not.toContain("Ni nom");
   });
 });
 

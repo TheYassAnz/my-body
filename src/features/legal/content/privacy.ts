@@ -15,7 +15,7 @@ export const PRIVACY: LegalDocument = {
       id: "donnees",
       heading: "Les données que nous collectons et pourquoi",
       blocks: [
-        "Nous ne collectons que le nécessaire. Ni nom, ni adresse, ni téléphone.",
+        "Nous ne collectons que le nécessaire. Ni adresse postale, ni téléphone.",
         {
           list: [
             "Email et mot de passe (conservé haché, jamais en clair) : créer ton compte et te connecter.",
@@ -24,9 +24,11 @@ export const PRIVACY: LegalDocument = {
             "Taille : profil corporel, prévue pour de futurs indicateurs.",
             "Poids, pourcentage de masse grasse, notes et mensurations : te fournir le suivi de ta progression.",
             "Objectif, unités d'affichage, jour de mesure et fuseau horaire : adapter le service à toi.",
+            "Avec Google : nom et photo de profil transmis par Google (non affichés dans l'application).",
+            "Adresse IP et navigateur de connexion : sécurité du compte et limitation des abus, effacés à l'expiration de la session.",
           ],
         },
-        "Le poids, les mensurations, la taille, l'âge et l'objectif sont des données concernant la santé.",
+        "Le poids, le pourcentage de masse grasse, les mensurations, la taille, l'âge et l'objectif sont des données concernant la santé.",
       ],
     },
     {
@@ -41,7 +43,7 @@ export const PRIVACY: LegalDocument = {
       id: "destinataires",
       heading: "Qui reçoit tes données ?",
       blocks: [
-        "Tes données ne sont ni vendues ni partagées à des fins commerciales. Seuls nos prestataires techniques y accèdent, pour faire fonctionner le service :",
+        "Tes données ne sont ni vendues ni partagées. Elles sont traitées, pour notre compte et uniquement pour faire fonctionner le service, par nos prestataires techniques :",
         {
           list: [
             "Neon : base de données, en Union européenne (Francfort).",
@@ -66,7 +68,7 @@ export const PRIVACY: LegalDocument = {
         {
           list: [
             "Accès et portabilité : export CSV de tes pesées et de tes mensurations depuis les Réglages.",
-            "Rectification : toutes tes données sont modifiables dans l'application.",
+            "Rectification : ton profil, tes pesées, tes mensurations et ton objectif sont modifiables dans l'application ; pour le reste (par exemple ton email), écris-nous.",
             "Effacement : suppression immédiate de ton compte depuis les Réglages.",
             "Retrait du consentement : par la suppression du compte.",
           ],
@@ -85,7 +87,7 @@ export const PRIVACY: LegalDocument = {
       id: "cookies",
       heading: "Cookies",
       blocks: [
-        "my-body dépose un seul cookie, le cookie de session (valable 30 jours), strictement nécessaire pour te garder connecté. Il ne demande aucun consentement : le site s'utilise donc sans bandeau. Si une mesure d'audience est activée, elle se fait sans cookie et sans donnée de santé.",
+        "my-body dépose le cookie de session (valable 30 jours) pour te garder connecté et, uniquement pendant une connexion avec Google, un cookie technique de quelques minutes. Les deux sont strictement nécessaires : ils ne demandent aucun consentement, le site s'utilise donc sans bandeau. Si une mesure d'audience est activée, elle se fait sans cookie et sans donnée de santé.",
       ],
     },
     {

@@ -1,7 +1,8 @@
 import type { Sparkline } from "@/features/dashboard/weight-summary";
 import { ZONE_LABELS } from "@/features/measurements/copy";
 import type { ZoneView } from "@/features/measurements/summary";
-import { ZONES, type DeltaTone, type Zone } from "@/lib/metrics";
+import { deltaTone, ZONES, type Zone } from "@/lib/metrics";
+import { formatLength, formatLengthDelta } from "@/lib/units";
 
 /**
  * Invented data for the public landing page. Fixed on purpose: it never depends on the
@@ -32,27 +33,43 @@ export const PREVIEW_SPARKLINE: Sparkline = {
   trend: DATES.map((date, i) => ({ date, trendKg: TREND_KG[i] })),
 };
 export const PREVIEW_TREND_KG = 79.8;
-export const PREVIEW_RATE_KG = -0.4;
+export const PREVIEW_RATE_KG = -0.2;
 
-const MEASURED: Partial<Record<Zone, { value: string; delta: string; tone: DeltaTone }>> = {
-  waist: { value: "81,5 cm", delta: "−3,5", tone: "positive" },
-  arm: { value: "33,2 cm", delta: "+0,8", tone: "positive" },
-  chest: { value: "96,0 cm", delta: "0", tone: "neutral" },
-  hips: { value: "98,0 cm", delta: "−1,2", tone: "positive" },
-  thigh: { value: "57,5 cm", delta: "+0,5", tone: "neutral" },
+// Recomposition goal: waist and hips down, arm and thigh up are favourable.
+const MEASURED: Partial<Record<Zone, { valueCm: number; deltaCm: number }>> = {
+  waist: { valueCm: 81.5, deltaCm: -3.5 },
+  arm: { valueCm: 33.2, deltaCm: 0.8 },
+  chest: { valueCm: 96, deltaCm: 0 },
+  hips: { valueCm: 98, deltaCm: -1.2 },
+  thigh: { valueCm: 57.5, deltaCm: 0.5 },
 };
+
+/** Same wording as the real zone summary ("moins 3,5 cm sur 30 jours"). */
+function deltaPhrase(deltaCm: number): string {
+  if (deltaCm === 0) return "stable sur 30 jours";
+  return `${deltaCm < 0 ? "moins" : "plus"} ${formatLength(Math.abs(deltaCm), "cm")} sur 30 jours`;
+}
 
 export const PREVIEW_ZONES: ZoneView[] = ZONES.map((zone) => {
   const label = ZONE_LABELS[zone];
   const m = MEASURED[zone];
+  if (!m) {
+    return {
+      zone,
+      label,
+      valueText: null,
+      deltaText: null,
+      tone: "neutral",
+      ariaLabel: `${label} : pas encore mesurée`,
+    };
+  }
+  const valueText = formatLength(m.valueCm, "cm");
   return {
     zone,
     label,
-    valueText: m?.value ?? null,
-    deltaText: m ? `${m.delta} cm` : null,
-    tone: m?.tone ?? "neutral",
-    ariaLabel: m
-      ? `${label} : ${m.value}, ${m.delta} cm sur 30 jours`
-      : `${label} : pas encore mesurée`,
+    valueText,
+    deltaText: formatLengthDelta(m.deltaCm, "cm"),
+    tone: deltaTone(zone, m.deltaCm, "recomp"),
+    ariaLabel: `${label} : ${valueText}, ${deltaPhrase(m.deltaCm)}`,
   };
 });

@@ -16,7 +16,7 @@ describe("LandingPreview", () => {
   it("shows the headline trend, the rate and the chart summary", () => {
     render(<LandingPreview />);
     expect(screen.getByTestId("preview-trend").textContent).toMatch(/79,8/);
-    expect(screen.getByText(/−0,4/)).toBeTruthy();
+    expect(screen.getByText(/−0,2/)).toBeTruthy();
     expect(screen.getByRole("img", { name: /tendance de .* à .* sur 3 mois/i })).toBeTruthy();
   });
 
