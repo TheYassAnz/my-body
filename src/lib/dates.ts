@@ -74,3 +74,8 @@ export function formatShortDate(date: LocalDate, today: LocalDate): string {
   const format = date.slice(0, 4) === today.slice(0, 4) ? shortDate : shortDateWithYear;
   return format.format(new Date(toUtc(date)));
 }
+
+/** 0 = Monday … 6 = Sunday, like profile.reminder_weekday (specs/04). */
+export function weekdayIndex(date: LocalDate): number {
+  return (new Date(toUtc(date)).getUTCDay() + 6) % 7;
+}

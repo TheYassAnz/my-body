@@ -3,6 +3,7 @@ import {
   addDays,
   ageOn,
   daysBetween,
+  weekdayIndex,
   formatLongDate,
   formatShortDate,
   isValidTimezone,
@@ -61,5 +62,14 @@ describe("formatShortDate", () => {
   });
   it("adds the year when it differs", () => {
     expect(formatShortDate("2027-03-02", "2026-10-07")).toBe("2 mars 2027");
+  });
+});
+
+describe("weekdayIndex", () => {
+  it("counts from Monday = 0 (specs/04 reminder_weekday)", () => {
+    expect(weekdayIndex("2026-10-05")).toBe(0); // Monday
+    expect(weekdayIndex("2026-10-03")).toBe(5); // Saturday
+    expect(weekdayIndex("2026-10-04")).toBe(6); // Sunday
+    expect(weekdayIndex("2026-01-01")).toBe(3); // Thursday
   });
 });
