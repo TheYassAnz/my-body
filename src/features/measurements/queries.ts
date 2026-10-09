@@ -111,6 +111,13 @@ export async function deleteMeasure(
   zone: Zone,
 ): Promise<MeasureRow | null> {
   return db.transaction(async (tx) => {
+    // Lock the session first: a concurrent upsert waits, so the emptiness check below is exact.
+    const [locked] = await tx
+      .select({ id: measurementSession.id })
+      .from(measurementSession)
+      .where(and(eq(measurementSession.userId, userId), eq(measurementSession.date, date)))
+      .for("update");
+    if (!locked) return null;
     const [row] = await tx
       .select(columns)
       .from(measurement)

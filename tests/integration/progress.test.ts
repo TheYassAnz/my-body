@@ -73,6 +73,14 @@ describe("progress edit and delete queries", () => {
       expect((await getWeightOn(db, "alice", "2026-10-02"))?.weightKg).toBe(75);
     });
 
+    it("returns missing when the source was just deleted, leaving the target alone", async () => {
+      await upsertWeight(db, "alice", w("2026-10-01", 80));
+      await upsertWeight(db, "alice", w("2026-10-02", 75));
+      await deleteWeight(db, "alice", "2026-10-01");
+      expect(await updateWeight(db, "alice", "2026-10-01", w("2026-10-02", 79))).toBe("missing");
+      expect((await getWeightOn(db, "alice", "2026-10-02"))?.weightKg).toBe(75);
+    });
+
     it("cannot touch another user's weighing at the same date", async () => {
       await upsertWeight(db, "alice", w("2026-10-01", 80));
       expect(await updateWeight(db, "bob", "2026-10-01", w("2026-10-01", 50))).toBe("missing");
@@ -98,6 +106,7 @@ describe("progress edit and delete queries", () => {
     it("restores through upsertWeight", async () => {
       await upsertWeight(db, "alice", w("2026-10-01", 80, 20));
       const row = await deleteWeight(db, "alice", "2026-10-01");
+      expect(row).not.toBeNull();
       await upsertWeight(db, "alice", {
         date: row!.date,
         weightKg: row!.weightKg,
@@ -141,6 +150,7 @@ describe("progress edit and delete queries", () => {
       const row = await deleteMeasure(db, "alice", d, "waist");
       expect(await countSessions(db, "alice")).toBe(0);
       expect(await deleteMeasure(db, "alice", d, "waist")).toBeNull();
+      expect(row).not.toBeNull();
       await upsertMeasure(db, "alice", { date: d, zone: row!.zone, valueCm: row!.valueCm });
       expect(await countSessions(db, "alice")).toBe(1);
       expect((await getMeasureOn(db, "alice", d, "waist"))?.valueCm).toBe(84);
