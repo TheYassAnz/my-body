@@ -39,3 +39,18 @@ export function bodyStepSchema(todayDate: LocalDate) {
       }
     });
 }
+
+export const unitsSchema = z.object({
+  weightUnit: z.enum(["kg", "lb"]),
+  lengthUnit: z.enum(["cm", "in"]),
+});
+
+/** Select value for "no reminder day". */
+export const REMINDER_NONE = "none";
+
+// An enum, not Number(): Number("") is 0, which would silently mean Monday.
+export const reminderSchema = z.object({
+  weekday: z
+    .enum([REMINDER_NONE, "0", "1", "2", "3", "4", "5", "6"])
+    .transform((v) => (v === REMINDER_NONE ? null : Number(v))),
+});

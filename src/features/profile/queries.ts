@@ -35,3 +35,16 @@ export type WeightUnit = Profile["weightUnit"];
 export async function saveWeightUnit(db: Db, userId: string, weightUnit: WeightUnit) {
   await db.update(profile).set({ weightUnit }).where(eq(profile.userId, userId));
 }
+
+export async function saveUnits(
+  db: Db,
+  userId: string,
+  units: { weightUnit: WeightUnit; lengthUnit: LengthUnit },
+) {
+  await db.update(profile).set(units).where(eq(profile.userId, userId));
+}
+
+/** 0 = Monday … 6 = Sunday, null = no reminder day (specs/04). */
+export async function saveReminderWeekday(db: Db, userId: string, reminderWeekday: number | null) {
+  await db.update(profile).set({ reminderWeekday }).where(eq(profile.userId, userId));
+}
