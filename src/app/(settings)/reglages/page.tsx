@@ -48,6 +48,27 @@ export default async function SettingsPage() {
           </Section>
         </>
       )}
+      <Section title="Données">
+        <p className="text-sm text-fg-2">
+          Exporte tes données au format CSV, toujours en unités métriques (kg, cm).
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <a
+            href="/reglages/export/pesees"
+            download
+            className="inline-flex h-11 items-center rounded-full border border-fg px-5 text-[13px] font-semibold lg:h-10"
+          >
+            Exporter les pesées
+          </a>
+          <a
+            href="/reglages/export/mensurations"
+            download
+            className="inline-flex h-11 items-center rounded-full border border-fg px-5 text-[13px] font-semibold lg:h-10"
+          >
+            Exporter les mensurations
+          </a>
+        </div>
+      </Section>
       <Section title="Compte">
         <p className="text-sm text-fg-2">{email}</p>
         <form action={signOutAction}>
