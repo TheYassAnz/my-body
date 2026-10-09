@@ -169,7 +169,7 @@ export function MeasureSession({
           style={{ width: `${((index + 1) / total) * 100}%` }}
         />
       </div>
-      <div className="mt-4 max-h-[34dvh]">
+      <div className="mt-4 h-[34dvh]">
         <Silhouette sex={sex} zones={[]} highlight={zone.zone} />
       </div>
       <section className="mt-4 flex flex-col gap-4 rounded-t-[22px] bg-bg">

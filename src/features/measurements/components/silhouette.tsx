@@ -38,8 +38,17 @@ export function Silhouette({ sex, zones, onSelect, highlight }: Props) {
   const band = highlight ? BAND[sex][highlight] : null;
 
   return (
-    <div className="relative mx-auto w-full max-w-[360px]">
-      <svg viewBox={VIEW_BOX} aria-hidden="true" focusable="false" className="block h-auto w-full">
+    <div
+      className={
+        highlight ? "relative mx-auto h-full w-fit" : "relative mx-auto w-full max-w-[360px]"
+      }
+    >
+      <svg
+        viewBox={VIEW_BOX}
+        aria-hidden="true"
+        focusable="false"
+        className={highlight ? "block h-full w-auto" : "block h-auto w-full"}
+      >
         <g
           data-outline
           fill="none"
