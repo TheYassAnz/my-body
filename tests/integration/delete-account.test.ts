@@ -14,6 +14,7 @@ import {
   weightEntry,
 } from "@/lib/db/schema";
 import type { Db } from "@/lib/db/types";
+import { accountDeletedEmail } from "@/lib/email/templates";
 import type { EmailMessage } from "@/lib/email/types";
 import { createTestDb } from "../helpers/db";
 
@@ -130,7 +131,7 @@ describe("delete account", () => {
     expect(sent).toHaveLength(1);
     expect(sent[0].to).toBe("alice@example.com");
     expect(sent[0].subject).toContain("supprimé");
-    expect(sent[0].text).not.toMatch(/\d+[.,]\d+\s?(kg|cm)|78/);
+    expect(sent[0].text).toBe(accountDeletedEmail().text);
   });
 
   it("deletes nothing and sends nothing with a wrong password", async () => {
@@ -147,25 +148,54 @@ describe("delete account", () => {
     expect(sent).toHaveLength(0);
   });
 
-  it("refuses an old session without a password (SESSION_EXPIRED)", async () => {
+  /** A Google-only user: no credential account, so no password exists. */
+  async function signUpGoogleOnly() {
     const alice = await signUp("alice");
+    await db.update(account).set({ providerId: "google" }).where(eq(account.userId, alice.userId));
+    return alice;
+  }
+
+  it("refuses an old session without a password (SESSION_EXPIRED)", async () => {
+    const alice = await signUpGoogleOnly();
     await db
       .update(session)
       .set({ createdAt: new Date(Date.now() - 3 * 24 * 3600 * 1000) })
       .where(eq(session.userId, alice.userId));
 
-    await expect(auth.api.deleteUser({ headers: alice.headers, body: {} })).rejects.toThrow();
+    await expect(auth.api.deleteUser({ headers: alice.headers, body: {} })).rejects.toMatchObject({
+      body: { code: "SESSION_EXPIRED" },
+    });
 
     expect((await rowsOf(alice.userId)).users).toBe(1);
   });
 
-  it("accepts a fresh session without a password (Google accounts)", async () => {
-    const alice = await signUp("alice");
+  it("accepts a fresh session without a password for a Google-only account", async () => {
+    const alice = await signUpGoogleOnly();
 
     await auth.api.deleteUser({ headers: alice.headers, body: {} });
 
     expect((await rowsOf(alice.userId)).users).toBe(0);
   });
+
+  it.each([
+    { label: "no password", body: {} },
+    { label: "an empty password", body: { password: "" } },
+  ])(
+    "rejects an email account with $label (PASSWORD_REQUIRED), even with a fresh session",
+    async ({ body }) => {
+      const alice = await signUp("alice");
+      await fillData(alice.userId);
+      sent = [];
+
+      await expect(auth.api.deleteUser({ headers: alice.headers, body })).rejects.toMatchObject({
+        body: { code: "PASSWORD_REQUIRED" },
+      });
+
+      expect((await rowsOf(alice.userId)).users).toBe(1);
+      expect((await rowsOf(alice.userId)).weights).toBe(1);
+      expect(sent).toHaveLength(0);
+    },
+  );
 
   it("hasCredentialAccount tells an email account from a Google-only one", async () => {
     const alice = await signUp("alice");

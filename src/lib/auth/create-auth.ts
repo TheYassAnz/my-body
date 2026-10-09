@@ -1,6 +1,8 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth } from "better-auth";
+import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
+import { hasCredentialAccount } from "@/features/auth/queries";
 import * as authSchema from "@/lib/db/schema/auth";
 import type { Db } from "@/lib/db/types";
 import { accountDeletedEmail, resetPasswordEmail, verificationEmail } from "@/lib/email/templates";
@@ -77,6 +79,19 @@ export function createAuth(deps: AuthDeps) {
         "/send-verification-email": { window: 3600, max: 3 },
         "/delete-user": { window: 3600, max: 5 },
       },
+    },
+    hooks: {
+      // EF-SET-05: a fresh session alone must not delete an email account; the password is the proof.
+      before: createAuthMiddleware(async (ctx) => {
+        if (ctx.path !== "/delete-user") return;
+        const current = await getSessionFromCtx(ctx);
+        if (!current || ctx.body?.password) return; // no session: Better Auth rejects; password: it verifies
+        if (!(await hasCredentialAccount(deps.db, current.user.id))) return;
+        throw APIError.from("BAD_REQUEST", {
+          code: "PASSWORD_REQUIRED",
+          message: "Password required",
+        });
+      }),
     },
     plugins: deps.withNextCookies === false ? [] : [nextCookies()],
   });
