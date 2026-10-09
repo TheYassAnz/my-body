@@ -1,8 +1,8 @@
 import type { NewGoal } from "@/features/goals/queries";
 import type { NewWeight } from "@/features/weight/queries";
 import { addDays, type LocalDate } from "@/lib/dates";
-import { currentTrend } from "@/lib/metrics";
-import { round2 } from "@/lib/units";
+import { ZONES, currentTrend, type Zone } from "@/lib/metrics";
+import { round1, round2 } from "@/lib/units";
 
 export const DEMO_EMAIL = "demo@my-body.test";
 
@@ -47,4 +47,43 @@ export function demoGoal(todayDate: LocalDate, weights: readonly NewWeight[]): N
     targetWeightKg: 75,
     weeklyRatePct: 0.5,
   };
+}
+
+const ZONE_BASE_CM: Record<Zone, number> = {
+  neck: 39,
+  shoulders: 118,
+  chest: 102,
+  arm: 35,
+  waist: 94,
+  hips: 103,
+  thigh: 59,
+  calf: 38,
+};
+/** Change per 28 days: the waist and hips go down, like the loss goal. */
+const ZONE_MONTHLY_CM: Record<Zone, number> = {
+  neck: -0.1,
+  shoulders: 0,
+  chest: -0.2,
+  arm: 0.1,
+  waist: -1.5,
+  hips: -0.8,
+  thigh: -0.3,
+  calf: 0,
+};
+/** Days before today: ten sessions over 12 weeks, the last two days ago. */
+const SESSION_OFFSETS = [84, 70, 56, 49, 42, 35, 28, 14, 7, 2];
+
+export type DemoSession = { date: LocalDate; values: Record<Zone, number> };
+
+/** Ten sessions of eight zones (specs/04 §6). Deterministic, never dated today (E2E-3 creates today's). */
+export function demoMeasurements(todayDate: LocalDate): DemoSession[] {
+  return SESSION_OFFSETS.map((offset) => ({
+    date: addDays(todayDate, -offset),
+    values: Object.fromEntries(
+      ZONES.map((zone) => [
+        zone,
+        round1(ZONE_BASE_CM[zone] + ZONE_MONTHLY_CM[zone] * ((84 - offset) / 28)),
+      ]),
+    ) as Record<Zone, number>,
+  }));
 }
