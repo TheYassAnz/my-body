@@ -4,6 +4,7 @@ import type { ProgressSeries } from "../build-series";
 
 export type Row = { t: number; value?: number; trend?: number; note?: string | null };
 
+const DAY = 86_400_000;
 const t = (d: LocalDate) => Date.parse(`${d}T00:00:00Z`);
 
 /** One row per day (raw weighing and/or trend), the projection segment, and a Y domain covering target and projection. */
@@ -30,7 +31,10 @@ export function chartModel(series: ProgressSeries) {
   const hi = Math.max(...values);
   const pad = (hi - lo || 1) * 0.1;
   const domain: [number, number] = [lo - pad, hi + pad];
-  return { data, end, proj, domain };
+  // A single point gives a zero-width X domain: pad one day each side.
+  const start = data[0].t;
+  const xDomain: [number, number] = start === end ? [start - DAY, end + DAY] : [start, end];
+  return { data, end, proj, domain, xDomain };
 }
 
 /** Raw weighing (value + note) when there is one that day, else the trend value labelled as such. */

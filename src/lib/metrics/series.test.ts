@@ -49,3 +49,10 @@ describe("periodStats", () => {
     expect(periodStats([v(start, 80), v(TODAY, 79)]).count).toBe(2);
   });
 });
+
+describe("defaultPeriod boundary", () => {
+  it("89 days -> tout, 90 days -> 3m", () => {
+    expect(defaultPeriod("2026-07-12", TODAY)).toBe("tout");
+    expect(defaultPeriod("2026-07-11", TODAY)).toBe("3m");
+  });
+});

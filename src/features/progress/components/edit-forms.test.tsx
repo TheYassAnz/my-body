@@ -110,8 +110,25 @@ describe("HistoryList", () => {
       expect(screen.getByRole("status").textContent).toContain("Pesée supprimée"),
     );
     expect(a.deleteWeightAction).toHaveBeenCalledWith("2026-10-01");
+    // Radix restores focus to the trigger in a timeout: it must not steal it from the toast.
+    await new Promise((r) => setTimeout(r, 50));
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Annuler" }));
     fireEvent.click(screen.getByRole("button", { name: "Annuler" }));
     expect(a.restoreWeightAction).toHaveBeenCalledWith(deleted);
+  });
+
+  it("toasts a generic failure when the undo call rejects", async () => {
+    a.deleteWeightAction.mockResolvedValue({
+      ok: true,
+      deleted: { date: "2026-10-01", weightKg: 78.45, bodyFatPct: null, note: null },
+    });
+    a.restoreWeightAction.mockRejectedValue(new Error("boom"));
+    renderList([weighing("2026-10-01")]);
+    fireEvent.click(screen.getByRole("button", { name: /Matin/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Supprimer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirmer la suppression" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Annuler" }));
+    expect(await screen.findByText("Une erreur est survenue, réessaie.")).toBeTruthy();
   });
 
   it("moves focus to the confirm button, then back to Supprimer on Garder", () => {

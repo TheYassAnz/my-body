@@ -40,3 +40,20 @@ describe("tooltipInfo", () => {
     expect(tooltipInfo(data[1], "kg")).toEqual({ text: "Tendance 81,0 kg" });
   });
 });
+
+describe("chartModel x domain", () => {
+  it("pads one day each side for a single point", () => {
+    const one: ProgressSeries = {
+      points: [{ date: "2026-10-01", value: 80 }],
+      stats: { variation: null, secondary: { kind: "sinceStart", value: null }, count: 1 },
+      summary: "",
+    };
+    const { xDomain } = chartModel(one);
+    const t = Date.parse("2026-10-01T00:00:00Z");
+    expect(xDomain).toEqual([t - 86_400_000, t + 86_400_000]);
+  });
+  it("is [first, end] otherwise", () => {
+    const { xDomain, end, data } = chartModel(series);
+    expect(xDomain).toEqual([data[0].t, end]);
+  });
+});

@@ -12,6 +12,7 @@ import { StatsRow } from "./stats-row";
 export function ProgressView({
   metric,
   period,
+  explicitPeriod,
   rows,
   hasBodyFat,
   series,
@@ -22,7 +23,10 @@ export function ProgressView({
   today,
 }: {
   metric: ProgressMetric;
+  /** Resolved period: display and aria-current only. */
   period: ProgressPeriod;
+  /** Period from the URL (null = default): the only one links may carry, so a metric switch keeps its own default. */
+  explicitPeriod: ProgressPeriod | null;
   rows: number;
   hasBodyFat: boolean;
   series: ProgressSeries;
@@ -32,7 +36,7 @@ export function ProgressView({
   history: History;
   today: string;
 }) {
-  const current = { metric, period, rows };
+  const current = { metric, period: explicitPeriod, rows };
   const unit = metric === "weight" ? weightUnit : metric === "bodyFat" ? "%" : lengthUnit;
   return (
     <>

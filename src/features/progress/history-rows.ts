@@ -7,6 +7,7 @@ import {
   KG_PER_LB,
   type LengthUnit,
   type WeightUnit,
+  CM_PER_INCH,
 } from "@/lib/units";
 import { seriesOf } from "../measurements/summary";
 import type { loadProgress } from "./queries";
@@ -69,4 +70,4 @@ export function buildHistory(input: {
 export const exactWeightInput = (kg: number, unit: WeightUnit) =>
   (unit === "lb" ? kg / KG_PER_LB : kg).toFixed(3);
 export const exactLengthInput = (cm: number, unit: LengthUnit) =>
-  (unit === "in" ? cm / 2.54 : cm).toFixed(3);
+  (unit === "in" ? cm / CM_PER_INCH : cm).toFixed(3);

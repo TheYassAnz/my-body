@@ -81,6 +81,14 @@ describe("progress edit and delete queries", () => {
       expect((await getWeightOn(db, "alice", "2026-10-02"))?.weightKg).toBe(75);
     });
 
+    it("moving onto a date another user holds leaves that user's row alone", async () => {
+      await upsertWeight(db, "bob", w("2026-09-30", 70));
+      await upsertWeight(db, "alice", w("2026-10-01", 80));
+      expect(await updateWeight(db, "alice", "2026-10-01", w("2026-09-30", 79))).toBe("updated");
+      expect(await listWeights(db, "bob")).toMatchObject([{ date: "2026-09-30", weightKg: 70 }]);
+      expect(await listWeights(db, "alice")).toMatchObject([{ date: "2026-09-30", weightKg: 79 }]);
+    });
+
     it("cannot touch another user's weighing at the same date", async () => {
       await upsertWeight(db, "alice", w("2026-10-01", 80));
       expect(await updateWeight(db, "bob", "2026-10-01", w("2026-10-01", 50))).toBe("missing");

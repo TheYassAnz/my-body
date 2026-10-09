@@ -4,6 +4,7 @@ import {
   dailyTrendSeries,
   measureDelta,
   periodStats,
+  calibration,
   weeklyRate,
   windowStart,
   type ProgressPeriod,
@@ -14,6 +15,7 @@ import {
   formatLength,
   formatLengthDelta,
   formatWeight,
+  NNBSP,
   round1,
   toDisplayLength,
   toDisplayWeight,
@@ -68,7 +70,8 @@ export function buildWeightSeries(input: {
   const trend = trendKg.map((t) => ({ date: t.date, value: toDisplayWeight(t.trendKg, unit) }));
   const stats = periodStats(trendKg.map((t) => ({ date: t.date, value: t.trendKg })));
   const lastTrendKg = fullTrend[fullTrend.length - 1].trendKg;
-  const rate = weeklyRate(all, today, lastTrendKg);
+  // Spec 03 §2: no rate while calibrating.
+  const rate = calibration(all).calibrating ? null : weeklyRate(all, today, lastTrendKg);
 
   const points = [...inWindow]
     .sort((a, b) => a.date.localeCompare(b.date))
@@ -107,7 +110,7 @@ export function buildWeightSeries(input: {
       ? `Tendance de ${startTrend} à ${formatWeight(trendKg[trendKg.length - 1].trendKg, unit)}`
       : `Tendance à ${formatWeight(lastTrendKg, unit)}`;
   const tail = rate
-    ? `, ${formatDelta(toDisplayWeight(rate.kgPerWeek, unit))} ${unit}/semaine`
+    ? `, ${formatDelta(toDisplayWeight(rate.kgPerWeek, unit))}${NNBSP}${unit}/semaine`
     : "";
   series.summary = `${head} sur ${PERIOD_PHRASES[period]}${tail}`;
   return series;

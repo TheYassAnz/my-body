@@ -32,17 +32,24 @@ function Tip({
 /** Weight = dots + trend; other metrics = linear line with dots (no smoothing). Spec 06 §4. */
 export function ProgressChart({ series, unit }: { series: ProgressSeries; unit: string }) {
   const weight = series.trend !== undefined;
-  const { data, end, proj, domain } = chartModel(series);
+  const { data, proj, domain, xDomain } = chartModel(series);
 
   return (
     <div aria-hidden="true" className="h-64 w-full lg:h-96">
-      <ComposedChart responsive width="100%" height="100%" data={data} margin={{ right: 8 }}>
+      <ComposedChart
+        accessibilityLayer={false}
+        responsive
+        width="100%"
+        height="100%"
+        data={data}
+        margin={{ right: 8 }}
+      >
         <CartesianGrid vertical={false} stroke="var(--line)" />
         <XAxis
           dataKey="t"
           type="number"
           scale="time"
-          domain={[data[0].t, end]}
+          domain={xDomain}
           tickFormatter={(v: number) => tick.format(v)}
           tick={{ fontSize: 11, fill: "var(--subtle)" }}
           axisLine={false}

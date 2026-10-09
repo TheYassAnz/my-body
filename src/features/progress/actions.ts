@@ -106,6 +106,10 @@ export async function updateMeasureAction(
 ): Promise<ActionResult> {
   const { userId, profile } = await requireUser("app");
   const values = keepValues(formData, ...MEASURE_FIELDS);
+  // A bad originalDate is not a field the measure sheet shows: report the row as gone.
+  if (!isoDate.safeParse(formData.get("originalDate")).success) {
+    return { ok: false, formError: GONE_MEASURE, values };
+  }
   const parsed = measureSchema(today(profile?.timezone ?? "Europe/Paris")).safeParse({
     ...Object.fromEntries(formData),
     date: formData.get("originalDate"),

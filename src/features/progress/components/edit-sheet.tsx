@@ -19,7 +19,7 @@ import {
   updateMeasureAction,
   updateWeightAction,
 } from "../actions";
-import { MEASURE_DELETED, UNDO_MS, WEIGHT_DELETED } from "../copy";
+import { GENERIC_ERROR, MEASURE_DELETED, UNDO_MS, WEIGHT_DELETED } from "../copy";
 import { exactLengthInput, exactWeightInput, type HistoryItem } from "../history-rows";
 
 const SAVED = "Modification enregistrée";
@@ -35,16 +35,29 @@ type Props = {
 
 export function EditSheet({ item, onClose, zoneLabel, ...rest }: Props) {
   const weighing = item.kind === "weight";
+  // After a delete the toast's «Annuler» owns focus: do not let the sheet hand it back to the row.
+  const deleted = useRef(false);
+  const onDeleted = () => {
+    deleted.current = true;
+    onClose();
+  };
   return (
     <Sheet
+      onCloseAutoFocus={(e) => deleted.current && e.preventDefault()}
       open
       onOpenChange={(open) => !open && onClose()}
       title={weighing ? "Modifier la pesée" : `Modifier · ${zoneLabel}`}
     >
       {item.kind === "weight" ? (
-        <WeightEditor item={item} unit={rest.weightUnit} today={rest.today} onDone={onClose} />
+        <WeightEditor
+          item={item}
+          unit={rest.weightUnit}
+          today={rest.today}
+          onDone={onClose}
+          onDeleted={onDeleted}
+        />
       ) : (
-        <MeasureEditor item={item} unit={rest.lengthUnit} onDone={onClose} />
+        <MeasureEditor item={item} unit={rest.lengthUnit} onDone={onClose} onDeleted={onDeleted} />
       )}
     </Sheet>
   );
@@ -87,9 +100,12 @@ function DeleteButton({
         action: {
           label: "Annuler",
           onClick: () => {
-            void result.undo().then((r) => {
-              if (!r.ok) toast("Impossible d'annuler, réessaie.");
-            });
+            result
+              .undo()
+              .then((r) => {
+                if (!r.ok) toast("Impossible d'annuler, réessaie.");
+              })
+              .catch(() => toast(GENERIC_ERROR));
           },
         },
       });
@@ -134,11 +150,13 @@ function WeightEditor({
   unit,
   today,
   onDone,
+  onDeleted,
 }: {
   item: Extract<HistoryItem, { kind: "weight" }>;
   unit: "kg" | "lb";
   today: string;
   onDone: () => void;
+  onDeleted: () => void;
 }) {
   const toast = useToast();
   // A confirmation only covers the date and weight that were submitted: editing either voids it.
@@ -253,7 +271,7 @@ function WeightEditor({
       </form>
       <DeleteButton
         noun="pesée"
-        onDone={onDone}
+        onDone={onDeleted}
         run={async () => {
           const r = await deleteWeightAction(item.date);
           return r.ok
@@ -270,10 +288,12 @@ function MeasureEditor({
   item,
   unit,
   onDone,
+  onDeleted,
 }: {
   item: Extract<HistoryItem, { kind: "measure" }>;
   unit: "cm" | "in";
   onDone: () => void;
+  onDeleted: () => void;
 }) {
   const toast = useToast();
   const [state, action, pending] = useActionState(
@@ -329,7 +349,7 @@ function MeasureEditor({
       </form>
       <DeleteButton
         noun="mesure"
-        onDone={onDone}
+        onDone={onDeleted}
         run={async () => {
           const r = await deleteMeasureAction(item.date, item.zone);
           return r.ok

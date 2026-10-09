@@ -39,6 +39,7 @@ export default async function ProgressPage({
       <ProgressView
         metric={view.metric}
         period={view.period}
+        explicitPeriod={params.period}
         rows={params.rows}
         hasBodyFat={view.hasBodyFat}
         series={view.series}

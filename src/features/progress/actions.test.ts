@@ -157,6 +157,20 @@ describe("progress actions", () => {
     });
   });
 
+  describe("updateMeasureAction originalDate", () => {
+    it.each(["", "nope"])(
+      "reports a missing or invalid originalDate (%j) as a form error",
+      async (od) => {
+        expect(await updateMeasureAction(null, form({ ...MEDIT, originalDate: od }))).toMatchObject(
+          {
+            ok: false,
+            formError: "Cette mesure n'existe plus.",
+          },
+        );
+      },
+    );
+  });
+
   describe("delete and restore", () => {
     it("deletes a weighing and returns it, then restores it", async () => {
       await upsertWeight(ctx.db, "alice", { ...w("2026-10-01", 80), note: "sel" });

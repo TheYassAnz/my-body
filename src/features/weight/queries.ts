@@ -62,8 +62,6 @@ export async function insertWeights(db: Db, userId: string, rows: NewWeight[]) {
   if (rows.length) await db.insert(weightEntry).values(rows.map((r) => ({ userId, ...r })));
 }
 
-class RowVanished extends Error {}
-
 /**
  * Edits the weighing of `fromDate` (date included) in one transaction. A row already at the
  * new date is replaced; the caller has confirmed that (EF-WGT-02).
@@ -74,33 +72,28 @@ export async function updateWeight(
   fromDate: LocalDate,
   w: NewWeight,
 ): Promise<"updated" | "missing"> {
-  return db
-    .transaction(async (tx) => {
-      const own = and(eq(weightEntry.userId, userId), eq(weightEntry.date, fromDate));
-      const [source] = await tx
-        .select({ id: weightEntry.id })
-        .from(weightEntry)
-        .where(own)
-        .for("update");
-      if (!source) return "missing";
-      if (w.date !== fromDate) {
-        await tx
-          .delete(weightEntry)
-          .where(and(eq(weightEntry.userId, userId), eq(weightEntry.date, w.date)));
-      }
-      const updated = await tx
-        .update(weightEntry)
-        .set({ ...w, updatedAt: new Date() })
-        .where(and(eq(weightEntry.id, source.id), eq(weightEntry.userId, userId)))
-        .returning({ id: weightEntry.id });
-      // Defensive: roll back (target delete included) rather than lose both rows.
-      if (!updated.length) throw new RowVanished();
-      return "updated";
-    })
-    .catch((e: unknown) => {
-      if (e instanceof RowVanished) return "missing" as const;
-      throw e;
-    });
+  return db.transaction(async (tx) => {
+    const own = and(eq(weightEntry.userId, userId), eq(weightEntry.date, fromDate));
+    const [source] = await tx
+      .select({ id: weightEntry.id })
+      .from(weightEntry)
+      .where(own)
+      .for("update");
+    if (!source) return "missing";
+    if (w.date !== fromDate) {
+      await tx
+        .delete(weightEntry)
+        .where(and(eq(weightEntry.userId, userId), eq(weightEntry.date, w.date)));
+    }
+    const updated = await tx
+      .update(weightEntry)
+      .set({ ...w, updatedAt: new Date() })
+      .where(and(eq(weightEntry.id, source.id), eq(weightEntry.userId, userId)))
+      .returning({ id: weightEntry.id });
+    // The source row is locked above, so this cannot happen; throw to roll back the target delete.
+    if (!updated.length) throw new Error("weight update matched no row");
+    return "updated";
+  });
 }
 
 /** Returns the deleted row (so the caller can offer an undo), or null when there was none. */

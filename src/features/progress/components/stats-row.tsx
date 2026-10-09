@@ -1,8 +1,7 @@
 import type { ProgressMetric } from "../params";
 import type { ProgressSeries } from "../build-series";
-import { formatDelta } from "@/lib/units";
+import { formatDelta, NNBSP } from "@/lib/units";
 
-const NNBSP = " ";
 const suffix = (metric: ProgressMetric, wUnit: string, lUnit: string) =>
   metric === "weight" ? wUnit : metric === "bodyFat" ? "%" : lUnit;
 

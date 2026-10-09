@@ -25,6 +25,7 @@ const empty: ProgressSeries = {
 const base = {
   metric: "weight",
   period: "3m",
+  explicitPeriod: "3m",
   rows: 50,
   hasBodyFat: false,
   series,
@@ -44,6 +45,19 @@ describe("ProgressView", () => {
     expect(screen.getByRole("link", { name: "% MG" }).getAttribute("href")).toBe(
       "/progres?m=bodyFat&p=3m",
     );
+  });
+
+  it("keeps the default period when none was chosen (links carry no p=)", () => {
+    render(<ProgressView {...base} explicitPeriod={null} hasBodyFat />);
+    expect(screen.getByRole("link", { name: "% MG" }).getAttribute("href")).toBe(
+      "/progres?m=bodyFat",
+    );
+    expect(screen.getByRole("link", { name: "Taille" }).getAttribute("href")).toBe(
+      "/progres?m=waist",
+    );
+    // Display still follows the resolved period.
+    expect(screen.getByRole("link", { name: "3M" }).getAttribute("aria-current")).toBe("true");
+    expect(screen.getByRole("link", { name: "1M" }).getAttribute("href")).toBe("/progres?p=1m");
   });
 
   it("marks the current metric and period", () => {

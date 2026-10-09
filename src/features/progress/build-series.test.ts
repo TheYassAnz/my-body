@@ -38,12 +38,39 @@ describe("buildWeightSeries", () => {
     expect(s.stats.count).toBe(31);
   });
 
+  it("has no rate and no '/semaine' while calibrating", () => {
+    const s = buildWeightSeries({
+      weights: [
+        { date: "2026-10-07", weightKg: 80, note: null },
+        { date: "2026-10-08", weightKg: 79, note: null },
+      ] as WeightEntry[],
+      goal: null,
+      unit: "kg",
+      today: "2026-10-09",
+      period: "tout",
+    });
+    expect(s.stats.secondary.value).toBeNull();
+    expect(s.summary).not.toContain("semaine");
+  });
+
   it("variation = trend end - trend start, rate from raw weighings", () => {
     const s = buildWeightSeries({ ...base, period: "3m" });
     const t = s.trend!;
     expect(s.stats.variation).toBeCloseTo(t.at(-1)!.value - t[0].value, 1);
     expect(s.stats.secondary).toEqual({ kind: "rate", value: -0.7 });
-    expect(s.summary).toMatch(/^Tendance de \d+,\d à \d+,\d.kg sur 3 mois, −0,7 kg\/semaine$/);
+    expect(s.summary).toMatch(/^Tendance de \d+,\d à \d+,\d.kg sur 3 mois, −0,7.kg\/semaine$/);
+  });
+
+  it("variation is on the trend, not the raw values", () => {
+    // Raw 80 -> 80 (variation 0); seeded trend = running mean: 80, 81, 80.667 -> +0.667 -> 0.7.
+    const s = buildWeightSeries({
+      weights: [w(2, 80), w(1, 82), w(0, 80)],
+      goal: null,
+      unit: "kg",
+      today: TODAY,
+      period: "tout",
+    });
+    expect(s.stats.variation).toBe(0.7);
   });
 
   it("target only with a target weight; projection only when estimated", () => {

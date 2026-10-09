@@ -41,47 +41,62 @@ test("progress: period and metric live in the URL, the history can load more", a
   await expect(async () => expect(await rows.count()).toBeGreaterThan(50)).toPass();
 });
 
-test("progress: editing the latest weighing changes the home trend", async ({ page }, testInfo) => {
-  await signIn(page);
-  const hero = page.getByTestId("weight-hero");
-  const before = (await hero.textContent()) ?? "";
+// Same demo account as the other specs: edits must not interleave with each other.
+test.describe("progress: editing the shared demo account", () => {
+  test.describe.configure({ mode: "serial" });
 
-  await page.goto("/progres");
-  const latest = page.getByRole("region", { name: "Historique" }).getByRole("button").first();
-  const current = Number(
-    ((await latest.textContent()) ?? "").match(/(\d+,\d)\s*kg/)?.[1].replace(",", "."),
-  );
-  // 3 % away, opposite directions per project (same account, run one after the other).
-  const typed = (current * (testInfo.project.name === "mobile" ? 0.97 : 1.03))
-    .toFixed(1)
-    .replace(".", ",");
+  test("editing the latest weighing changes that row and the home trend", async ({
+    page,
+  }, testInfo) => {
+    await signIn(page);
+    const hero = page.getByTestId("weight-hero");
+    const before = (await hero.textContent()) ?? "";
 
-  await latest.click();
-  const dialog = page.getByRole("dialog", { name: "Modifier la pesée" });
-  await dialog.getByLabel("Poids", { exact: true }).fill(typed);
-  await dialog.getByRole("button", { name: "Enregistrer" }).click();
-  await expect(page.getByText("Modification enregistrée")).toBeVisible();
-  await expect(dialog).toBeHidden();
+    await page.goto("/progres");
+    const history = page.getByRole("region", { name: "Historique" });
+    const latest = history.getByRole("button").first();
+    const text = (await latest.textContent()) ?? "";
+    const current = Number(text.match(/(\d+,\d)\s*kg/)?.[1].replace(",", "."));
+    // 3 % away, opposite directions per project (same account, run one after the other).
+    const typed = (current * (testInfo.project.name === "mobile" ? 0.97 : 1.03))
+      .toFixed(1)
+      .replace(".", ",");
 
-  await page.goto("/accueil");
-  await expect(hero).not.toHaveText(before);
-});
+    await latest.click();
+    const dialog = page.getByRole("dialog", { name: "Modifier la pesée" });
+    await dialog.getByLabel("Poids", { exact: true }).fill(typed);
+    await dialog.getByRole("button", { name: "Enregistrer" }).click();
+    await expect(page.getByText("Modification enregistrée")).toBeVisible();
+    await expect(dialog).toBeHidden();
 
-test("progress: deleting a measurement then Annuler brings the row back", async ({ page }) => {
-  await signIn(page);
-  await page.goto("/progres?m=waist");
+    // The edited row now shows the new value (same date, so it is still the first row).
+    await expect(history.getByRole("button").first()).toContainText(new RegExp(`${typed}\\s*kg`));
 
-  const rows = page.getByRole("region", { name: "Historique" }).getByRole("listitem");
-  const count = await rows.count();
-  expect(count).toBeGreaterThan(0);
+    await page.goto("/accueil");
+    await expect(hero).not.toHaveText(before);
+  });
 
-  await rows.first().getByRole("button").click();
-  const dialog = page.getByRole("dialog", { name: /Modifier/ });
-  await dialog.getByRole("button", { name: "Supprimer" }).click();
-  await dialog.getByRole("button", { name: "Confirmer la suppression" }).click();
-  await expect(page.getByText("Mesure supprimée")).toBeVisible();
-  await expect(rows).toHaveCount(count - 1);
+  test("deleting a measurement then Annuler brings the row back", async ({ page }) => {
+    await signIn(page);
+    await page.goto("/progres?m=waist");
 
-  await page.getByRole("button", { name: "Annuler" }).click();
-  await expect(rows).toHaveCount(count);
+    const history = page.getByRole("region", { name: "Historique" });
+    const first = history.getByRole("listitem").first();
+    // Identify the row by its own text (date + value), not by the list length.
+    const label = ((await first.textContent()) ?? "").trim();
+    expect(label).not.toBe("");
+    const row = history.getByRole("listitem").filter({ hasText: label });
+
+    await first.getByRole("button").click();
+    const dialog = page.getByRole("dialog", { name: /Modifier/ });
+    await dialog.getByRole("button", { name: "Supprimer" }).click();
+    await dialog.getByRole("button", { name: "Confirmer la suppression" }).click();
+    await expect(page.getByText("Mesure supprimée")).toBeVisible();
+    await expect(row).toHaveCount(0);
+
+    const undo = page.getByRole("button", { name: "Annuler" });
+    await expect(undo).toBeFocused();
+    await undo.click();
+    await expect(row).toHaveCount(1);
+  });
 });
