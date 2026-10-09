@@ -5,6 +5,7 @@ import type { ProgressSeries } from "../build-series";
 import { ProgressView } from "./progress-view";
 
 vi.mock("./progress-chart-lazy", () => ({ ProgressChartLazy: () => <div data-testid="chart" /> }));
+vi.mock("../actions", () => ({}));
 afterEach(cleanup);
 
 const series: ProgressSeries = {
@@ -30,6 +31,8 @@ const base = {
   weightUnit: "kg",
   lengthUnit: "cm",
   positive: true,
+  history: { items: [] as never[], total: 0 },
+  today: "2026-10-09",
 } as const;
 
 describe("ProgressView", () => {

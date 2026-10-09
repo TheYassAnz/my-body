@@ -1,7 +1,9 @@
 import Link from "next/link";
 import type { ProgressPeriod } from "@/lib/metrics";
 import type { ProgressSeries } from "../build-series";
-import type { ProgressMetric } from "../params";
+import type { History } from "../history-rows";
+import { PAGE_SIZE, progressHref, type ProgressMetric } from "../params";
+import { HistoryList } from "./history-list";
 import { MetricChips } from "./metric-chips";
 import { PeriodSelector } from "./period-selector";
 import { ProgressChartLazy } from "./progress-chart-lazy";
@@ -16,6 +18,8 @@ export function ProgressView({
   weightUnit,
   lengthUnit,
   positive,
+  history,
+  today,
 }: {
   metric: ProgressMetric;
   period: ProgressPeriod;
@@ -25,6 +29,8 @@ export function ProgressView({
   weightUnit: "kg" | "lb";
   lengthUnit: "cm" | "in";
   positive: boolean;
+  history: History;
+  today: string;
 }) {
   const current = { metric, period, rows };
   const unit = metric === "weight" ? weightUnit : metric === "bodyFat" ? "%" : lengthUnit;
@@ -56,6 +62,17 @@ export function ProgressView({
         weightUnit={weightUnit}
         lengthUnit={lengthUnit}
         positive={positive}
+      />
+      <HistoryList
+        items={history.items}
+        moreHref={
+          history.total > history.items.length
+            ? progressHref({ rows: rows + PAGE_SIZE }, current)
+            : null
+        }
+        today={today}
+        weightUnit={weightUnit}
+        lengthUnit={lengthUnit}
       />
     </>
   );

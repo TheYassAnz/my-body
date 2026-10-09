@@ -14,3 +14,7 @@ export const NO_DATA_SUMMARY = "Aucune mesure sur cette période";
 export const GONE_WEIGHT = "Cette pesée n'existe plus.";
 export const GONE_MEASURE = "Cette mesure n'existe plus.";
 export const GENERIC_ERROR = "Une erreur est survenue, réessaie.";
+
+export const WEIGHT_DELETED = "Pesée supprimée";
+export const MEASURE_DELETED = "Mesure supprimée";
+export const UNDO_MS = 5000;

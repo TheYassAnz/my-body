@@ -71,6 +71,39 @@ describe("Toast", () => {
   });
 });
 
+describe("Toast with action", () => {
+  it("runs the action once, hides the toast, and lasts the given duration", () => {
+    vi.useFakeTimers();
+    const onClick = vi.fn();
+    function Trigger() {
+      const toast = useToast();
+      return (
+        <button
+          onClick={() =>
+            toast("Pesée supprimée", { action: { label: "Annuler", onClick }, durationMs: 5000 })
+          }
+        >
+          go
+        </button>
+      );
+    }
+    render(
+      <ToastProvider>
+        <Trigger />
+      </ToastProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "go" }));
+    act(() => vi.advanceTimersByTime(4000));
+    fireEvent.click(screen.getByRole("button", { name: "Annuler" }));
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("status").textContent).toBe("");
+    fireEvent.click(screen.getByRole("button", { name: "go" }));
+    act(() => vi.advanceTimersByTime(5000));
+    expect(screen.getByRole("status").textContent).toBe("");
+    vi.useRealTimers();
+  });
+});
+
 describe("Slider", () => {
   it("is a range input with a label, a value and the step", () => {
     const onChange = vi.fn();
