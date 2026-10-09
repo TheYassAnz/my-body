@@ -48,6 +48,11 @@ describe("privacy (specs/07)", () => {
     expect(t).toContain(name);
   });
 
+  it("does not claim sessions are erased on expiry and discloses the stored name", () => {
+    expect(t).not.toContain("à l'expiration de la session");
+    expect(t).toContain("issu de ton email");
+  });
+
   it("states the backup window, the minimum age and the supervisory authority", () => {
     expect(t).toContain("7 jours");
     expect(t).toContain("16 ans");
