@@ -12,7 +12,7 @@
 
 **Tickets Jira :** BODY-37 à BODY-44 (epic BODY-5 = L4). EF-MEA-04 (édition et suppression) appartient à L5 : elle n'est **pas** dans ce lot.
 
-**Branche :** `feat/l4-mensurations`, créée depuis `main` (L3 fusionnée via la PR #4).
+**Branche :** `feature/l4-mensurations-silhouette`, créée depuis `main` (L3 fusionnée via la PR #4).
 
 ## Contraintes globales
 
@@ -102,7 +102,7 @@ tests/e2e/measure.spec.ts        E2E-3 et E2E-4
 
 ```bash
 git switch main && git pull --ff-only
-git switch -c feat/l4-mensurations
+git switch -c feature/l4-mensurations-silhouette
 ```
 
 Attendu : `git log --oneline -1` montre le merge de la PR #4 (`a406ea3`).
@@ -3937,12 +3937,12 @@ Attendu : E2E-1 à E2E-5 et E2E-9 verts avec les nouveaux E2E-3 et E2E-4.
 
 Vérifier à 390 px et 1440 px : `/corps` (huit points, étiquettes lisibles, période), `/corps/seance` (barre de surbrillance alignée sur le corps, homme et femme), Accueil (bloc Mensurations, état vide avec un compte neuf, message « Il est temps de te mesurer »). Vérifier qu'aucune donnée de santé n'apparaît dans les logs du serveur de développement pendant ces parcours.
 
-- [ ] **Étape 4 : relecture par l'agent `reviewer`** sur le diff `main...feat/l4-mensurations` (règles métier, isolation, RGPD, tests, frontières d'architecture). Corriger ce qui est bloquant avant la PR.
+- [ ] **Étape 4 : relecture par l'agent `reviewer`** sur le diff `main...feature/l4-mensurations-silhouette` (règles métier, isolation, RGPD, tests, frontières d'architecture). Corriger ce qui est bloquant avant la PR.
 
 - [ ] **Étape 5 : PR**
 
 ```bash
-git push -u origin feat/l4-mensurations
+git push -u origin feature/l4-mensurations-silhouette
 gh pr create --base main --title "feat: lot L4 mensurations et silhouette" --body "<résumé, écarts assumés du plan, tickets BODY-37 à BODY-44>"
 ```
 
