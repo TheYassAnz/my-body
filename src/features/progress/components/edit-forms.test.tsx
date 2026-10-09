@@ -114,6 +114,17 @@ describe("HistoryList", () => {
     expect(a.restoreWeightAction).toHaveBeenCalledWith(deleted);
   });
 
+  it("moves focus to the confirm button, then back to Supprimer on Garder", () => {
+    renderList([weighing("2026-10-01")]);
+    fireEvent.click(screen.getByRole("button", { name: /Matin/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Supprimer" }));
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "Confirmer la suppression" }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Garder" }));
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Supprimer" }));
+  });
+
   it("measure sheet exposes the value only", () => {
     renderList([measure]);
     fireEvent.click(screen.getByRole("button", { name: /84,0 cm/ }));

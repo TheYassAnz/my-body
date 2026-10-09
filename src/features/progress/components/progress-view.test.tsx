@@ -69,4 +69,23 @@ describe("ProgressView", () => {
     expect(screen.getAllByText("—")).toHaveLength(2);
     expect(document.body.textContent).not.toContain("NaN");
   });
+
+  it("links to ?n=100 when more rows exist, and stops at the clamp", () => {
+    const item = {
+      kind: "weight",
+      date: "2026-10-01",
+      label: "78,4 kg",
+      weightKg: 78.4,
+      bodyFatPct: null,
+      note: null,
+    } as const;
+    const history = { items: [item], total: 120 };
+    render(<ProgressView {...base} history={history} />);
+    expect(screen.getByRole("link", { name: "Charger plus" }).getAttribute("href")).toBe(
+      "/progres?p=3m&n=100",
+    );
+    cleanup();
+    render(<ProgressView {...base} rows={1000} history={history} />);
+    expect(screen.queryByRole("link", { name: "Charger plus" })).toBeNull();
+  });
 });

@@ -2,7 +2,7 @@ import { PROGRESS_PERIODS, ZONES, type ProgressPeriod, type Zone } from "@/lib/m
 
 export type ProgressMetric = "weight" | "bodyFat" | Zone;
 export const PAGE_SIZE = 50;
-const MAX_ROWS = 1000;
+export const MAX_ROWS = 1000;
 
 type Parsed = { metric: ProgressMetric; period: ProgressPeriod | null; rows: number };
 

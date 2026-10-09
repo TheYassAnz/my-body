@@ -104,6 +104,75 @@ describe("Toast with action", () => {
   });
 });
 
+describe("Toast focus and pause", () => {
+  function Trigger({ withAction }: { withAction: boolean }) {
+    const toast = useToast();
+    return (
+      <button
+        onClick={() =>
+          toast(
+            "Pesée supprimée",
+            withAction
+              ? { action: { label: "Annuler", onClick: () => {} }, durationMs: 5000 }
+              : undefined,
+          )
+        }
+      >
+        go
+      </button>
+    );
+  }
+  const setup = (withAction: boolean) => {
+    vi.useFakeTimers();
+    render(
+      <ToastProvider>
+        <Trigger withAction={withAction} />
+      </ToastProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "go" }));
+  };
+  afterEach(() => vi.useRealTimers());
+
+  it("focuses the action button of an action toast only", () => {
+    setup(true);
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Annuler" }));
+    cleanup();
+    setup(false);
+    expect(screen.getByRole("status").contains(document.activeElement)).toBe(false);
+  });
+
+  it("pauses on hover and restarts a full duration on leave", () => {
+    setup(true);
+    const pill = screen.getByRole("button", { name: "Annuler" }).parentElement!;
+    fireEvent.mouseEnter(pill);
+    act(() => vi.advanceTimersByTime(20000));
+    expect(screen.getByRole("status").textContent).toContain("Pesée supprimée");
+    fireEvent.mouseLeave(pill);
+    act(() => vi.advanceTimersByTime(4900));
+    expect(screen.getByRole("status").textContent).toContain("Pesée supprimée");
+    act(() => vi.advanceTimersByTime(100));
+    expect(screen.getByRole("status").textContent).toBe("");
+  });
+
+  it("pauses while a keyboard user focuses the pill, resumes on blur", () => {
+    setup(true);
+    const button = screen.getByRole("button", { name: "Annuler" });
+    act(() => button.blur());
+    fireEvent.focus(button);
+    act(() => vi.advanceTimersByTime(20000));
+    expect(screen.getByRole("status").textContent).toContain("Pesée supprimée");
+    fireEvent.blur(button);
+    act(() => vi.advanceTimersByTime(5000));
+    expect(screen.getByRole("status").textContent).toBe("");
+  });
+
+  it("a plain toast still dismisses after 3 s", () => {
+    setup(false);
+    act(() => vi.advanceTimersByTime(3000));
+    expect(screen.getByRole("status").textContent).toBe("");
+  });
+});
+
 describe("Slider", () => {
   it("is a range input with a label, a value and the step", () => {
     const onChange = vi.fn();

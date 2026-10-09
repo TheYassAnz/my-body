@@ -26,7 +26,7 @@ export type HistoryItem =
 
 export type History = { items: HistoryItem[]; total: number };
 
-/** Newest first, cut to `rows`; same rows as the chart for the metric (EF-PROG-03). */
+/** Newest first, cut to `rows`: the metric's whole history, not the chart period (EF-PROG-03). */
 export function buildHistory(input: {
   data: Pick<Awaited<ReturnType<typeof loadProgress>>, "weights" | "measures">;
   metric: ProgressMetric;

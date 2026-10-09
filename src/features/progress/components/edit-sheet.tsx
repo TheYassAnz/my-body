@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NumberStepper } from "@/components/ui/number-stepper";
@@ -66,6 +66,17 @@ function DeleteButton({
   const [asking, setAsking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const box = useRef<HTMLDivElement>(null);
+  const mounted = useRef(false);
+  // The button that had focus unmounts when the step changes: move focus to its replacement.
+  useEffect(() => {
+    if (mounted.current) {
+      box.current
+        ?.querySelector<HTMLButtonElement>(asking ? "[role=alert] button" : "button")
+        ?.focus();
+    }
+    mounted.current = true;
+  }, [asking]);
   const confirmDelete = () =>
     start(async () => {
       const result = await run();
@@ -85,7 +96,7 @@ function DeleteButton({
     });
 
   return (
-    <div className="mt-3 flex flex-col gap-3">
+    <div ref={box} className="mt-3 flex flex-col gap-3">
       {asking ? (
         <div role="alert" className="flex flex-col gap-3 rounded-xl border border-fg p-3">
           <p className="text-sm font-medium">Supprimer cette {noun} ?</p>

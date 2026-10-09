@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ProgressPeriod } from "@/lib/metrics";
 import type { ProgressSeries } from "../build-series";
 import type { History } from "../history-rows";
-import { PAGE_SIZE, progressHref, type ProgressMetric } from "../params";
+import { MAX_ROWS, PAGE_SIZE, progressHref, type ProgressMetric } from "../params";
 import { HistoryList } from "./history-list";
 import { MetricChips } from "./metric-chips";
 import { PeriodSelector } from "./period-selector";
@@ -66,7 +66,7 @@ export function ProgressView({
       <HistoryList
         items={history.items}
         moreHref={
-          history.total > history.items.length
+          history.total > history.items.length && rows < MAX_ROWS
             ? progressHref({ rows: rows + PAGE_SIZE }, current)
             : null
         }
