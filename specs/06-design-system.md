@@ -80,10 +80,10 @@ Contraste : `--muted` sur blanc atteint 2,8:1. Il est réservé aux textes de 12
 |---|---|
 | Pesées brutes | Points de rayon 2,5 px, `--dot` |
 | Tendance / série de mesures | Trait de 2 px, `--fg`, courbe `monotone` |
-| Projection | Pointillés ronds (`strokeDasharray="0.1 6"`, `strokeLinecap="round"`), 1,6 px, `--fg` |
+| Projection | Pointillés ronds (`strokeDasharray="0.1 6"`, `strokeLinecap="round"`), 1,6 px, `--fg`. Tracée d'aujourd'hui jusqu'à la date estimée, au-delà de la période sélectionnée si besoin |
 | Cible | Ligne horizontale en tirets (`2 5`), `--fg` à 50 % d'opacité. Libellé de valeur en `--fg`, 600 |
 | Grille | Horizontale uniquement, `--line`. Axe Y **à droite**, axe X en mois ou jours, 11 px, `--subtle` |
-| Valeur courante | Point de 5 px `--fg` avec halo à 7 %, étiquette pilule noire « 78,4 kg » |
+| Valeur courante | Point de 5 px `--fg` avec halo à 7 %, étiquette pilule noire « 78,4 kg ». **Pas encore implémentée** (reportée) |
 | Mini-courbes (tableau) | 90×20 px, trait de 1,4 px `--fg`, sans axe |
 | Infobulle | Fond `--fg`, texte blanc 12 px, rayon de 8 px : date, valeur, note |
 

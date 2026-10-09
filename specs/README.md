@@ -4,7 +4,7 @@ Application web responsive de suivi du poids et des mensurations, avec des objec
 
 | | |
 |---|---|
-| **Version du document** | 1.5 |
+| **Version du document** | 1.6 |
 | **Date** | 9 octobre 2026 |
 | **Statut** | Revu et validé |
 | **Périmètre** | V1 : produit public, gratuit |
@@ -67,3 +67,4 @@ Application web responsive de suivi du poids et des mensurations, avec des objec
 - Toutes les valeurs sont stockées en unités métriques (kg, cm). Les conversions n'ont lieu qu'à l'affichage.
 - L'interface est en français. Le code (identifiants, tables, routes techniques) est en anglais, sauf les routes visibles par l'utilisateur, qui sont en français.
 | 1.5 | 09/10/2026 | Ajustements issus du plan L4 (l'étape 5 termine l'onboarding, séance guidée dans le groupe `(session)` hors barre d'onglets, zone de toucher en boutons HTML, « Zone suivante » enregistre la valeur affichée alors que « Zone précédente » et « Passer cette zone » n'enregistrent pas, écran d'introduction, reprise à la première zone sans valeur du jour, étiquette accessible complète, `MEASURE_NEGLIGIBLE_DELTA_CM`, indicateur de taille branché, appel à l'action du compte jamais mesuré distinct du rappel à 14 jours). |
+| 1.6 | 09/10/2026 | Ajustements issus du plan L5 (mesure : seule la valeur est modifiable, changer la date = supprimer puis ressaisir ; annulation d'une suppression côté client uniquement, 5 s, sans corbeille, un nouveau toast remplace une annulation en attente ; projection prolongée au-delà de la période jusqu'à la date estimée ; historique de toute la métrique, 50 lignes puis « Charger plus » ; état dans l'URL `?m=` `?p=` `?n=` ; édition d'une pesée en lb sans altération si le champ n'est pas touché ; « Valeur courante » reportée). |
