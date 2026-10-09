@@ -32,7 +32,15 @@
 4. **Comptes email** : le champ « Mot de passe » est obligatoire dans le formulaire de suppression (le serveur vérifie le hash). Le champ est masqué pour un compte sans mot de passe.
 5. **Fuseau et sexe** : changer de sexe ne touche pas au fuseau (`saveSex` n'écrit le fuseau qu'à l'insertion) ; le fuseau n'est pas modifiable dans les Réglages (hors périmètre EF-SET).
 6. **Réglages avant la fin de l'onboarding** : la page reste accessible (`requireUser("settings")`). Sans profil, seules les sections Données, Compte et Légal s'affichent.
-7. **Hors lot** : pages légales et leur contenu, liens depuis l'inscription et le pied de page public, page d'accueil publique (L6b). Les trois liens légaux de la section « Légal » des Réglages pointent vers les pages provisoires existantes.
+7. **Écarts constatés à l'implémentation** :
+   - **Mot de passe exigé côté serveur** pour supprimer un compte email : Better Auth acceptait une session récente seule. Un hook `hooks.before` sur `/delete-user` (dans `create-auth.ts`) rejette avec le code `PASSWORD_REQUIRED` (HTTP 400) tout compte ayant un compte `credential` sans mot de passe non vide ; les comptes Google gardent la session fraîche. Le client affiche « Saisis ton mot de passe ».
+   - **Toast depuis l'action** (enveloppe passée à `useActionState`) et non depuis un `useEffect` : la clé de remontage des formulaires démontait le composant avant l'effet. La clé du formulaire de profil inclut `lengthUnit`.
+   - **Email de suppression non attendu** (`void … .catch`) : `getAuth()` enveloppe déjà `sendEmail` dans `after()`, qui garde la fonction vivante.
+   - **E2E** : le bouton s'appelle « Nouvelle pesée » (sans « + ») ; le contrôle du 404 est dans le test d'export connecté, car une requête non connectée est redirigée vers `/connexion`. Les comptes créés par E2E-6 restent dans la base (`e2e-units-…@example.com`), comme ceux de la spec d'inscription.
+   - **Export** : EF-SET-02 CA1 (« l'unité s'applique à l'export ») et EF-SET-04 CA3 (« toujours en unités métriques ») se contredisent ; l'export reste métrique (EF-SET-04), la formulation de EF-SET-02 est à corriger.
+   - **Non fait** : vérification visuelle à 390 et 1440 px (aucun agent ne disposait d'une session connectée) ; la spec `weight.spec.ts` (existante) a échoué une fois en parallèle de `progress.spec.ts` sur le compte de démo partagé, et passe seule.
+
+8. **Hors lot** : pages légales et leur contenu, liens depuis l'inscription et le pied de page public, page d'accueil publique (L6b). Les trois liens légaux de la section « Légal » des Réglages pointent vers les pages provisoires existantes.
 
 ## Review Focus
 
