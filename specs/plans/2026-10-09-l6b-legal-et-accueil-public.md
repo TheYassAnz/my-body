@@ -32,7 +32,13 @@
 4. **Pied de page public** : présent sur `/`, sur les trois pages légales et sur les écrans d'authentification (connexion, inscription, mot de passe oublié, réinitialisation). Pas sur l'app connectée (les Réglages ont déjà la section « Légal », livrée en L6a).
 5. **Titre de la page `/`** : le `<h1>` devient l'accroche (« Comprends ce que ton poids veut dire. ») ; la marque « my-body » reste le lien de l'en-tête. `tests/e2e/smoke.spec.ts` est mis à jour en conséquence (tâche 3).
 6. **`/` devient dynamique** (lecture des en-têtes pour la session). Si la recherche de session échoue (base indisponible), la page publique s'affiche quand même au lieu d'une erreur 500.
-7. **Hors lot** : relecture et validation juridique du texte, domaine et email expéditeur, mesure d'audience (ENF-60, S), vraie capture d'écran, Lighthouse (L7).
+7. **Écarts constatés à l'implémentation** :
+   - La revue finale a corrigé la politique de confidentialité d'après le code : Google stocke le nom et la photo, les sessions stockent l'IP et le navigateur, le pourcentage de masse grasse est une donnée de santé, la rectification ne couvre pas l'email, un cookie technique de quelques minutes existe pendant une connexion Google, et « ni vendues ni partagées » est repris sans réserve (texte de consentement).
+   - **Reste faux, à corriger avant le lancement** (point de la checklist) : le texte dit que l'IP et le navigateur sont « effacés à l'expiration de la session », or Better Auth ne purge pas les sessions expirées (la ligne n'est supprimée que si ce jeton est présenté de nouveau, à la déconnexion ou à la suppression du compte) ; et le nom issu de l'email n'est pas mentionné. Formulation proposée : « conservés tant que ta session existe, puis supprimés à ta déconnexion ou à la suppression du compte » et « Nom : issu de ton email, ou transmis par Google avec ta photo de profil (jamais affichés) » ; ou bien ajouter une purge périodique des sessions expirées.
+   - Aperçu de `/` : rythme −0,2 kg/sem (cohérent avec la courbe), chaînes construites avec `formatLength` / `formatLengthDelta` et tons de `deltaTone(…, "recomp")` ; `deltaPhrase` de `measurements/summary.ts` est recopié dans `preview-data.ts` au lieu d'être exporté.
+   - Non fait : vérification visuelle à 390 et 1440 px ; pied de page hors de `<main>` (pas de landmark `contentinfo`) ; test avec `headers()` qui rejette.
+
+8. **Hors lot** : relecture et validation juridique du texte, domaine et email expéditeur, mesure d'audience (ENF-60, S), vraie capture d'écran, Lighthouse (L7).
 
 ## Review Focus
 
