@@ -8,6 +8,7 @@ import {
 } from "@/features/measurements/queries";
 import { measurement, measurementSession } from "@/lib/db/schema";
 import type { Db } from "@/lib/db/types";
+import type { Zone } from "@/lib/metrics";
 import { createTestDb, insertTestUser } from "../helpers/db";
 
 describe("measurement tables", () => {
@@ -82,7 +83,7 @@ describe("measurement queries", () => {
   });
   afterEach(() => close());
 
-  const put = (userId: string, date: string, zone: "waist" | "neck" | "chest", valueCm: number) =>
+  const put = (userId: string, date: string, zone: Zone, valueCm: number) =>
     upsertMeasure(db, userId, { date, zone, valueCm });
 
   it("completes the day's session as zones come in", async () => {
@@ -114,6 +115,14 @@ describe("measurement queries", () => {
     ]);
   });
 
+  it("lists the zones of a day in fixed order, not insertion order", async () => {
+    await put("alice", "2026-10-03", "calf", 36);
+    await put("alice", "2026-10-03", "neck", 38);
+    await put("alice", "2026-10-03", "waist", 84);
+    expect((await listMeasures(db, "alice")).map((r) => r.zone)).toEqual(["neck", "waist", "calf"]);
+  });
+
+  // PGlite serialises transactions on one connection, so this does not prove a real race.
   it("two simultaneous writes the same day end up in one session", async () => {
     await Promise.all([
       put("alice", "2026-10-03", "neck", 38),
