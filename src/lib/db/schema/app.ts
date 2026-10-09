@@ -146,3 +146,54 @@ export const goal = pgTable(
     check("goal_ended_at", sql`(${t.status} = 'active') = (${t.endedAt} is null)`),
   ],
 );
+
+export const zoneEnum = pgEnum("zone", [
+  "neck",
+  "shoulders",
+  "chest",
+  "arm",
+  "waist",
+  "hips",
+  "thigh",
+  "calf",
+]);
+
+export const measurementSession = pgTable(
+  "measurement_session",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    // Local calendar date of the session (profile timezone), like weight_entry.date.
+    date: date("date", { mode: "string" }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  // One session per day, completed as measures come in (specs/04).
+  (t) => [unique("measurement_session_user_date_unique").on(t.userId, t.date)],
+);
+
+export const measurement = pgTable(
+  "measurement",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => measurementSession.id, { onDelete: "cascade" }),
+    zone: zoneEnum("zone").notNull(),
+    valueCm: numeric("value_cm", { precision: 4, scale: 1, mode: "number" }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    unique("measurement_session_zone_unique").on(t.sessionId, t.zone),
+    check("measurement_value_range", sql`${t.valueCm} between 10 and 250`),
+  ],
+);
