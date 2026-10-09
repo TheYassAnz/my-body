@@ -10,3 +10,7 @@ export const PERIOD_PHRASES: Record<ProgressPeriod, string> = {
 };
 
 export const NO_DATA_SUMMARY = "Aucune mesure sur cette période";
+
+export const GONE_WEIGHT = "Cette pesée n'existe plus.";
+export const GONE_MEASURE = "Cette mesure n'existe plus.";
+export const GENERIC_ERROR = "Une erreur est survenue, réessaie.";
