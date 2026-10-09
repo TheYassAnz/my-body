@@ -69,7 +69,7 @@ Les règles de calcul citées sont détaillées dans [03](03-regles-metier-et-ca
 **EF-WGT-04 · M · Modifier ou supprimer une pesée**
 - CA1 : Accessible depuis l'historique de Progrès. Tous les champs sont modifiables, y compris la date (soumise à EF-WGT-02).
 - CA2 : La suppression demande une confirmation. Tendance, rythme et statut sont recalculés.
-- CA3 (S) : Un toast « Annuler » pendant 5 s permet de restaurer la pesée supprimée.
+- CA3 (S) : Un toast « Annuler » pendant 5 s permet de restaurer la pesée supprimée. L'annulation est uniquement côté client (pas de suppression logique) ; un nouveau toast remplace une annulation en attente, qui est alors perdue.
 
 ---
 
@@ -92,6 +92,7 @@ Les règles de calcul citées sont détaillées dans [03](03-regles-metier-et-ca
 
 **EF-MEA-04 · M · Modifier ou supprimer une mesure**
 - CA1 : Depuis l'historique d'une zone dans Progrès. Une séance vidée de toutes ses mesures est supprimée.
+- CA2 : Seule la valeur est modifiable ; changer la date = supprimer puis ressaisir. La suppression offre le même « Annuler » de 5 s que pour une pesée.
 
 **EF-MEA-05 · S · Rappel de mesure dans l'app**
 - CA1 : Si un jour de mesure est choisi, l'accueil affiche « Prochaine mesure : <jour> » (le jour même : « aujourd'hui »).

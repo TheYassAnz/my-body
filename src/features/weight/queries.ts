@@ -61,3 +61,50 @@ export async function upsertWeight(db: Db, userId: string, w: NewWeight) {
 export async function insertWeights(db: Db, userId: string, rows: NewWeight[]) {
   if (rows.length) await db.insert(weightEntry).values(rows.map((r) => ({ userId, ...r })));
 }
+
+/**
+ * Edits the weighing of `fromDate` (date included) in one transaction. A row already at the
+ * new date is replaced; the caller has confirmed that (EF-WGT-02).
+ */
+export async function updateWeight(
+  db: Db,
+  userId: string,
+  fromDate: LocalDate,
+  w: NewWeight,
+): Promise<"updated" | "missing"> {
+  return db.transaction(async (tx) => {
+    const own = and(eq(weightEntry.userId, userId), eq(weightEntry.date, fromDate));
+    const [source] = await tx
+      .select({ id: weightEntry.id })
+      .from(weightEntry)
+      .where(own)
+      .for("update");
+    if (!source) return "missing";
+    if (w.date !== fromDate) {
+      await tx
+        .delete(weightEntry)
+        .where(and(eq(weightEntry.userId, userId), eq(weightEntry.date, w.date)));
+    }
+    const updated = await tx
+      .update(weightEntry)
+      .set({ ...w, updatedAt: new Date() })
+      .where(and(eq(weightEntry.id, source.id), eq(weightEntry.userId, userId)))
+      .returning({ id: weightEntry.id });
+    // The source row is locked above, so this cannot happen; throw to roll back the target delete.
+    if (!updated.length) throw new Error("weight update matched no row");
+    return "updated";
+  });
+}
+
+/** Returns the deleted row (so the caller can offer an undo), or null when there was none. */
+export async function deleteWeight(
+  db: Db,
+  userId: string,
+  date: LocalDate,
+): Promise<WeightEntry | null> {
+  const [row] = await db
+    .delete(weightEntry)
+    .where(and(eq(weightEntry.userId, userId), eq(weightEntry.date, date)))
+    .returning();
+  return row ?? null;
+}

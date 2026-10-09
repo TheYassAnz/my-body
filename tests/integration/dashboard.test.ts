@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { getDashboard } from "@/features/dashboard/queries";
 import { createGoal } from "@/features/goals/queries";
 import { upsertMeasure } from "@/features/measurements/queries";
-import { insertWeights, upsertWeight } from "@/features/weight/queries";
+import { deleteWeight, insertWeights, upsertWeight } from "@/features/weight/queries";
 import type { Db } from "@/lib/db/types";
 import { createTestDb, insertTestUser } from "../helpers/db";
 
@@ -45,6 +45,19 @@ describe("getDashboard", () => {
     expect((await getDashboard(db, "bob", "2026-10-03")).weight).toMatchObject({
       state: "calibrating",
       todayKg: 120,
+    });
+  });
+
+  it("has no trend any more once the last weighing is deleted", async () => {
+    await upsertWeight(db, "alice", {
+      date: "2026-10-02",
+      weightKg: 80,
+      bodyFatPct: null,
+      note: null,
+    });
+    await deleteWeight(db, "alice", "2026-10-02");
+    expect((await getDashboard(db, "alice", "2026-10-03")).weight).toMatchObject({
+      state: "empty",
     });
   });
 

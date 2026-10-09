@@ -63,6 +63,7 @@ Dès **L2**, l'application est utilisable au quotidien par le développeur lui-m
 - Graphique générique (poids avec tendance, cible et projection ; séries simples pour les zones et le % MG), sélecteur de période, statistiques.
 - Historique paginé, édition et suppression (avec annulation, S).
 - **Terminé quand :** toutes les métriques sont consultables et éditables depuis Progrès.
+- **Terminé** le 09/10/2026. Reporté : point et pilule « Valeur courante » du graphique (specs/06 §4).
 
 ### L6 · Réglages, données et légal
 - Réglages : profil, unités (propagées partout), jour de mesure, compte.

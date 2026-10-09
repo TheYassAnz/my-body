@@ -1,7 +1,7 @@
-const CM_PER_INCH = 2.54; // specs/03 §8
+export const CM_PER_INCH = 2.54; // specs/03 §8
 export const KG_PER_LB = 0.45359237; // specs/03 §8
 const MINUS = "−";
-const NNBSP = " "; // narrow no-break space before units (specs/06 §7)
+export const NNBSP = " "; // narrow no-break space before units (specs/06 §7)
 
 /**
  * Rounds half away from zero to `decimals` places.

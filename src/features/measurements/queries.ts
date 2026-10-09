@@ -1,4 +1,4 @@
-import { and, asc, count, eq } from "drizzle-orm";
+import { and, asc, count, eq, inArray, notExists } from "drizzle-orm";
 import type { LocalDate } from "@/lib/dates";
 import { measurement, measurementSession } from "@/lib/db/schema";
 import type { Db } from "@/lib/db/types";
@@ -80,5 +80,71 @@ export async function upsertMeasure(db: Db, userId: string, m: NewMeasure): Prom
         target: [measurement.sessionId, measurement.zone],
         set: { valueCm: m.valueCm, updatedAt: new Date() },
       });
+  });
+}
+
+/** Changes the value only; the date and zone identify the measure of THIS user. */
+export async function updateMeasureValue(
+  db: Db,
+  userId: string,
+  date: LocalDate,
+  zone: Zone,
+  valueCm: number,
+): Promise<"updated" | "missing"> {
+  const owned = db
+    .select({ id: measurementSession.id })
+    .from(measurementSession)
+    .where(and(eq(measurementSession.userId, userId), eq(measurementSession.date, date)));
+  const rows = await db
+    .update(measurement)
+    .set({ valueCm, updatedAt: new Date() })
+    .where(and(eq(measurement.zone, zone), inArray(measurement.sessionId, owned)))
+    .returning({ id: measurement.id });
+  return rows.length ? "updated" : "missing";
+}
+
+/** Deletes one measure, and its session in the same transaction when it is left empty (EF-MEA-04). */
+export async function deleteMeasure(
+  db: Db,
+  userId: string,
+  date: LocalDate,
+  zone: Zone,
+): Promise<MeasureRow | null> {
+  return db.transaction(async (tx) => {
+    // Lock the session first: a concurrent upsert waits, so the emptiness check below is exact.
+    const [locked] = await tx
+      .select({ id: measurementSession.id })
+      .from(measurementSession)
+      .where(and(eq(measurementSession.userId, userId), eq(measurementSession.date, date)))
+      .for("update");
+    if (!locked) return null;
+    const [row] = await tx
+      .select(columns)
+      .from(measurement)
+      .innerJoin(measurementSession, eq(measurement.sessionId, measurementSession.id))
+      .where(
+        and(
+          eq(measurementSession.userId, userId),
+          eq(measurementSession.date, date),
+          eq(measurement.zone, zone),
+        ),
+      );
+    if (!row) return null;
+    await tx.delete(measurement).where(eq(measurement.id, row.id));
+    await tx
+      .delete(measurementSession)
+      .where(
+        and(
+          eq(measurementSession.id, row.sessionId),
+          eq(measurementSession.userId, userId),
+          notExists(
+            tx
+              .select({ one: measurement.id })
+              .from(measurement)
+              .where(eq(measurement.sessionId, row.sessionId)),
+          ),
+        ),
+      );
+    return row;
   });
 }

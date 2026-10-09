@@ -112,11 +112,12 @@ Assistant plein écran, une question par étape, avec une barre de progression f
 - Puces de métrique : **Poids** · **% MG** (seulement si au moins une valeur existe) · puis les 8 zones.
 - Sélecteur de période : 1M · 3M · 6M · 1A · Tout.
 - **Graphique** :
-  - Poids : pesées brutes (points gris), tendance (trait noir), ligne cible (pointillés), projection (pointillés depuis le dernier point jusqu'à la cible ou la fin de la période visible).
+  - Poids : pesées brutes (points gris), tendance (trait noir), ligne cible (pointillés), projection (pointillés d'aujourd'hui jusqu'à la date d'atteinte estimée, qui peut dépasser la période sélectionnée ; absente si la projection n'est pas `estimated`).
   - % MG et zones : valeurs reliées par un trait noir, points aux mesures, pas de lissage.
   - Survol ou toucher d'un point : infobulle avec la date, la valeur et la note éventuelle.
 - Trois statistiques : **Variation** sur la période · **Rythme** (poids) ou **Écart vs début** (zones) · **Nombre de mesures**.
-- **Historique** : liste antichronologique de la métrique sélectionnée (date, valeur, pastille de note). Toucher une ligne ouvre l'édition (modifier ou supprimer, avec confirmation).
+- **Historique** : liste antichronologique de **tout l'historique** de la métrique sélectionnée (pas seulement la période du graphique) : date, valeur, pastille de note, 50 lignes puis « Charger plus ». Toucher une ligne ouvre l'édition (modifier ou supprimer, avec confirmation). Pour une mesure, seule la valeur est modifiable ; changer la date = supprimer puis ressaisir. Pesée éditée en lb : la valeur enregistrée n'est pas altérée si le champ n'est pas touché.
+- **État dans l'URL** : `?m=` (métrique), `?p=` (période), `?n=` (nombre de lignes, multiple de 50). Une valeur invalide retombe sur le défaut.
 
 ### 3.7 Objectif (`/objectif`)
 
