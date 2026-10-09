@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start development server",
+      "type": "build/run",
+      "command": "npm run dev",
+      "isBackground": false,
+      "group": "development"
+    }
+  ]
+}
