@@ -56,7 +56,8 @@ test.describe("progress: editing the shared demo account", () => {
     const history = page.getByRole("region", { name: "Historique" });
     const latest = history.getByRole("button").first();
     const text = (await latest.textContent()) ?? "";
-    const current = Number(text.match(/(\d+,\d)\s*kg/)?.[1].replace(",", "."));
+    const current = Number(text.match(/(\d+(?:,\d+)?)\s*kg/)?.[1].replace(",", "."));
+    expect(current, `weight not found in row text: ${text}`).toBeGreaterThan(0);
     // Small step (stays under the 5 % suspicious-value threshold against the trend), opposite
     // directions per project (same account, run one after the other).
     const typed = (current * (testInfo.project.name === "mobile" ? 0.985 : 1.015))
@@ -68,10 +69,21 @@ test.describe("progress: editing the shared demo account", () => {
     await dialog.getByLabel("Poids", { exact: true }).fill(typed);
     await dialog.getByRole("button", { name: "Enregistrer" }).click();
     // The suspicious-value confirmation (EF-WGT-03) may still apply depending on the seed noise.
+    const saved = page.getByText("Modification enregistrée");
     const confirm = dialog.getByRole("button", { name: "Confirmer", exact: true });
-    await confirm.or(page.getByText("Modification enregistrée")).first().waitFor();
+    // On failure the received value carries the dialog text (field error, form error...).
+    await expect
+      .poll(
+        async () => {
+          if (await saved.isVisible()) return "saved";
+          if (await confirm.isVisible()) return "confirm";
+          return `pending: ${(await dialog.innerText().catch(() => "dialog closed")).replace(/\s+/g, " ")}`;
+        },
+        { timeout: 10_000 },
+      )
+      .toMatch(/^(saved|confirm)$/);
     if (await confirm.isVisible()) await confirm.click();
-    await expect(page.getByText("Modification enregistrée")).toBeVisible();
+    await expect(saved).toBeVisible();
     await expect(dialog).toBeHidden();
 
     // The edited row now shows the new value (same date, so it is still the first row).
