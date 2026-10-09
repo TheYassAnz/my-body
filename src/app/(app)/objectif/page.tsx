@@ -5,6 +5,8 @@ import { GOAL_DISCLAIMER } from "@/features/goals/copy";
 import { saveGoalAction } from "@/features/goals/actions";
 import { getActiveGoal, listPastGoals } from "@/features/goals/queries";
 import { buildGoalHistory, buildGoalSummary } from "@/features/goals/summary";
+import { listMeasures } from "@/features/measurements/queries";
+import { waistSeries } from "@/features/measurements/summary";
 import { listWeights } from "@/features/weight/queries";
 import { today } from "@/lib/dates";
 import { getDb } from "@/lib/db/client";
@@ -16,13 +18,14 @@ export default async function GoalPage() {
   const todayDate = today(profile?.timezone ?? "Europe/Paris");
   const unit = profile?.weightUnit ?? "kg";
   const db = getDb();
-  const [points, active, past] = await Promise.all([
+  const [points, active, past, measureRows] = await Promise.all([
     listWeights(db, userId),
     getActiveGoal(db, userId),
     listPastGoals(db, userId),
+    listMeasures(db, userId),
   ]);
   const referenceKg = goalReferenceKg(points, todayDate);
-  const summary = buildGoalSummary(active, points, todayDate);
+  const summary = buildGoalSummary(active, points, todayDate, waistSeries(measureRows));
 
   return (
     <>

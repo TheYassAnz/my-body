@@ -2,6 +2,7 @@ import { HomeHeader } from "@/features/dashboard/components/home-header";
 import { WeightBlock } from "@/features/dashboard/components/weight-block";
 import { getDashboard } from "@/features/dashboard/queries";
 import { GoalBlock } from "@/features/goals/components/goal-block";
+import { MeasureBlock } from "@/features/measurements/components/measure-block";
 import { today } from "@/lib/dates";
 import { getDb } from "@/lib/db/client";
 import { requireUser } from "@/lib/session";
@@ -15,7 +16,10 @@ export default async function HomePage({
   const { email } = await searchParams;
   const unit = profile?.weightUnit ?? "kg";
   const todayDate = today(profile?.timezone ?? "Europe/Paris");
-  const { weight, goal, rateTone } = await getDashboard(getDb(), userId, todayDate);
+  const { weight, goal, measures, rateTone } = await getDashboard(getDb(), userId, todayDate, {
+    lengthUnit: profile?.lengthUnit ?? "cm",
+    reminderWeekday: profile?.reminderWeekday ?? null,
+  });
 
   return (
     <>
@@ -27,6 +31,7 @@ export default async function HomePage({
       )}
       <WeightBlock summary={weight} unit={unit} rateTone={rateTone} />
       <GoalBlock summary={goal} unit={unit} today={todayDate} />
+      <MeasureBlock data={measures} />
     </>
   );
 }
