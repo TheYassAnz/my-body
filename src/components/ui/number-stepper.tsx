@@ -121,7 +121,7 @@ export function NumberStepper({
         {stepButton(1)}
       </div>
       {error && (
-        <p id={errorId} className="text-xs font-medium text-fg">
+        <p id={errorId} role="alert" className="text-xs font-medium text-fg">
           {error}
         </p>
       )}

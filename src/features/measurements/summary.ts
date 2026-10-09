@@ -221,7 +221,8 @@ export function buildMeasureBlock(input: {
   reminderWeekday: number | null;
 }): MeasureBlockData {
   const { measures, goal, unit, today, reminderWeekday } = input;
-  if (measures.length === 0) return { state: "empty" };
+  // Future-dated measures do not count: there is no last session to remind about.
+  if (!measures.some((m) => m.date <= today)) return { state: "empty" };
   const { lastSessionDate } = buildBodySummary({ measures, goal, period: 30, unit, today });
   return {
     state: "ready",

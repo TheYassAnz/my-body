@@ -230,6 +230,10 @@ describe("buildMeasureBlock (Accueil)", () => {
     expect(block([])).toEqual({ state: "empty" });
   });
 
+  it("is an empty state when every measure is dated after today", () => {
+    expect(block([row("2026-10-10", "waist", 84)])).toEqual({ state: "empty" });
+  });
+
   it("shows the three featured zones of the goal with their 30-day delta", () => {
     const b = block([...WAIST, row("2026-10-01", "hips", 100), row("2026-08-20", "hips", 102)]);
     expect(b.state).toBe("ready");

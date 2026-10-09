@@ -6,7 +6,7 @@ import {
   listMeasures,
   upsertMeasure,
 } from "@/features/measurements/queries";
-import { measurement, measurementSession } from "@/lib/db/schema";
+import { measurement, measurementSession, user } from "@/lib/db/schema";
 import type { Db } from "@/lib/db/types";
 import type { Zone } from "@/lib/metrics";
 import { createTestDb, insertTestUser } from "../helpers/db";
@@ -104,6 +104,16 @@ describe("measurement queries", () => {
     const rows = await listMeasures(db, "alice");
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ zone: "waist", valueCm: 83.9, date: "2026-10-03" });
+  });
+
+  it("deleting a user cascades to their sessions and measures only", async () => {
+    await put("alice", "2026-10-03", "waist", 84);
+    await put("bob", "2026-10-03", "waist", 90);
+    await db.delete(user).where(eq(user.id, "alice"));
+    expect(await countSessions(db, "alice")).toBe(0);
+    expect(await listMeasures(db, "alice")).toEqual([]);
+    expect(await countSessions(db, "bob")).toBe(1);
+    expect(await listMeasures(db, "bob")).toHaveLength(1);
   });
 
   it("lists oldest first", async () => {

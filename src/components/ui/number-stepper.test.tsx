@@ -74,5 +74,6 @@ describe("NumberStepper", () => {
     expect(field().getAttribute("aria-invalid")).toBe("true");
     const describedBy = field().getAttribute("aria-describedby") ?? "";
     expect(document.getElementById(describedBy)?.textContent).toBe("Poids entre 20 et 400 kg");
+    expect(document.getElementById(describedBy)?.getAttribute("role")).toBe("alert");
   });
 });
