@@ -87,6 +87,11 @@ describe("settings actions", () => {
       });
       expect(await listWeights(ctx.db, "alice")).toHaveLength(1);
       expect(ctx.revalidatePath).toHaveBeenCalledWith("/", "layout");
+      expect(await getProfile(ctx.db, "bob")).toMatchObject({
+        sex: "female",
+        heightCm: 168,
+        birthDate: "1990-04-12",
+      });
     });
 
     it("reads the height in inches when the profile displays inches", async () => {

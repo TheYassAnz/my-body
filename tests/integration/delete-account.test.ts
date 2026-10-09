@@ -83,8 +83,6 @@ describe("delete account", () => {
         db.select().from(goal).where(eq(goal.userId, userId)),
         db.select().from(measurementSession).where(eq(measurementSession.userId, userId)),
       ]);
-    const measures = await db.select().from(measurement);
-    const own = new Set(sessionRows.map((r) => r.id));
     return {
       users: users.length,
       accounts: accounts.length,
@@ -94,7 +92,6 @@ describe("delete account", () => {
       weights: weights.length,
       goals: goals.length,
       measurementSessions: sessionRows.length,
-      measurements: measures.filter((m) => own.has(m.sessionId)).length,
     };
   }
 
@@ -104,9 +101,12 @@ describe("delete account", () => {
     await fillData(alice.userId);
     await fillData(bob.userId);
 
+    expect(await db.select().from(measurement)).toHaveLength(2);
+
     await auth.api.deleteUser({ headers: alice.headers, body: { password: PASSWORD } });
 
     expect(Object.values(await rowsOf(alice.userId)).every((n) => n === 0)).toBe(true);
+    expect(await db.select().from(measurement)).toHaveLength(1); // only bob's, alice's cascaded
     expect(Object.values(await rowsOf(bob.userId)).every((n) => n >= 1)).toBe(true);
   });
 

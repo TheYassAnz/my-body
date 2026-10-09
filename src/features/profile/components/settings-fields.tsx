@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 type Option = readonly [value: string, label: string];
 
 /** Native radios: keyboard and screen readers for free. The visible control is the label. */
@@ -14,11 +16,12 @@ export function RadioGroup({
   defaultValue: string | undefined;
   error?: string;
 }) {
+  const errorId = useId();
   return (
     <fieldset
       className="flex flex-col gap-1.5"
       aria-invalid={error ? true : undefined}
-      aria-describedby={error ? `${name}-error` : undefined}
+      aria-describedby={error ? errorId : undefined}
     >
       <legend className="text-xs font-medium text-fg-2">{legend}</legend>
       <div className="flex gap-2">
@@ -39,7 +42,7 @@ export function RadioGroup({
         ))}
       </div>
       {error && (
-        <p id={`${name}-error`} className="text-xs font-medium text-fg">
+        <p id={errorId} className="text-xs font-medium text-fg">
           {error}
         </p>
       )}

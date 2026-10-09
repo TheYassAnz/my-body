@@ -90,7 +90,7 @@ test("E2E-8: deleting the account signs out and the credentials stop working", a
   await confirm.getByLabel(/saisis SUPPRIMER/).fill("SUPPRIMER");
   await confirm.getByLabel("Mot de passe").fill(password);
   await confirm.getByRole("button", { name: "Supprimer mon compte" }).click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/");
 
   await page.goto("/reglages");
   await expect(page).toHaveURL(/\/connexion/);

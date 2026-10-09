@@ -2,7 +2,6 @@ import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth } from "better-auth";
 import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
-import { hasCredentialAccount } from "@/features/auth/queries";
 import * as authSchema from "@/lib/db/schema/auth";
 import type { Db } from "@/lib/db/types";
 import { accountDeletedEmail, resetPasswordEmail, verificationEmail } from "@/lib/email/templates";
@@ -86,7 +85,7 @@ export function createAuth(deps: AuthDeps) {
         if (ctx.path !== "/delete-user") return;
         const current = await getSessionFromCtx(ctx);
         if (!current || ctx.body?.password) return; // no session: Better Auth rejects; password: it verifies
-        if (!(await hasCredentialAccount(deps.db, current.user.id))) return;
+        if (!(await ctx.context.internalAdapter.findCredentialAccount(current.user.id))) return; // Google-only
         throw APIError.from("BAD_REQUEST", {
           code: "PASSWORD_REQUIRED",
           message: "Password required",
