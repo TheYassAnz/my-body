@@ -58,7 +58,7 @@ export const LABEL_SIDE: Record<Zone, "left" | "right"> = {
 /**
  * Horizontal extent of the highlight bar of the guided session, read off the outline at the
  * height of each zone (specs/06 §5.2: "largeur ajustée au corps à cette hauteur").
- * Checked by eye against the mock-up in task 7, step 6.
+ * UNVERIFIED visually: check against the mock-up in the browser once /corps exists (task 8).
  */
 export const BAND: Record<Sex, Record<Zone, { x1: number; x2: number }>> = {
   male: {

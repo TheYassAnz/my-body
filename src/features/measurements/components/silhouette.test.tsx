@@ -86,4 +86,15 @@ describe("Silhouette", () => {
     expect(container.querySelectorAll("circle[data-zone]")).toHaveLength(0);
     expect(container.querySelector("g[data-outline]")?.getAttribute("opacity")).toBe("0.3");
   });
+
+  it("renders no buttons in highlight mode even with onSelect", () => {
+    render(<Silhouette sex="male" zones={zones} highlight="waist" onSelect={() => {}} />);
+    expect(screen.queryAllByRole("button")).toHaveLength(0);
+  });
+
+  it("renders without zones: no buttons and no values", () => {
+    const { container } = render(<Silhouette sex="female" zones={[]} onSelect={() => {}} />);
+    expect(screen.queryAllByRole("button")).toHaveLength(0);
+    expect(container.querySelectorAll("circle[data-zone]")).toHaveLength(0);
+  });
 });
