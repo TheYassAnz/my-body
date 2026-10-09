@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { signOutAction } from "@/features/auth/actions";
+import { DeleteAccountForm } from "@/features/auth/components/delete-account-form";
+import { hasCredentialAccount } from "@/features/auth/queries";
 import { ProfileSettingsForm } from "@/features/profile/components/profile-settings-form";
 import { ReminderSettingsForm } from "@/features/profile/components/reminder-settings-form";
 import { UnitsSettingsForm } from "@/features/profile/components/units-settings-form";
+import { getDb } from "@/lib/db/client";
 import { requireUser } from "@/lib/session";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -16,7 +19,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default async function SettingsPage() {
-  const { email, profile } = await requireUser("settings");
+  const { userId, email, profile } = await requireUser("settings");
+  const needsPassword = await hasCredentialAccount(getDb(), userId);
   return (
     <>
       <h1 className="text-2xl font-semibold tracking-tight lg:text-[28px]">Réglages</h1>
@@ -76,6 +80,9 @@ export default async function SettingsPage() {
             Se déconnecter
           </Button>
         </form>
+      </Section>
+      <Section title="Supprimer mon compte">
+        <DeleteAccountForm needsPassword={needsPassword} />
       </Section>
       <Section title="Légal">
         <nav aria-label="Pages légales" className="flex flex-col gap-2 text-sm">

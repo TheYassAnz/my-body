@@ -32,3 +32,9 @@ export const resetPasswordSchema = z
     path: ["confirm"],
     error: "Les deux mots de passe ne correspondent pas",
   });
+
+export const deleteAccountSchema = z.object({
+  confirmation: z.literal("SUPPRIMER", { error: "Saisis SUPPRIMER pour confirmer" }),
+  // Absent for Google accounts; otherwise verified by Better Auth, never by us.
+  password: z.string().optional(),
+});
