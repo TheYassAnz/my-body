@@ -25,3 +25,12 @@ export function resetPasswordEmail(url: string): Template {
     html: `<p><a href="${escapeHtml(url)}">Choisir un nouveau mot de passe</a> (lien valable 1 heure)</p><p>Si tu n'as rien demandé, ignore ce message : ton mot de passe reste inchangé.</p>`,
   };
 }
+
+/** EF-SET-05 CA3: sent after the deletion. No health data, no link. */
+export function accountDeletedEmail(): Template {
+  return {
+    subject: "Ton compte my-body est supprimé",
+    text: "Ton compte my-body et toutes tes données ont été supprimés définitivement.\n\nMerci d'avoir utilisé my-body.",
+    html: "<p>Ton compte my-body et toutes tes données ont été supprimés définitivement.</p><p>Merci d'avoir utilisé my-body.</p>",
+  };
+}

@@ -3,7 +3,13 @@ import { fieldErrorsFrom, keepValues, type ActionResult } from "@/lib/action-res
 import { authClient } from "@/lib/auth/client";
 import { recordSignUpConsentsAction } from "./actions";
 import { GENERIC_ERROR, TOO_MANY_ATTEMPTS, VERIFIED_CALLBACK } from "./messages";
-import { forgotPasswordSchema, resetPasswordSchema, signInSchema, signUpSchema } from "./schemas";
+import {
+  deleteAccountSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  signInSchema,
+  signUpSchema,
+} from "./schemas";
 
 /*
  * Browser-side form actions for useActionState. They call Better Auth over HTTP
@@ -118,5 +124,32 @@ export async function resetPasswordAction(
     return { ok: false, formError: "Ce lien est invalide ou a expiré. Refais une demande." };
   }
   navigate("/connexion?reinitialise=1");
+  return { ok: true };
+}
+
+/** EF-SET-05. Over HTTP so the /delete-user rate limit applies (a guess is a password attempt). */
+export async function deleteAccountAction(
+  _: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = deleteAccountSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { ok: false, fieldErrors: fieldErrorsFrom(parsed.error) };
+
+  const { password } = parsed.data;
+  const error = await call(() => authClient.deleteUser(password ? { password } : {}));
+  if (error) {
+    if (error.status === 429) return { ok: false, formError: TOO_MANY_ATTEMPTS };
+    if (error.code?.startsWith("INVALID_PASSWORD")) {
+      return { ok: false, fieldErrors: { password: ["Mot de passe incorrect"] } };
+    }
+    if (error.code?.startsWith("PASSWORD_REQUIRED")) {
+      return { ok: false, fieldErrors: { password: ["Saisis ton mot de passe"] } };
+    }
+    if (error.code?.startsWith("SESSION_EXPIRED")) {
+      return { ok: false, formError: "Pour ta sécurité, reconnecte-toi puis recommence." };
+    }
+    return { ok: false, formError: GENERIC_ERROR };
+  }
+  navigate("/");
   return { ok: true };
 }

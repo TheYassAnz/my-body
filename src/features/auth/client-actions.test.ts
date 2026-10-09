@@ -5,6 +5,7 @@ const m = vi.hoisted(() => ({
   signInEmail: vi.fn(),
   requestPasswordReset: vi.fn(),
   resetPassword: vi.fn(),
+  deleteUser: vi.fn(),
   recordSignUpConsentsAction: vi.fn(),
   assign: vi.fn(),
 }));
@@ -15,11 +16,13 @@ vi.mock("@/lib/auth/client", () => ({
     signIn: { email: m.signInEmail },
     requestPasswordReset: m.requestPasswordReset,
     resetPassword: m.resetPassword,
+    deleteUser: m.deleteUser,
   },
 }));
 vi.mock("./actions", () => ({ recordSignUpConsentsAction: m.recordSignUpConsentsAction }));
 
 import {
+  deleteAccountAction,
   requestPasswordResetAction,
   resetPasswordAction,
   signInAction,
@@ -204,5 +207,88 @@ describe("resetPasswordAction", () => {
       ok: false,
       formError: "Ce lien est invalide ou a expiré. Refais une demande.",
     });
+  });
+});
+
+describe("deleteAccountAction", () => {
+  it("refuses anything but SUPPRIMER and calls nothing", async () => {
+    for (const confirmation of ["", "supprimer", "SUPPRIMER ", "OUI"]) {
+      const result = await deleteAccountAction(null, form({ confirmation, password: PASSWORD }));
+      expect(result).toMatchObject({
+        ok: false,
+        fieldErrors: { confirmation: [expect.any(String)] },
+      });
+    }
+    expect(m.deleteUser).not.toHaveBeenCalled();
+  });
+
+  it("deletes with the password and goes back to the landing page", async () => {
+    m.deleteUser.mockResolvedValue(ok);
+
+    const result = await deleteAccountAction(
+      null,
+      form({ confirmation: "SUPPRIMER", password: PASSWORD }),
+    );
+
+    expect(result).toEqual({ ok: true });
+    expect(m.deleteUser).toHaveBeenCalledWith({ password: PASSWORD });
+    expect(m.assign).toHaveBeenCalledWith("/");
+  });
+
+  it("sends no password for an account without one", async () => {
+    m.deleteUser.mockResolvedValue(ok);
+
+    await deleteAccountAction(null, form({ confirmation: "SUPPRIMER" }));
+
+    expect(m.deleteUser).toHaveBeenCalledWith({});
+  });
+
+  it("shows a wrong password on the field, and never sends it back", async () => {
+    m.deleteUser.mockResolvedValue(failure(400, "INVALID_PASSWORD"));
+
+    const result = await deleteAccountAction(
+      null,
+      form({ confirmation: "SUPPRIMER", password: "bad" }),
+    );
+
+    expect(result).toEqual({ ok: false, fieldErrors: { password: ["Mot de passe incorrect"] } });
+    expect(JSON.stringify(result)).not.toContain("bad");
+    expect(m.assign).not.toHaveBeenCalled();
+  });
+
+  it("asks for the password when the server says it is missing", async () => {
+    m.deleteUser.mockResolvedValue(failure(400, "PASSWORD_REQUIRED"));
+
+    const result = await deleteAccountAction(
+      null,
+      form({ confirmation: "SUPPRIMER", password: "" }),
+    );
+
+    expect(result).toEqual({ ok: false, fieldErrors: { password: ["Saisis ton mot de passe"] } });
+    expect(m.assign).not.toHaveBeenCalled();
+  });
+
+  it("asks to sign in again when the session is too old", async () => {
+    m.deleteUser.mockResolvedValue(failure(400, "SESSION_EXPIRED"));
+
+    const result = await deleteAccountAction(null, form({ confirmation: "SUPPRIMER" }));
+
+    expect(result).toMatchObject({
+      ok: false,
+      formError: expect.stringContaining("reconnecte-toi"),
+    });
+    expect(m.assign).not.toHaveBeenCalled();
+  });
+
+  it("explains a rate limit, and falls back to a generic error", async () => {
+    m.deleteUser.mockResolvedValue(failure(429));
+    expect(
+      await deleteAccountAction(null, form({ confirmation: "SUPPRIMER", password: PASSWORD })),
+    ).toMatchObject({ ok: false, formError: expect.stringContaining("Trop de tentatives") });
+
+    m.deleteUser.mockRejectedValue(new Error("network"));
+    expect(
+      await deleteAccountAction(null, form({ confirmation: "SUPPRIMER", password: PASSWORD })),
+    ).toMatchObject({ ok: false, formError: expect.any(String) });
   });
 });

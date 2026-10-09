@@ -1,21 +1,102 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { signOutAction } from "@/features/auth/actions";
+import { DeleteAccountForm } from "@/features/auth/components/delete-account-form";
+import { hasCredentialAccount } from "@/features/auth/queries";
+import { ProfileSettingsForm } from "@/features/profile/components/profile-settings-form";
+import { ReminderSettingsForm } from "@/features/profile/components/reminder-settings-form";
+import { UnitsSettingsForm } from "@/features/profile/components/units-settings-form";
+import { getDb } from "@/lib/db/client";
 import { requireUser } from "@/lib/session";
 
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="mt-8 flex flex-col gap-4 border-t border-line pt-6">
+      <h2 className="text-[15px] font-semibold tracking-tight">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
 export default async function SettingsPage() {
-  const user = await requireUser("settings");
+  const { userId, email, profile } = await requireUser("settings");
+  const needsPassword = await hasCredentialAccount(getDb(), userId);
   return (
     <>
       <h1 className="text-2xl font-semibold tracking-tight lg:text-[28px]">Réglages</h1>
-      <section className="mt-8 flex flex-col gap-4 border-t border-line pt-6">
-        <h2 className="text-[15px] font-semibold tracking-tight">Compte</h2>
-        <p className="text-sm text-fg-2">{user.email}</p>
+      {profile && (
+        <>
+          <Section title="Profil">
+            {/* The key remounts the form once the saved values come back from the server. */}
+            <ProfileSettingsForm
+              key={`${profile.sex}|${profile.heightCm}|${profile.birthDate}|${profile.lengthUnit}`}
+              defaults={{
+                sex: profile.sex,
+                heightCm: profile.heightCm,
+                birthDate: profile.birthDate,
+                lengthUnit: profile.lengthUnit,
+              }}
+            />
+          </Section>
+          <Section title="Affichage">
+            <UnitsSettingsForm
+              key={`${profile.weightUnit}|${profile.lengthUnit}`}
+              defaults={{ weightUnit: profile.weightUnit, lengthUnit: profile.lengthUnit }}
+            />
+          </Section>
+          <Section title="Rappel">
+            <ReminderSettingsForm
+              key={String(profile.reminderWeekday)}
+              defaults={{ weekday: profile.reminderWeekday }}
+            />
+          </Section>
+        </>
+      )}
+      <Section title="Données">
+        <p className="text-sm text-fg-2">
+          Exporte tes données au format CSV, toujours en unités métriques (kg, cm).
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <a
+            href="/reglages/export/pesees"
+            download
+            className="inline-flex h-11 items-center rounded-full border border-fg px-5 text-[13px] font-semibold lg:h-10"
+          >
+            Exporter les pesées
+          </a>
+          <a
+            href="/reglages/export/mensurations"
+            download
+            className="inline-flex h-11 items-center rounded-full border border-fg px-5 text-[13px] font-semibold lg:h-10"
+          >
+            Exporter les mensurations
+          </a>
+        </div>
+      </Section>
+      <Section title="Compte">
+        <p className="text-sm text-fg-2">{email}</p>
         <form action={signOutAction}>
           <Button type="submit" variant="secondary">
             Se déconnecter
           </Button>
         </form>
-      </section>
+      </Section>
+      <Section title="Supprimer mon compte">
+        <DeleteAccountForm needsPassword={needsPassword} />
+      </Section>
+      <Section title="Légal">
+        <nav aria-label="Pages légales" className="flex flex-col gap-2 text-sm">
+          <Link href="/mentions-legales" className="flex min-h-11 items-center underline">
+            Mentions légales
+          </Link>
+          <Link href="/cgu" className="flex min-h-11 items-center underline">
+            Conditions générales d&apos;utilisation
+          </Link>
+          <Link href="/confidentialite" className="flex min-h-11 items-center underline">
+            Politique de confidentialité
+          </Link>
+        </nav>
+      </Section>
     </>
   );
 }

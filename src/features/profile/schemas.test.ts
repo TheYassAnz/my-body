@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bodyStepSchema, sexStepSchema } from "./schemas";
+import { bodyStepSchema, reminderSchema, sexStepSchema, unitsSchema } from "./schemas";
 
 const TODAY = "2026-10-01";
 const body = (o: Record<string, string>) =>
@@ -81,5 +81,38 @@ describe("sexStepSchema", () => {
     expect(sexStepSchema.safeParse({ timezone: "Europe/Paris" }).success).toBe(false);
     const r = sexStepSchema.safeParse({ sex: "female", timezone: "Nowhere/Land" });
     expect(r.success && r.data).toEqual({ sex: "female", timezone: "Europe/Paris" });
+  });
+});
+
+describe("unitsSchema", () => {
+  it("accepts every valid combination", () => {
+    for (const weightUnit of ["kg", "lb"]) {
+      for (const lengthUnit of ["cm", "in"]) {
+        expect(unitsSchema.safeParse({ weightUnit, lengthUnit }).success).toBe(true);
+      }
+    }
+  });
+
+  it.each([
+    [{ weightUnit: "stone", lengthUnit: "cm" }],
+    [{ weightUnit: "kg", lengthUnit: "ft" }],
+    [{ weightUnit: "kg" }],
+    [{}],
+  ])("rejects %j", (input) => {
+    expect(unitsSchema.safeParse(input).success).toBe(false);
+  });
+});
+
+describe("reminderSchema", () => {
+  it.each([
+    ["none", null],
+    ["0", 0],
+    ["6", 6],
+  ])("reads %j as %j", (weekday, expected) => {
+    expect(reminderSchema.parse({ weekday })).toEqual({ weekday: expected });
+  });
+
+  it.each(["7", "-1", "", "abc", "1.5", "00"])("rejects %j", (weekday) => {
+    expect(reminderSchema.safeParse({ weekday }).success).toBe(false);
   });
 });
