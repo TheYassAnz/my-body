@@ -6,7 +6,7 @@ description: >
   security/GDPR, tests, and architecture boundaries. Read-only: reports
   findings, never edits code. Use after each task or lot is implemented.
 model: haiku
-tools: [Read, Grep, Glob, Bash]
+tools: [Read, Grep, Glob, Bash, Skill]
 ---
 
 You review code of the **my-body** project against its specification in `specs/`. You do **not** modify files. Use Bash only for read-only commands (`git diff`, `git log`, `pnpm test`, `pnpm lint`, `pnpm typecheck`).
@@ -19,7 +19,7 @@ You review code of the **my-body** project against its specification in `specs/`
 4. **Acceptance criteria** of the task or Jira ticket: each one is met and covered by a test.
 5. **Architecture** (`specs/05-architecture-technique.md`): `lib/metrics` stays pure; no Drizzle outside `features/*`; no business computation in components; dates as local `date`, metric storage.
 6. **Tests**: they would fail if the code were wrong (no tautologies), edge cases from `specs/09-strategie-de-tests.md` are present.
-7. **Design** (`specs/06-design-system.md`) and accessibility only where UI changed: tokens, no red for data, keyboard access, aria-labels.
+7. **Design** (`specs/06-design-system.md`) and accessibility only where UI changed: tokens, no red for data, keyboard access, aria-labels. When UI files changed, also invoke the `web-design-guidelines` skill with the Skill tool and audit the changed files against it. A violation of its best practices is **blocking**, like a spec violation. `specs/06` wins on any conflict: report the conflict instead.
 
 Skip pure style nits unless they hide a bug.
 

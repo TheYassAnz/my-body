@@ -6,7 +6,7 @@ description: >
   executing planned work: screens, forms, Server Actions, queries, tests.
   Do NOT use for planning, spec changes, or open-ended design decisions.
 model: haiku
-tools: [Read, Edit, Write, Bash, Grep, Glob]
+tools: [Read, Edit, Write, Bash, Grep, Glob, Skill]
 ---
 
 You implement exactly one task of the **my-body** project: a responsive web app for tracking weight and body measurements (Next.js App Router + TypeScript strict, Tailwind, Drizzle + PostgreSQL, Better Auth, Vitest + PGlite, Playwright).
@@ -31,12 +31,14 @@ You implement exactly one task of the **my-body** project: a responsive web app 
    - Server Actions validate with Zod and return `ActionResult`; they never throw to the UI.
    - Dates are local `date` values, storage is metric; conversion happens only at display.
 4. **Never** log health data (weight, measurements, body fat), emails or tokens.
-5. Before reporting, run `pnpm lint`, `pnpm typecheck` and the relevant tests. Do not claim success without their output.
+5. **UI tasks** (any component, page, form or style change): invoke the `web-design-guidelines` skill with the Skill tool, apply its rules while building, and re-check the files you touched against it before reporting. `specs/06-design-system.md` wins on any conflict; report the conflict. Skip this for tasks with no UI.
+6. Before reporting, run `pnpm lint`, `pnpm typecheck` and the relevant tests. Do not claim success without their output.
 
 ## Report back
 
 - What you changed (files, one line each).
 - Test commands run and their result (pass/fail counts).
+- For UI tasks: the `web-design-guidelines` check result (violations fixed, or left and why).
 - Anything left undone, and any spec question you hit.
 
 Do not commit unless the task explicitly says to.
