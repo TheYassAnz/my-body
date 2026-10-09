@@ -94,7 +94,7 @@ Dès **L2**, l'application est utilisable au quotidien par le développeur lui-m
 - [ ] Points **[À valider juridiquement]** de [07](07-securite-et-rgpd.md) tranchés (HDS, AIPD, Vercel).
 - [ ] Mentions légales, CGU et politique de confidentialité publiées.
 - [ ] Identité de l'éditeur (nom, statut, email de contact) et adresse/téléphone de l'hébergeur renseignés dans `features/legal/identity.ts` ; textes légaux relus et validés ; bandeau « Version provisoire » retiré ; `CONSENT_VERSION` mise à jour si le fond du consentement change.
-- [ ] Politique de confidentialité alignée sur le produit : durée de conservation de l'IP et du navigateur des sessions (aucune purge des sessions expirées aujourd'hui), mention du nom issu de l'email ou de Google, région Resend, droits d'opposition et de limitation.
+- [ ] Politique de confidentialité alignée sur le produit : région Resend, droits d'opposition et de limitation, éventuelle purge périodique des sessions expirées (leur IP et navigateur ne sont supprimés qu'à la déconnexion ou à la suppression du compte).
 - [ ] Domaine, email expéditeur (SPF, DKIM, DMARC) configurés dans Resend.
 - [ ] Client OAuth Google en production (écran de consentement vérifié).
 - [ ] Restauration de sauvegarde Neon testée une fois.
