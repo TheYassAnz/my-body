@@ -6,3 +6,4 @@ export * from "./goal-rates";
 export * from "./goal-status";
 export * from "./projection";
 export * from "./deltas";
+export * from "./series";
