@@ -55,12 +55,13 @@ test.describe("progress: editing the shared demo account", () => {
     await page.goto("/progres");
     const history = page.getByRole("region", { name: "Historique" });
     const latest = history.getByRole("button").first();
-    const text = (await latest.textContent()) ?? "";
+    // The row's spans are not separated by spaces: read the value span only, never the whole row.
+    const text = (await latest.locator("span").last().textContent()) ?? "";
     const current = Number(text.match(/(\d+(?:,\d+)?)\s*kg/)?.[1].replace(",", "."));
     expect(current, `weight not found in row text: ${text}`).toBeGreaterThan(0);
-    // Small step (stays under the 5 % suspicious-value threshold against the trend), opposite
-    // directions per project (same account, run one after the other).
-    const typed = (current * (testInfo.project.name === "mobile" ? 0.985 : 1.015))
+    // 3 % step: the Accueil trend moves visibly. A suspicious-value confirmation may follow
+    // (handled below). Opposite directions per project (same account, run one after the other).
+    const typed = (current * (testInfo.project.name === "mobile" ? 0.97 : 1.03))
       .toFixed(1)
       .replace(".", ",");
 
