@@ -112,7 +112,8 @@ Contraste : `--muted` sur blanc atteint 2,8:1. Il est réservé aux textes de 12
 - Ligne de rappel : 1 px, `--line`/`#e0e0e0`, de l'ancre jusqu'à x = 18 (gauche) ou x = 186 (droite).
 - Point : cercle plein `--fg` de 3,5 px. Zone jamais mesurée : cercle creux.
 - Étiquette : nom de la zone (10 px, `--muted`) au-dessus de la valeur (12,5 px, 600) et de l'écart (400, `--positive` ou `--muted`).
-- **Zone de toucher** : au moins 44×44 px autour de chaque ancre (cercle transparent), en plus de l'étiquette cliquable.
+- **Zone de toucher** : au moins 44×44 px autour de chaque ancre, réalisée par des **boutons HTML superposés au SVG** (le SVG est `aria-hidden`). Seul le point est cliquable, pas l'étiquette.
+- **Séance guidée** : la silhouette est ajustée en hauteur à 34 % de la hauteur d'écran (`34dvh`). La barre de surbrillance couvre, pour chaque zone, la largeur du corps à cette hauteur (constante `BAND` de `silhouette-geometry.ts`). Les valeurs de `BAND` ont été vérifiées visuellement à 390 px pour la silhouette **masculine uniquement** ; la féminine reste à vérifier.
 - **Séance guidée** : la zone courante est surlignée par une barre horizontale arrondie `--fg` (hauteur de 16 unités, largeur ajustée au corps à cette hauteur), les autres éléments passent à 30 % d'opacité.
 
 ## 6. Mise en page

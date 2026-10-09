@@ -4,8 +4,8 @@ Application web responsive de suivi du poids et des mensurations, avec des objec
 
 | | |
 |---|---|
-| **Version du document** | 1.4 |
-| **Date** | 8 octobre 2026 |
+| **Version du document** | 1.5 |
+| **Date** | 9 octobre 2026 |
 | **Statut** | Revu et validé |
 | **Périmètre** | V1 : produit public, gratuit |
 | **Développement** | Développeur solo, sans échéance imposée |
@@ -66,3 +66,4 @@ Application web responsive de suivi du poids et des mensurations, avec des objec
 - Les priorités suivent MoSCoW : **M** (Must, obligatoire en V1), **S** (Should, souhaitable en V1), **C** (Could, si le temps le permet).
 - Toutes les valeurs sont stockées en unités métriques (kg, cm). Les conversions n'ont lieu qu'à l'affichage.
 - L'interface est en français. Le code (identifiants, tables, routes techniques) est en anglais, sauf les routes visibles par l'utilisateur, qui sont en français.
+| 1.5 | 09/10/2026 | Ajustements issus du plan L4 (l'étape 5 termine l'onboarding, séance guidée dans le groupe `(session)` hors barre d'onglets, zone de toucher en boutons HTML, « Zone suivante » enregistre la valeur affichée alors que « Zone précédente » et « Passer cette zone » n'enregistrent pas, écran d'introduction, reprise à la première zone sans valeur du jour, étiquette accessible complète, `MEASURE_NEGLIGIBLE_DELTA_CM`, indicateur de taille branché, appel à l'action du compte jamais mesuré distinct du rappel à 14 jours). |

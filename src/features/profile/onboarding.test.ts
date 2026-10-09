@@ -41,8 +41,21 @@ describe("nextOnboardingStep", () => {
     expect(nextOnboardingStep({ profile: done, hasWeight: true, hasGoal: false })).toBe("goal");
   });
 
-  it("is complete once profile, weighing and goal exist", () => {
-    expect(nextOnboardingStep({ profile: done, hasWeight: true, hasGoal: true })).toBeNull();
+  it("asks for the first session once profile, weight and goal exist", () => {
+    expect(nextOnboardingStep({ profile: done, hasWeight: true, hasGoal: true })).toBe("measure");
+  });
+
+  it("is finished only when onboarding was completed", () => {
+    const finished = profile({
+      heightCm: 170,
+      birthDate: "1990-01-01",
+      onboardingCompletedAt: new Date(),
+    });
+    expect(nextOnboardingStep({ profile: finished, hasWeight: true, hasGoal: true })).toBeNull();
+  });
+
+  it("never asks for the session before the goal", () => {
+    expect(nextOnboardingStep({ profile: done, hasWeight: true, hasGoal: false })).toBe("goal");
   });
 
   it("does not skip ahead to the goal without a weighing", () => {

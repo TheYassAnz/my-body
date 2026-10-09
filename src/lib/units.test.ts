@@ -4,13 +4,17 @@ import {
   formatDecimal,
   formatDelta,
   formatInputDecimal,
+  formatLength,
+  formatLengthDelta,
   formatWeeklyRate,
   formatWeight,
   inToCm,
   parseDecimal,
   round1,
   round2,
+  toDisplayLength,
   toDisplayWeight,
+  toStoredCm,
   toStoredKg,
 } from "./units";
 
@@ -98,5 +102,37 @@ describe("fr-FR formatting", () => {
   it("formats a number field value", () => {
     expect(formatInputDecimal(78)).toBe("78,0");
     expect(formatInputDecimal(172.84)).toBe("172,8");
+  });
+});
+
+describe("length units", () => {
+  it("stores centimetres as typed and converts inches with the exact factor (1 decimal)", () => {
+    expect(toStoredCm(84.5, "cm")).toBe(84.5);
+    expect(toStoredCm(33.3, "in")).toBe(84.6); // 33.3 × 2.54 = 84.582
+    expect(toStoredCm(3.9, "in")).toBe(9.9);
+  });
+
+  it("round-trips cm → in → cm without drifting past the storage precision", () => {
+    for (const cm of [10, 33.3, 84.5, 100, 249.9, 250]) {
+      expect(toStoredCm(toDisplayLength(cm, "in"), "in")).toBeCloseTo(cm, 0);
+    }
+  });
+
+  it("displays in the profile unit", () => {
+    expect(toDisplayLength(84.5, "cm")).toBe(84.5);
+    expect(toDisplayLength(84.5, "in")).toBe(33.3);
+  });
+
+  it("formats a length like a weight: one decimal, French separator, narrow no-break space", () => {
+    expect(formatLength(84.5, "cm")).toBe(formatWeight(84.5, "kg").replace("kg", "cm"));
+    expect(formatLength(84.5, "cm")).toMatch(/^84,5\s?cm$/);
+    expect(formatLength(84.5, "in")).toMatch(/^33,3\s?in$/);
+  });
+
+  it("formats a signed difference without a useless zero", () => {
+    expect(formatLengthDelta(-3.5, "cm")).toMatch(/^−3,5\s?cm$/);
+    expect(formatLengthDelta(1, "cm")).toMatch(/^\+1\s?cm$/);
+    expect(formatLengthDelta(0, "cm")).toMatch(/^0\s?cm$/);
+    expect(formatLengthDelta(2.54, "in")).toMatch(/^\+1\s?in$/);
   });
 });

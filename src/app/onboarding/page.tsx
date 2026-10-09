@@ -1,4 +1,5 @@
 import { BodyStep } from "@/features/profile/components/body-step";
+import { MeasureStep } from "@/features/profile/components/measure-step";
 import { OnboardingProgress } from "@/features/profile/components/onboarding-progress";
 import { SexStep } from "@/features/profile/components/sex-step";
 import { GoalStep } from "@/features/profile/components/goal-step";
@@ -20,6 +21,7 @@ const titles: Record<OnboardingStep, string> = {
   body: "Parle-nous un peu de toi",
   weight: "Quel est ton poids actuel ?",
   goal: "Quel est ton objectif ?",
+  measure: "Mesure-toi maintenant pour voir ta progression plus tard",
 };
 
 export default async function OnboardingPage({
@@ -68,6 +70,7 @@ export default async function OnboardingPage({
       {step === "goal" && referenceKg !== null && (
         <GoalStep unit={profile?.weightUnit ?? "kg"} referenceKg={referenceKg} today={todayDate} />
       )}
+      {step === "measure" && <MeasureStep />}
     </main>
   );
 }

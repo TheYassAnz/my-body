@@ -11,3 +11,5 @@ export const STABLE_BAND_PCT = 1.5;
 export const SUSPICIOUS_DELTA_PCT = 5;
 export const MEASURE_STALE_DAYS = 14;
 export const PROJECTION_MAX_DAYS = 730;
+
+export const MEASURE_NEGLIGIBLE_DELTA_CM = 0.3;

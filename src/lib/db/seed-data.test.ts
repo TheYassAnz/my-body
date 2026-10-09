@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { addDays } from "@/lib/dates";
-import { currentTrend, isRateInBounds, slopePerDay } from "@/lib/metrics";
+import { ZONES, currentTrend, isRateInBounds, slopePerDay } from "@/lib/metrics";
 import { round2 } from "@/lib/units";
-import { demoGoal, demoWeights } from "./seed-data";
+import { demoGoal, demoMeasurements, demoWeights } from "./seed-data";
 
 const TODAY = "2026-10-03";
 
@@ -47,5 +47,35 @@ describe("demoGoal", () => {
     const goal = demoGoal(today, weights);
     expect(goal.targetWeightKg as number).toBeLessThan(weights[weights.length - 1].weightKg);
     expect(isRateInBounds("lose", goal.weeklyRatePct as number)).toBe(true);
+  });
+});
+
+describe("demoMeasurements", () => {
+  const sessions = demoMeasurements("2026-10-03");
+
+  it("builds ten sessions of eight zones, none dated today", () => {
+    expect(sessions).toHaveLength(10);
+    for (const s of sessions) {
+      expect(s.date < "2026-10-03").toBe(true);
+      expect(Object.keys(s.values).sort()).toEqual([...ZONES].sort());
+    }
+  });
+
+  it("stays within the stored bounds and is identical on every run", () => {
+    for (const s of sessions)
+      for (const v of Object.values(s.values)) expect(v).toBeGreaterThanOrEqual(10);
+    for (const s of sessions)
+      for (const v of Object.values(s.values)) expect(v).toBeLessThanOrEqual(250);
+    expect(demoMeasurements("2026-10-03")).toEqual(sessions);
+  });
+
+  it("is chronological, with the waist going down (the demo goal is a loss)", () => {
+    const dates = sessions.map((s) => s.date);
+    expect([...dates].sort()).toEqual(dates);
+    expect(sessions.at(-1)?.values.waist).toBeLessThan(sessions[0].values.waist);
+  });
+
+  it("keeps the last session within 14 days, so the demo is not 'stale'", () => {
+    expect(sessions.at(-1)?.date).toBe("2026-10-01");
   });
 });

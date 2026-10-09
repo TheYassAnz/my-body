@@ -44,6 +44,16 @@ export const toStoredKg = (value: number, unit: WeightUnit) =>
 export const toDisplayWeight = (kg: number, unit: WeightUnit) =>
   round1(unit === "lb" ? kg / KG_PER_LB : kg);
 
+export type LengthUnit = "cm" | "in";
+
+/** Typed length → stored centimetres (1 decimal). */
+export const toStoredCm = (value: number, unit: LengthUnit) =>
+  unit === "in" ? inToCm(value) : round1(value);
+
+/** Stored centimetres → display unit (1 decimal). */
+export const toDisplayLength = (cm: number, unit: LengthUnit) =>
+  unit === "in" ? cmToIn(cm) : round1(cm);
+
 const oneDecimal = new Intl.NumberFormat("fr-FR", {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
@@ -71,6 +81,16 @@ export function formatWeight(kg: number, unit: WeightUnit): string {
 /** "−0,4 kg/sem" from a weekly rate in kilograms. */
 export function formatWeeklyRate(kgPerWeek: number, unit: WeightUnit): string {
   return `${formatDelta(toDisplayWeight(kgPerWeek, unit))}${NNBSP}${unit}/sem`;
+}
+
+/** "84,5 cm" or "33,3 in" from stored centimetres. */
+export function formatLength(cm: number, unit: LengthUnit): string {
+  return `${formatDecimal(toDisplayLength(cm, unit))}${NNBSP}${unit}`;
+}
+
+/** "−3,5 cm", "+1 cm", "0 cm": a difference of stored centimetres, in the display unit. */
+export function formatLengthDelta(cm: number, unit: LengthUnit): string {
+  return `${formatDelta(toDisplayLength(cm, unit))}${NNBSP}${unit}`;
 }
 
 /** Value written into a number field: "78,4" (no sign, no thousands separator). */

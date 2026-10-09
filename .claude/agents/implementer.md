@@ -5,7 +5,7 @@ description: >
   ticket), test-first, strictly within the scope it is given. Use for
   executing planned work: screens, forms, Server Actions, queries, tests.
   Do NOT use for planning, spec changes, or open-ended design decisions.
-model: sonnet
+model: haiku
 tools: [Read, Edit, Write, Bash, Grep, Glob]
 ---
 

@@ -35,6 +35,10 @@ test("sign up, consent, onboarding, sign out and sign in again", async ({ page }
 
   await expect(page.getByRole("heading", { name: "Quel est ton objectif ?" })).toBeVisible();
   await page.getByRole("button", { name: "Juste suivre mon poids" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Mesure-toi maintenant pour voir ta progression plus tard" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Plus tard" }).click();
 
   await expect(page).toHaveURL(/\/accueil$/);
   await expect(page.getByRole("heading", { name: "Bonjour" })).toBeVisible();

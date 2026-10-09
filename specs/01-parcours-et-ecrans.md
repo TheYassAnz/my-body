@@ -46,7 +46,7 @@ Assistant plein écran, une question par étape, avec une barre de progression f
 | 2. Toi | Taille (en cm ; bascule cm/in qui fixe aussi l'unité de longueur du profil), date de naissance. | Taille entre 100 et 250 cm ; âge ≥ 16 ans |
 | 3. Poids actuel | Grand champ numérique avec stepper ± 0,1, bascule kg/lb (qui fixe l'unité de poids du profil), date du jour. Petit texte d'aide sur le protocole de pesée. | 20 à 400 kg. Crée la première pesée. |
 | 4. Objectif | Choix du type (4 cartes avec une phrase d'explication), puis cible et rythme selon le type ([03 §4](03-regles-metier-et-calculs.md)). Aperçu : « ≈ 0,39 kg/sem · atteinte vers le 15 nov. ». Sous le formulaire (après « Terminer »), un lien discret **« Juste suivre mon poids »** crée un objectif maintien (référence : dernière pesée) et passe à l'étape suivante. | Voir EF-GOAL |
-| 5. Première séance | « Mesure-toi maintenant pour voir ta progression plus tard ». Deux boutons : « Commencer (3 min) » ouvre la séance guidée, « Plus tard » mène à l'accueil. | Optionnel |
+| 5. Première séance | « Mesure-toi maintenant pour voir ta progression plus tard ». Deux boutons : « Commencer (3 min) » termine l'onboarding puis ouvre la séance guidée (`/corps/seance` exige l'onboarding terminé), « Plus tard » termine l'onboarding et mène à l'accueil. Seule cette étape termine l'onboarding, et seulement si le profil, une pesée et un objectif existent. | Optionnel |
 
 ### 3.2 Accueil (`/accueil`)
 
@@ -68,7 +68,7 @@ Assistant plein écran, une question par étape, avec une barre de progression f
 |---|---|
 | Calibrage (< 7 pesées ou < 10 jours) | Le grand chiffre est la dernière pesée, avec la mention « Tendance en calibrage · encore N pesées ». Le rythme est remplacé par ce message, la projection (et son libellé) est masquée. |
 | Objectif atteint | Le bandeau « objectif atteint » porte le message : la ligne de statut et la projection sont masquées. L'avancement est plafonné au total. |
-| Aucune mensuration | Le bloc Mensurations devient un appel à l'action : « Mesure-toi une première fois » avec le bouton « Commencer ». |
+| Aucune mensuration | Le bloc Mensurations devient un appel à l'action : « Mesure-toi une première fois » avec le bouton « Commencer ». Le message « Il est temps de te mesurer » est réservé aux comptes dont la dernière séance date de plus de 14 jours (EF-MEA-05). |
 | Dernière séance > 14 jours | Message « Il est temps de te mesurer » et bouton. |
 | Objectif atteint | Bandeau « 🎯 Objectif atteint ! » avec deux boutons : « Passer en maintien » et « Nouvel objectif ». |
 
@@ -94,17 +94,18 @@ Assistant plein écran, une question par étape, avec une barre de progression f
 
 ### 3.5 Séance de mesure guidée (`/corps/seance`)
 
-- Écran plein, sans barre d'onglets. En-tête : « ✕ Quitter », « Séance de mesure », compteur « 3 / 8 », barre de progression.
-- Silhouette réduite en haut, avec la **zone en cours surlignée** (bande noire au niveau de la zone).
+- Écran plein, sans barre d'onglets (groupe de routes `(session)` avec sa propre garde ; l'URL reste `/corps/seance`). En-tête : « ✕ Quitter », « Séance de mesure », compteur « 3 / 8 », barre de progression.
+- Silhouette réduite en haut (hauteur ajustée à 34 % de la hauteur d'écran), avec la **zone en cours surlignée** (bande noire au niveau de la zone).
 - Panneau bas :
   - nom de la zone, « Précédente : 84,5 cm · il y a 7 j » ;
-  - grand chiffre pré-rempli avec la valeur précédente et un stepper ± 0,1 ;
+  - grand chiffre pré-rempli avec la valeur déjà saisie le jour même, sinon la valeur précédente, et un stepper ± 0,1 ;
   - encadré **« Comment mesurer »** avec le protocole de la zone ([03 §7](03-regles-metier-et-calculs.md)) ;
   - boutons « ← Zone précédente » et « Zone suivante → », lien « Passer cette zone ».
 - Ordre fixe, de haut en bas : cou, épaules, poitrine, bras, taille, hanches, cuisse, mollet.
-- Chaque valeur est enregistrée dès qu'on passe à la zone suivante. Quitter en cours de route conserve les zones déjà saisies.
+- Seul « Zone suivante → » enregistre la valeur affichée (champ vidé : la zone est passée, rien n'est enregistré). « ← Zone précédente » et « Passer cette zone » naviguent **sans enregistrer**. Quitter en cours de route conserve les zones déjà enregistrées. La séance guidée ré-édite sa propre séance du jour, sans confirmation de remplacement.
+- Une nouvelle ouverture le même jour reprend à la première zone sans valeur datée du jour et pré-remplit les valeurs déjà saisies.
 - Écran de fin : récapitulatif des zones mesurées avec leur écart par rapport à la séance précédente, et bouton « Terminer ».
-- Au premier lancement, un écran d'introduction présente les règles générales : ruban souple non extensible, matin à jeun, toujours le même côté.
+- Tant que l'utilisateur n'a aucune mesure (« premier lancement », sans stockage navigateur), un écran d'introduction présente les règles générales : ruban souple non extensible, matin à jeun, toujours le même côté.
 
 ### 3.6 Progrès (`/progres`)
 

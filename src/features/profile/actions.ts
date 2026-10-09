@@ -10,7 +10,6 @@ import { createGoal, getActiveGoal } from "@/features/goals/queries";
 import { goalInputSchema } from "@/features/goals/schemas";
 import { hasWeight, listWeights, upsertWeight } from "@/features/weight/queries";
 import { weightEntrySchema } from "@/features/weight/schemas";
-import type { Db } from "@/lib/db/types";
 import { goalReferenceKg } from "@/lib/metrics";
 import { requireUser } from "@/lib/session";
 import { round2 } from "@/lib/units";
@@ -36,17 +35,8 @@ export async function saveSexAction(
   redirect("/onboarding");
 }
 
-/** Completes onboarding when every step is filled, else shows the next step. */
-async function continueOnboarding(db: Db, userId: string): Promise<never> {
-  const [profile, weighed, goal] = await Promise.all([
-    getProfile(db, userId),
-    hasWeight(db, userId),
-    getActiveGoal(db, userId),
-  ]);
-  if (nextOnboardingStep({ profile, hasWeight: weighed, hasGoal: goal !== null }) === null) {
-    await markOnboardingCompleted(db, userId);
-    redirect("/accueil");
-  }
+/** Shows the next incomplete step. Only step 5 completes the onboarding (finishOnboardingAction). */
+async function continueOnboarding(): Promise<never> {
   redirect("/onboarding");
 }
 
@@ -70,7 +60,7 @@ export async function saveBodyAction(
 
   const db = getDb();
   await saveBodyInfo(db, user.userId, parsed.data);
-  return continueOnboarding(db, user.userId);
+  return continueOnboarding();
 }
 
 /** Step 3: first weighing, dated today whatever the client sends (EF-ONB-01 CA2). */
@@ -101,7 +91,7 @@ export async function saveFirstWeightAction(
     // The kg/lb toggle sets the profile's display unit (specs/01 §3.1).
     await saveWeightUnit(tx, user.userId, unit);
   });
-  return continueOnboarding(db, user.userId);
+  return continueOnboarding();
 }
 
 /** Step 4: first goal. "Juste suivre mon poids" posts type=maintain with nothing else (EF-GOAL-01 CA1). */
@@ -153,5 +143,25 @@ export async function saveGoalStepAction(
       };
     }
   }
-  return continueOnboarding(db, user.userId);
+  return continueOnboarding();
+}
+
+/** Step 5 (optional): completes the onboarding, then opens the first session or the Accueil. */
+export async function finishOnboardingAction(
+  _: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const user = await requireUser("onboarding");
+  const db = getDb();
+  const [profile, weighed, goal] = await Promise.all([
+    getProfile(db, user.userId),
+    hasWeight(db, user.userId),
+    getActiveGoal(db, user.userId),
+  ]);
+  // Not forgeable: steps 1 to 4 must really exist.
+  if (nextOnboardingStep({ profile, hasWeight: weighed, hasGoal: goal !== null }) !== "measure") {
+    redirect("/onboarding");
+  }
+  await markOnboardingCompleted(db, user.userId);
+  redirect(formData.get("next") === "start" ? "/corps/seance" : "/accueil");
 }
