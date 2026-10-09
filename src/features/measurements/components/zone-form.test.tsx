@@ -95,6 +95,42 @@ describe("ZoneForm", () => {
     expect(await screen.findByText("Mesure entre 10 et 250 cm")).toBeTruthy();
   });
 
+  it("voids the confirmation when the value is edited", async () => {
+    saveZoneAction
+      .mockResolvedValueOnce({
+        ok: false,
+        needsConfirmation: { reason: "replace", message: "Remplacer 84,5 cm par 83,9 cm ?" },
+        values: {
+          date: "2026-10-03",
+          zone: "waist",
+          value: "83,9",
+          unit: "cm",
+          confirmed: "replace",
+        },
+      })
+      .mockResolvedValueOnce({ ok: true });
+    renderForm();
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    await screen.findByRole("button", { name: "Confirmer" });
+    fireEvent.change(screen.getByLabelText("Mesure"), { target: { value: "82,0" } });
+    expect(screen.queryByRole("button", { name: "Confirmer" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    await waitFor(() => expect(saveZoneAction).toHaveBeenCalledTimes(2));
+    const fd = saveZoneAction.mock.calls[1][1] as FormData;
+    expect([fd.get("confirmed"), fd.get("confirm")]).toEqual(["", null]);
+  });
+
+  it("shows a form-level error", async () => {
+    saveZoneAction.mockResolvedValue({
+      ok: false,
+      formError: "Impossible d'enregistrer",
+      values: { date: "2026-10-03", zone: "waist", value: "84,5", unit: "cm" },
+    });
+    renderForm();
+    fireEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    expect((await screen.findByRole("alert")).textContent).toBe("Impossible d'enregistrer");
+  });
+
   it("pre-fills in inches for an imperial profile", () => {
     renderForm({ ...DATA, prefill: "33,3" }, vi.fn(), "in");
     expect(screen.getByLabelText("Mesure")).toHaveProperty("value", "33,3");
