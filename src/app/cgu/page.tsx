@@ -1,12 +1,10 @@
+import type { Metadata } from "next";
+import { TERMS } from "@/features/legal/content/terms";
+import { LegalPage } from "@/features/legal/components/legal-page";
+import { LEGAL_UPDATED_ON } from "@/features/legal/identity";
+
+export const metadata: Metadata = { title: "Conditions générales d'utilisation · my-body" };
+
 export default function TermsPage() {
-  return (
-    <main className="mx-auto max-w-2xl px-6 py-12">
-      <h1 className="text-2xl font-semibold tracking-tight">
-        Conditions générales d&apos;utilisation
-      </h1>
-      <p className="mt-4 text-sm text-fg-2">
-        Version provisoire. Le texte définitif sera publié avant l&apos;ouverture publique.
-      </p>
-    </main>
-  );
+  return <LegalPage document={TERMS} updatedOn={LEGAL_UPDATED_ON} />;
 }

@@ -71,6 +71,7 @@ Dès **L2**, l'application est utilisable au quotidien par le développeur lui-m
 - Pages légales (contenu à rédiger ou faire relire), page d'accueil publique.
 - **Terminé quand :** E2E-6, E2E-7 et E2E-8 passent.
 - **L6a terminé** le 09/10/2026 (Réglages, export CSV, suppression du compte ; E2E-6, 7 et 8 passent). Reste **L6b** : pages légales (contenu) et page d'accueil publique. Plan : [L6a](plans/2026-10-09-l6a-reglages-et-donnees.md).
+- **L6b terminé** le 09/10/2026 (pages légales en version provisoire, page d'accueil publique ; toutes les pages publiques ont un pied de page légal). **L6 terminé.** Plan : [L6b](plans/2026-10-09-l6b-legal-et-accueil-public.md).
 
 ### L7 · Finitions et lancement
 - Accueil desktop complet (grand graphique, silhouette, tableau des mensurations), cohérence avec les maquettes.
@@ -92,6 +93,8 @@ Dès **L2**, l'application est utilisable au quotidien par le développeur lui-m
 
 - [ ] Points **[À valider juridiquement]** de [07](07-securite-et-rgpd.md) tranchés (HDS, AIPD, Vercel).
 - [ ] Mentions légales, CGU et politique de confidentialité publiées.
+- [ ] Identité de l'éditeur (nom, statut, email de contact) et adresse/téléphone de l'hébergeur renseignés dans `features/legal/identity.ts` ; textes légaux relus et validés ; bandeau « Version provisoire » retiré ; `CONSENT_VERSION` mise à jour si le fond du consentement change.
+- [ ] Politique de confidentialité alignée sur le produit : région Resend, droits d'opposition et de limitation, éventuelle purge périodique des sessions expirées (leur IP et navigateur ne sont supprimés qu'à la déconnexion ou à la suppression du compte).
 - [ ] Domaine, email expéditeur (SPF, DKIM, DMARC) configurés dans Resend.
 - [ ] Client OAuth Google en production (écran de consentement vérifié).
 - [ ] Restauration de sauvegarde Neon testée une fois.
