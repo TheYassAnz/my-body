@@ -3,9 +3,9 @@
  * Replace every "[À renseigner : …]" before the public launch (specs/10 launch checklist).
  */
 export const LEGAL_IDENTITY = {
-  publisher: "[À renseigner : nom de l'éditeur]",
-  status: "[À renseigner : statut, particulier ou société]",
-  contactEmail: "[À renseigner : email de contact]",
+  publisher: "Yassine ANZAR BASHA",
+  status: "entreprise individuelle",
+  contactEmail: "yassanz.contact@gmail.com",
   host: "Vercel Inc. (États-Unis, vercel.com)",
   database: "Neon (région UE, Francfort)",
 } as const;
