@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Alert } from "@/components/ui/alert";
 import { GoogleButton } from "@/features/auth/components/google-button";
 import { SignUpForm } from "@/features/auth/components/sign-up-form";
 import { googleErrorMessage } from "@/features/auth/google-error";
@@ -13,11 +14,7 @@ export default async function SignUpPage({
   return (
     <>
       <h1 className="text-2xl font-semibold tracking-tight">Créer un compte</h1>
-      {googleError && (
-        <p role="alert" className="text-sm text-fg">
-          {googleError}
-        </p>
-      )}
+      {googleError && <Alert>{googleError}</Alert>}
       <GoogleButton next="/onboarding" errorCallbackURL="/inscription" />
       <p className="text-center text-xs text-muted">ou</p>
       <SignUpForm />

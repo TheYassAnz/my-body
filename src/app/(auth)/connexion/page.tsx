@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Alert } from "@/components/ui/alert";
 import { GoogleButton } from "@/features/auth/components/google-button";
 import { SignInForm } from "@/features/auth/components/sign-in-form";
 import { googleErrorMessage } from "@/features/auth/google-error";
@@ -20,11 +21,7 @@ export default async function SignInPage({
           Mot de passe modifié. Tu peux te connecter.
         </p>
       )}
-      {googleError && (
-        <p role="alert" className="text-sm text-fg">
-          {googleError}
-        </p>
-      )}
+      {googleError && <Alert>{googleError}</Alert>}
       <GoogleButton
         next={target}
         errorCallbackURL={`/connexion?next=${encodeURIComponent(target)}`}
