@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth/client";
+import { GoogleLogo } from "./google-logo";
 
 /**
  * `errorCallbackURL` receives `?error=<code>` when Google sign-in fails
@@ -39,17 +41,14 @@ export function GoogleButton({
       <Button
         type="button"
         variant="secondary"
-        className="w-full"
+        className="w-full gap-2"
         loading={pending}
         onClick={signIn}
       >
+        <GoogleLogo />
         Continuer avec Google
       </Button>
-      {failed && (
-        <p role="alert" className="text-sm text-fg">
-          La connexion avec Google est indisponible. Réessaie plus tard.
-        </p>
-      )}
+      {failed && <Alert>La connexion avec Google est indisponible. Réessaie plus tard.</Alert>}
     </div>
   );
 }

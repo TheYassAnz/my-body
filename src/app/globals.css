@@ -11,6 +11,9 @@
   --surface: #f5f5f5;
   --positive: #1a7f37;
   --danger: #b42318;
+  --warn: #9a3412;
+  --warn-bg: #fff7ed;
+  --warn-line: #fdba74;
   --focus: #0a0a0a;
 }
 
@@ -25,6 +28,9 @@
   --color-surface: var(--surface);
   --color-positive: var(--positive);
   --color-danger: var(--danger);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-line: var(--warn-line);
   --font-sans: var(--font-geist), system-ui, sans-serif;
 }
 

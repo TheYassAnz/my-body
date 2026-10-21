@@ -28,6 +28,7 @@ Définis comme variables CSS dans `globals.css` et exposés dans la configuratio
 | `--surface` | `#f5f5f5` | Survol, élément de navigation actif, fonds de champs |
 | `--positive` | `#1a7f37` | Écart ou statut dans le bon sens |
 | `--danger` | `#b42318` | **Uniquement** pour les actions destructrices (suppression) |
+| `--warn` · `--warn-bg` · `--warn-line` | `#9a3412` · `#fff7ed` · `#fdba74` | Message d'erreur récupérable (boîte `Alert` arrondie : texte, fond, bordure), par exemple un échec de connexion Google. Jamais pour une action destructrice. |
 | `--focus` | `#0a0a0a` | Anneau de focus (2 px, décalage de 2 px) |
 
 Contraste : `--muted` sur blanc atteint 2,8:1. Il est réservé aux textes de 12 px et plus **non essentiels**, ou doublés d'une information équivalente. Tout texte porteur d'information utilise `--fg` ou `--fg-2` (5,4:1).
