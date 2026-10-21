@@ -39,3 +39,6 @@ playwright-report/
 # TypeScript / Next.js
 *.tsbuildinfo
 next-env.d.ts
+
+# Google OAuth client secret downloaded from the console: never commit
+client_secret_*.json
